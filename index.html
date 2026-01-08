@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Asistencia - Escuela de Barbería</title>
+    <style>
+        :root {
+            --dorado: #d4af37;
+            --oscuro: #121212;
+            --gris: #1e1e1e;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            /* Imagen de fondo a pantalla completa con capa oscura */
+            background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('logo.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Reloj Digital */
+        #reloj {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--dorado);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .card { 
+            background: rgba(30, 30, 30, 0.9); /* Un poco de transparencia para que se vea el fondo */
+            padding: 3rem; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7); 
+            text-align: center; 
+            width: 90%;
+            max-width: 450px; 
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+            backdrop-filter: blur(10px); /* Efecto de vidrio esmerilado */
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 5px;
+            background: var(--dorado);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        h1 { 
+            color: var(--dorado); 
+            margin: 0; 
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        p { color: #888; margin-bottom: 30px; }
+
+        input { 
+            width: 100%; 
+            padding: 18px; 
+            margin-bottom: 20px; 
+            border-radius: 12px; 
+            border: 2px solid #333; 
+            background: #000;
+            color: var(--dorado);
+            font-size: 1.5rem; 
+            text-align: center; 
+            box-sizing: border-box;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus { border-color: var(--dorado); }
+
+        button { 
+            background: var(--dorado); 
+            color: black; 
+            border: none; 
+            padding: 18px; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 1.2rem; 
+            width: 100%; 
+            transition: transform 0.1s, background 0.3s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        #mensaje { 
+            margin-top: 25px; 
+            font-size: 1.1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .exito { background: rgba(76, 175, 80, 0.1); color: #4caf50; border: 1px solid #4caf50; }
+        .error { background: rgba(244, 67, 54, 0.1); color: #f44336; border: 1px solid #f44336; }
+    </style>
+</head>
+<body>
+
+    <div id="reloj">00:00:00</div>
+
+    <div class="card">
+        <img src="logo.png" alt="Logo" style="width: 120px; margin-bottom: 10px;">
+        <h1>💈 Escuela de Barbería</h1>
+        <p>CONTROL DE ASISTENCIA</p>
+        
+        <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
+        <button onclick="marcar()">REGISTRAR TURNO</button>
+        
+        <div id="mensaje"></div>
+    </div>
+
+    <script>
+        function actualizarReloj() {
+            const ahora = new Date();
+            const tiempo = ahora.toLocaleTimeString('es-AR');
+            document.getElementById('reloj').innerText = tiempo;
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+
+        async function marcar() {
+            const dniInput = document.getElementById('dni');
+            const dni = dniInput.value;
+            if(!dni) return;
+
+            const div = document.getElementById('mensaje');
+            div.innerText = "Procesando...";
+            div.className = "";
+
+            try {
+                const res = await fetch('/asistencia', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ dni })
+                });
+                const data = await res.json();
+                
+                div.className = data.success ? 'exito' : 'error';
+                div.innerText = data.message;
+                
+                dniInput.value = '';
+                dniInput.focus();
+
+                setTimeout(() => {
+                    div.innerText = "";
+                    div.className = "";
+                }, 5000);
+
+            } catch (err) {
+                div.className = 'error';
+                div.innerText = "❌ Error de conexión";
+            }
+        }
+
+        document.getElementById('dni').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') marcar();
+        });
+    </script>
+</body>
+</html>
