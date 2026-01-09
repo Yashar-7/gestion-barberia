@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Barber School</title>
     <style>
-        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; }
+        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; }
         body { font-family: sans-serif; background-color: var(--oscuro); color: white; padding: 20px; text-align: center; }
         
-        /* Formulario Dorado */
         .admin-panel {
             background: rgba(212, 175, 55, 0.1);
             border: 1px solid var(--dorado);
@@ -18,14 +17,18 @@
             margin: 0 auto 30px;
         }
         input { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; margin: 5px; }
-        button { background: var(--dorado); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        button { background: var(--dorado); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
         
-        table { width: 100%; max-width: 800px; margin: 0 auto; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
+        table { width: 100%; max-width: 900px; margin: 0 auto; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
         th { background: var(--dorado); color: black; padding: 15px; }
         td { padding: 12px; border-bottom: 1px solid #333; }
-        .badge-deuda { color: #ff4444; font-weight: bold; }
+        
+        .badge-deuda { color: var(--rojo); font-weight: bold; }
         .badge-pago { color: #44ff44; font-weight: bold; }
-        .btn-pagar { background: #2e7d32; color: white; padding: 5px 10px; font-size: 0.8rem; }
+        
+        .btn-pagar { background: #2e7d32; color: white; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; }
+        .btn-eliminar { background: var(--rojo); color: white; padding: 5px 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -46,7 +49,7 @@
                 <th>DNI</th>
                 <th>Entrada</th>
                 <th>Estado</th>
-                <th>Acción</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody id="tabla-presentes">
@@ -54,29 +57,31 @@
     </table>
 
     <script>
-        // Cargar la tabla al entrar
         async function cargarPresentes() {
-            const res = await fetch('/api/presentes');
-            const datos = await res.json();
-            const tabla = document.getElementById('tabla-presentes');
-            tabla.innerHTML = "";
+            try {
+                const res = await fetch('/api/presentes');
+                const datos = await res.json();
+                const tabla = document.getElementById('tabla-presentes');
+                tabla.innerHTML = "";
 
-            datos.forEach(reg => {
-                const pagado = reg.users.cuota_pagada;
-                const hora = new Date(reg.check_in).toLocaleTimeString();
-                
-                tabla.innerHTML += `
-                    <tr>
-                        <td>${reg.users.full_name}</td>
-                        <td>${reg.user_id}</td>
-                        <td>${hora}</td>
-                        <td><span class="${pagado ? 'badge-pago' : 'badge-deuda'}">${pagado ? 'Al Día' : 'Pendiente'}</span></td>
-                        <td>
-                            ${!pagado ? `<button class="btn-pagar" onclick="marcarPago('${reg.user_id}')">💰 Pagar</button>` : '✅'}
-                        </td>
-                    </tr>
-                `;
-            });
+                datos.forEach(reg => {
+                    const pagado = reg.users.cuota_pagada;
+                    const hora = new Date(reg.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    tabla.innerHTML += `
+                        <tr>
+                            <td>${reg.users.full_name}</td>
+                            <td>${reg.user_id}</td>
+                            <td>${hora} hs</td>
+                            <td><span class="${pagado ? 'badge-pago' : 'badge-deuda'}">${pagado ? 'Al Día' : 'Pendiente'}</span></td>
+                            <td>
+                                ${!pagado ? `<button class="btn-pagar" onclick="marcarPago('${reg.user_id}')">💰 Pagar</button>` : '✅'}
+                                <button class="btn-eliminar" onclick="eliminarUsuario('${reg.user_id}')">🗑️ Borrar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) { console.error("Error cargando tabla"); }
         }
 
         async function registrarUsuario() {
@@ -90,27 +95,44 @@
                 body: JSON.stringify({ full_name, dni })
             });
             if(res.ok) {
-                alert("Usuario registrado");
-                location.reload();
+                alert("Usuario registrado con éxito");
+                document.getElementById('nuevoNombre').value = "";
+                document.getElementById('nuevoDni').value = "";
+                cargarPresentes();
             }
         }
 
         async function marcarPago(id) {
-            if(!confirm("¿Confirmar pago?")) return;
+            if(!confirm("¿Confirmar pago de cuota?")) return;
             const res = await fetch('/api/usuarios/pagar', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ id })
             });
             if(res.ok) {
-                alert("Pago guardado");
+                alert("Pago registrado");
                 cargarPresentes();
             }
         }
 
-        // Ejecutar carga inicial
+        async function eliminarUsuario(id) {
+            if(!confirm("⚠️ ¿ESTÁS SEGURO? \nEsto eliminará al alumno de la base de datos permanentemente.")) return;
+            
+            const res = await fetch(`/api/usuarios/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if(res.ok) {
+                alert("Alumno eliminado de la base de datos");
+                cargarPresentes();
+            } else {
+                alert("No se pudo eliminar el usuario");
+            }
+        }
+
+        // Carga inicial
         cargarPresentes();
-        // Recargar cada 30 segundos
+        // Recarga automática cada 30 segundos para ver quién llega
         setInterval(cargarPresentes, 30000);
     </script>
 </body>
