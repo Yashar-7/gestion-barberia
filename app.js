@@ -26,6 +26,31 @@ app.get('/api/presentes', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
+// NUEVA API PARA REGISTRAR NUEVOS USUARIOS (Alumnos o Barberos)
+app.post('/api/usuarios', async (req, res) => {
+    const { full_name, dni } = req.body;
+    try {
+        const response = await fetch(`${URL}/rest/v1/users`, {
+            method: 'POST',
+            headers: { 
+                "apikey": KEY, 
+                "Authorization": `Bearer ${KEY}`, 
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal" 
+            },
+            body: JSON.stringify({ full_name, dni })
+        });
+
+        if (response.ok) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, message: "El DNI ya existe o hay un error de datos." });
+        }
+    } catch (e) {
+        res.status(500).json({ success: false, message: "Error de servidor al conectar con la base de datos." });
+    }
+});
+
 // LÓGICA DE ASISTENCIA (DNI)
 app.post('/asistencia', async (req, res) => {
     const { dni } = req.body;
