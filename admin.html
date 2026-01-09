@@ -1,128 +1,40 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Panel Admin - Escuela de Barbería</title>
-    <style>
-        body { font-family: sans-serif; background: #121212; color: white; padding: 20px; }
-        h1 { color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e1e1e; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #333; }
-        th { background: #d4af37; color: black; }
-        .badge { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; }
-        button { background: #444; color: white; border: none; padding: 8px; cursor: pointer; border-radius: 4px; }
-        button:hover { background: #666; }
-        
-        /* Estilos nuevos para el formulario */
-        .form-container { 
-            background: #1e1e1e; 
-            padding: 20px; 
-            border-radius: 8px; 
-            border: 1px solid #d4af37; 
-            margin-bottom: 30px; 
-        }
-        .form-container input { 
-            padding: 10px; 
-            margin-right: 10px; 
-            border-radius: 4px; 
-            border: 1px solid #333; 
-            background: #2a2a2a; 
-            color: white;
-        }
-        .btn-save { background: #d4af37; color: black; font-weight: bold; }
-        .btn-save:hover { background: #b8962e; }
-    </style>
-</head>
-<body>
-    <h1>📋 Panel de Administración</h1>
-
-    <div class="form-container">
-        <h3 style="color: #d4af37; margin-top: 0;">➕ Registrar Nuevo Alumno o Barbero</h3>
-        <input type="text" id="newName" placeholder="Nombre Completo">
-        <input type="text" id="newDni" placeholder="DNI">
-        <button class="btn-save" onclick="registrarAlumno()">Guardar en Base de Datos</button>
-        <p id="msgRegistro" style="margin-top: 10px; font-size: 0.9rem;"></p>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>Alumnos en la Escuela (Presentes)</h2>
-        <button onclick="cargarPresentes()">🔄 Actualizar Lista</button>
-    </div>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre del Alumno</th>
-                <th>Hora de Entrada</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody id="lista">
+<table>
+    <thead>
+        <tr>
+            <th>Alumno</th>
+            <th>DNI</th>
+            <th>Entrada</th>
+            <th>Estado Cuota</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody id="tabla-presentes">
         </tbody>
-    </table>
+</table>
 
-    <script>
-        // Función para registrar nuevos alumnos
-        async function registrarAlumno() {
-            const full_name = document.getElementById('newName').value;
-            const dni = document.getElementById('newDni').value;
-            const msg = document.getElementById('msgRegistro');
+<script>
+// Función para marcar pago que añadiremos a tu script actual
+async function marcarPago(idUsuario) {
+    const confirmacion = confirm("¿Confirmar pago de cuota para este alumno?");
+    if(!confirmacion) return;
 
-            if (!full_name || !dni) {
-                msg.style.color = "#ff4d4d";
-                msg.innerText = "⚠️ Por favor, completa Nombre y DNI.";
-                return;
-            }
-
-            msg.style.color = "#d4af37";
-            msg.innerText = "Procesando...";
-
-            try {
-                const res = await fetch('/api/usuarios', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ full_name, dni })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    msg.style.color = "#4caf50";
-                    msg.innerText = "✅ ¡Registrado con éxito!";
-                    document.getElementById('newName').value = "";
-                    document.getElementById('newDni').value = "";
-                } else {
-                    msg.style.color = "#ff4d4d";
-                    msg.innerText = "❌ Error: " + (data.message || "No se pudo registrar");
-                }
-            } catch (error) {
-                msg.style.color = "#ff4d4d";
-                msg.innerText = "❌ Error de conexión con el servidor.";
-            }
+    try {
+        const res = await fetch(`${URL}/rest/v1/users?id=eq.${idUsuario}`, {
+            method: 'PATCH',
+            headers: { 
+                "apikey": KEY, 
+                "Authorization": `Bearer ${KEY}`, 
+                "Content-Type": "application/json" 
+            },
+            body: JSON.stringify({ cuota_pagada: true })
+        });
+        
+        if(res.ok) {
+            alert("✅ Pago registrado con éxito");
+            location.reload(); // Recargamos para ver los cambios
         }
-
-        // Tu función original de cargar presentes
-        async function cargarPresentes() {
-            const res = await fetch('/api/presentes');
-            const data = await res.json();
-            const lista = document.getElementById('lista');
-            lista.innerHTML = '';
-
-            data.forEach(reg => {
-                const hora = new Date(reg.check_in).toLocaleTimeString();
-                lista.innerHTML += `
-                    <tr>
-                        <td>${reg.users.full_name}</td>
-                        <td>${hora}</td>
-                        <td><span class="badge">PRESENTE</span></td>
-                    </tr>
-                `;
-            });
-        }
-
-        // Cargar al entrar
-        cargarPresentes();
-        // Auto-actualizar cada 30 segundos
-        setInterval(cargarPresentes, 30000);
-    </script>
-</body>
-</html>
+    } catch (err) {
+        alert("❌ Error al registrar pago");
+    }
+}
+</script>
