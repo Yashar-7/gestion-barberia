@@ -26,7 +26,7 @@ app.get('/api/presentes', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
-// NUEVA API PARA MARCAR PAGO (Esto es lo que usará el botón del Admin mañana)
+// NUEVA API PARA MARCAR PAGO
 app.post('/api/usuarios/pagar', async (req, res) => {
     const { id } = req.body;
     try {
@@ -44,7 +44,23 @@ app.post('/api/usuarios/pagar', async (req, res) => {
     } catch (e) { res.json({ success: false }); }
 });
 
-// API PARA REGISTRAR NUEVOS USUARIOS (Desde el panel Admin)
+// API PARA ELIMINAR USUARIOS (Agregada para control total)
+app.delete('/api/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const response = await fetch(`${URL}/rest/v1/users?id=eq.${id}`, {
+            method: 'DELETE',
+            headers: { 
+                "apikey": KEY, 
+                "Authorization": `Bearer ${KEY}` 
+            }
+        });
+        if (response.ok) res.json({ success: true });
+        else res.json({ success: false });
+    } catch (e) { res.json({ success: false }); }
+});
+
+// API PARA REGISTRAR NUEVOS USUARIOS
 app.post('/api/usuarios', async (req, res) => {
     const { full_name, dni } = req.body;
     try {
@@ -86,6 +102,7 @@ app.post('/asistencia', async (req, res) => {
         const reg = await resHoy.json();
 
         if (reg.length > 0) {
+            // MARCAR SALIDA (Check-out)
             await fetch(`${URL}/rest/v1/attendance?id=eq.${reg[0].id}`, {
                 method: 'PATCH',
                 headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
@@ -93,6 +110,7 @@ app.post('/asistencia', async (req, res) => {
             });
             res.json({ success: true, message: `👋 ¡Adiós, ${user.full_name}!`, extra: infoExtra });
         } else {
+            // MARCAR ENTRADA (Check-in)
             await fetch(`${URL}/rest/v1/attendance`, {
                 method: 'POST',
                 headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
