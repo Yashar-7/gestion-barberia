@@ -1,40 +1,117 @@
-<table>
-    <thead>
-        <tr>
-            <th>Alumno</th>
-            <th>DNI</th>
-            <th>Entrada</th>
-            <th>Estado Cuota</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody id="tabla-presentes">
-        </tbody>
-</table>
-
-<script>
-// Función para marcar pago que añadiremos a tu script actual
-async function marcarPago(idUsuario) {
-    const confirmacion = confirm("¿Confirmar pago de cuota para este alumno?");
-    if(!confirmacion) return;
-
-    try {
-        const res = await fetch(`${URL}/rest/v1/users?id=eq.${idUsuario}`, {
-            method: 'PATCH',
-            headers: { 
-                "apikey": KEY, 
-                "Authorization": `Bearer ${KEY}`, 
-                "Content-Type": "application/json" 
-            },
-            body: JSON.stringify({ cuota_pagada: true })
-        });
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Barber School</title>
+    <style>
+        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; }
+        body { font-family: sans-serif; background-color: var(--oscuro); color: white; padding: 20px; text-align: center; }
         
-        if(res.ok) {
-            alert("✅ Pago registrado con éxito");
-            location.reload(); // Recargamos para ver los cambios
+        /* Formulario Dorado */
+        .admin-panel {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--dorado);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 0 auto 30px;
         }
-    } catch (err) {
-        alert("❌ Error al registrar pago");
-    }
-}
-</script>
+        input { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; margin: 5px; }
+        button { background: var(--dorado); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        
+        table { width: 100%; max-width: 800px; margin: 0 auto; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
+        th { background: var(--dorado); color: black; padding: 15px; }
+        td { padding: 12px; border-bottom: 1px solid #333; }
+        .badge-deuda { color: #ff4444; font-weight: bold; }
+        .badge-pago { color: #44ff44; font-weight: bold; }
+        .btn-pagar { background: #2e7d32; color: white; padding: 5px 10px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <h1>Panel Administrativo 💈</h1>
+
+    <div class="admin-panel">
+        <h3>➕ Registrar Nuevo Alumno o Barbero</h3>
+        <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
+        <input type="number" id="nuevoDni" placeholder="DNI">
+        <button onclick="registrarUsuario()">Guardar en Base de Datos</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Alumno</th>
+                <th>DNI</th>
+                <th>Entrada</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-presentes">
+            </tbody>
+    </table>
+
+    <script>
+        // Cargar la tabla al entrar
+        async function cargarPresentes() {
+            const res = await fetch('/api/presentes');
+            const datos = await res.json();
+            const tabla = document.getElementById('tabla-presentes');
+            tabla.innerHTML = "";
+
+            datos.forEach(reg => {
+                const pagado = reg.users.cuota_pagada;
+                const hora = new Date(reg.check_in).toLocaleTimeString();
+                
+                tabla.innerHTML += `
+                    <tr>
+                        <td>${reg.users.full_name}</td>
+                        <td>${reg.user_id}</td>
+                        <td>${hora}</td>
+                        <td><span class="${pagado ? 'badge-pago' : 'badge-deuda'}">${pagado ? 'Al Día' : 'Pendiente'}</span></td>
+                        <td>
+                            ${!pagado ? `<button class="btn-pagar" onclick="marcarPago('${reg.user_id}')">💰 Pagar</button>` : '✅'}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function registrarUsuario() {
+            const full_name = document.getElementById('nuevoNombre').value;
+            const dni = document.getElementById('nuevoDni').value;
+            if(!full_name || !dni) return alert("Completa los datos");
+
+            const res = await fetch('/api/usuarios', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ full_name, dni })
+            });
+            if(res.ok) {
+                alert("Usuario registrado");
+                location.reload();
+            }
+        }
+
+        async function marcarPago(id) {
+            if(!confirm("¿Confirmar pago?")) return;
+            const res = await fetch('/api/usuarios/pagar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id })
+            });
+            if(res.ok) {
+                alert("Pago guardado");
+                cargarPresentes();
+            }
+        }
+
+        // Ejecutar carga inicial
+        cargarPresentes();
+        // Recargar cada 30 segundos
+        setInterval(cargarPresentes, 30000);
+    </script>
+</body>
+</html>
