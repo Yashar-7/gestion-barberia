@@ -9,11 +9,12 @@
             --dorado: #d4af37;
             --oscuro: #121212;
             --gris: #1e1e1e;
+            --verde: #4caf50;
+            --rojo: #f44336;
         }
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            /* Imagen de fondo a pantalla completa con capa oscura */
             background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('logo.png');
             background-size: cover;
             background-position: center;
@@ -28,7 +29,6 @@
             overflow: hidden;
         }
 
-        /* Reloj Digital */
         #reloj {
             font-size: 3rem;
             font-weight: bold;
@@ -38,7 +38,7 @@
         }
 
         .card { 
-            background: rgba(30, 30, 30, 0.9); /* Un poco de transparencia para que se vea el fondo */
+            background: rgba(30, 30, 30, 0.9); 
             padding: 3rem; 
             border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.7); 
@@ -47,7 +47,8 @@
             max-width: 450px; 
             border: 1px solid rgba(212, 175, 55, 0.2);
             position: relative;
-            backdrop-filter: blur(10px); /* Efecto de vidrio esmerilado */
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
         }
 
         .card::before {
@@ -98,21 +99,31 @@
             transition: transform 0.1s, background 0.3s;
         }
 
-        button:active { transform: scale(0.98); }
-
+        /* Estilos para el mensaje extendido */
         #mensaje { 
             margin-top: 25px; 
-            font-size: 1.1rem;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            border-radius: 8px;
+            border-radius: 12px;
+            transition: all 0.5s ease;
+            overflow: hidden;
+            display: none; /* Se activa al marcar */
+            padding: 15px;
         }
 
-        .exito { background: rgba(76, 175, 80, 0.1); color: #4caf50; border: 1px solid #4caf50; }
-        .error { background: rgba(244, 67, 54, 0.1); color: #f44336; border: 1px solid #f44336; }
+        .info-cuota {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+
+        .info-motivacion {
+            font-style: italic;
+            color: #ccc;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        .exito { background: rgba(76, 175, 80, 0.15); color: var(--verde); border: 1px solid var(--verde); display: block !important; }
+        .error { background: rgba(244, 67, 54, 0.15); color: var(--rojo); border: 1px solid var(--rojo); display: block !important; }
     </style>
 </head>
 <body>
@@ -120,14 +131,18 @@
     <div id="reloj">00:00:00</div>
 
     <div class="card">
-        <img src="logo.png" alt="Logo" style="width: 120px; margin-bottom: 10px;">
-        <h1>💈 Escuela de Barbería</h1>
+        <img src="logo.png" alt="Logo" style="width: 100px; margin-bottom: 10px;">
+        <h1>💈 Barber School</h1>
         <p>CONTROL DE ASISTENCIA</p>
         
         <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
-        <button onclick="marcar()">REGISTRAR TURNO</button>
+        <button id="btnRegistrar" onclick="marcar()">REGISTRAR TURNO</button>
         
-        <div id="mensaje"></div>
+        <div id="mensaje">
+            <div id="msg-texto" style="font-weight: bold; font-size: 1.4rem;"></div>
+            <div id="msg-cuota" class="info-cuota"></div>
+            <div id="msg-motivacion" class="info-motivacion"></div>
+        </div>
     </div>
 
     <script>
@@ -145,8 +160,15 @@
             if(!dni) return;
 
             const div = document.getElementById('mensaje');
-            div.innerText = "Procesando...";
-            div.className = "";
+            const msgTexto = document.getElementById('msg-texto');
+            const msgCuota = document.getElementById('msg-cuota');
+            const msgMotivacion = document.getElementById('msg-motivacion');
+
+            msgTexto.innerText = "Procesando...";
+            msgCuota.innerText = "";
+            msgMotivacion.innerText = "";
+            div.className = "exito"; // Clase temporal
+            div.style.display = "block";
 
             try {
                 const res = await fetch('/asistencia', {
@@ -157,19 +179,26 @@
                 const data = await res.json();
                 
                 div.className = data.success ? 'exito' : 'error';
-                div.innerText = data.message;
+                msgTexto.innerText = data.message;
+
+                // Si la respuesta trae datos extra (cuota y motivacion)
+                if(data.extra) {
+                    const partes = data.extra.split('|');
+                    msgCuota.innerText = partes[0] || "";
+                    msgMotivacion.innerText = partes[1] || "";
+                }
                 
                 dniInput.value = '';
                 dniInput.focus();
 
+                // Desaparecer después de 6 segundos
                 setTimeout(() => {
-                    div.innerText = "";
-                    div.className = "";
-                }, 5000);
+                    div.style.display = "none";
+                }, 6000);
 
             } catch (err) {
                 div.className = 'error';
-                div.innerText = "❌ Error de conexión";
+                msgTexto.innerText = "❌ Error de conexión";
             }
         }
 
