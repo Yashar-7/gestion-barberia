@@ -26,7 +26,7 @@ app.get('/api/presentes', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
-// NUEVA API PARA REGISTRAR NUEVOS USUARIOS (Alumnos o Barberos)
+// API PARA REGISTRAR NUEVOS USUARIOS (Desde el panel Admin)
 app.post('/api/usuarios', async (req, res) => {
     const { full_name, dni } = req.body;
     try {
@@ -47,21 +47,29 @@ app.post('/api/usuarios', async (req, res) => {
             res.json({ success: false, message: "El DNI ya existe o hay un error de datos." });
         }
     } catch (e) {
-        res.status(500).json({ success: false, message: "Error de servidor al conectar con la base de datos." });
+        res.status(500).json({ success: false, message: "Error de servidor." });
     }
 });
 
-// LÓGICA DE ASISTENCIA (DNI)
+// LÓGICA DE ASISTENCIA (DNI + CUOTA + MENSAJE)
 app.post('/asistencia', async (req, res) => {
     const { dni } = req.body;
     try {
-        const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name`, {
+        // Buscamos al usuario incluyendo sus nuevos campos
+        const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name,cuota_pagada,mensaje_motivador`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
         const users = await resUser.json();
+        
         if (!users.length) return res.json({ success: false, message: "❌ DNI no registrado." });
 
         const user = users[0];
+        
+        // Preparamos la información extra para la tarjeta elegante
+        const estadoCuota = user.cuota_pagada ? "✅ Cuota al Día" : "⚠️ Cuota Pendiente";
+        const motivacion = user.mensaje_motivador || "¡A darle con todo hoy! ✂️";
+        const infoExtra = `${estadoCuota} | ${motivacion}`;
+
         const hoy = new Date().toISOString().split('T')[0];
         const resHoy = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&check_in=gte.${hoy}&check_out=is.null&select=*`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
@@ -69,23 +77,34 @@ app.post('/asistencia', async (req, res) => {
         const reg = await resHoy.json();
 
         if (reg.length > 0) {
+            // MARCAR SALIDA
             await fetch(`${URL}/rest/v1/attendance?id=eq.${reg[0].id}`, {
                 method: 'PATCH',
                 headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ check_out: new Date().toISOString(), status: 'completado' })
             });
-            res.json({ success: true, message: `👋 ¡Adiós, ${user.full_name}!` });
+            res.json({ 
+                success: true, 
+                message: `👋 ¡Adiós, ${user.full_name}!`, 
+                extra: infoExtra 
+            });
         } else {
+            // MARCAR ENTRADA
             await fetch(`${URL}/rest/v1/attendance`, {
                 method: 'POST',
                 headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: user.id, status: 'presente' })
             });
-            res.json({ success: true, message: `✅ ¡Hola, ${user.full_name}!` });
+            res.json({ 
+                success: true, 
+                message: `✅ ¡Hola, ${user.full_name}!`, 
+                extra: infoExtra 
+            });
         }
-    } catch (e) { res.json({ success: false, message: "❌ Error de conexión." }); }
+    } catch (e) { 
+        res.json({ success: false, message: "❌ Error de conexión." }); 
+    }
 });
 
-// Configuración de puerto dinámica para Render o Localhost
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`\n🚀 SERVIDOR FUNCIONANDO EN EL PUERTO: ${PORT}`));
