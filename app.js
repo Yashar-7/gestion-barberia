@@ -9,10 +9,10 @@ app.use(express.static(__dirname));
 const URL = process.env.SUPABASE_URL;
 const KEY = process.env.SUPABASE_KEY;
 
-// RUTA PRINCIPAL (Para los alumnos)
+// RUTA PRINCIPAL
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// RUTA DE ADMINISTRACIÓN (Para ti)
+// RUTA DE ADMINISTRACIÓN
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
 // API PARA OBTENER LOS PRESENTES
@@ -60,7 +60,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     } catch (e) { res.json({ success: false }); }
 });
 
-// API PARA REGISTRAR NUEVOS USUARIOS (Actualizada para recibir el ROL)
+// API PARA REGISTRAR NUEVOS USUARIOS
 app.post('/api/usuarios', async (req, res) => {
     const { full_name, dni, role } = req.body;
     try {
@@ -79,54 +79,68 @@ app.post('/api/usuarios', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false, message: "Error de servidor." }); }
 });
 
-// LÓGICA DE ASISTENCIA (DNI + ROL + CUOTA)
+// LÓGICA DE ASISTENCIA MEJORADA
 app.post('/asistencia', async (req, res) => {
     const { dni } = req.body;
     try {
+        // 1. Buscamos al usuario
         const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name,cuota_pagada,mensaje_motivador,role`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
         const users = await resUser.json();
         
-        if (!users.length) return res.json({ success: false, message: "❌ DNI no registrado." });
+        if (!users || !users.length) return res.json({ success: false, message: "❌ DNI no registrado." });
         const user = users[0];
         
-        // LÓGICA DE ROLES PARA EL MENSAJE EXTRA
-        let infoExtra = "";
         const userRole = (user.role || 'estudiante').toLowerCase();
 
-        if (userRole === 'barbero') {
-            infoExtra = `✂️ Staff Barbería | ${user.mensaje_motivador || "¡Buen turno de trabajo!"}`;
-        } else {
-            const estadoCuota = user.cuota_pagada ? "✅ Cuota al Día" : "⚠️ Cuota Pendiente";
-            const motivacion = user.mensaje_motivador || "¡A darle con todo hoy! ✂️";
-            infoExtra = `${estadoCuota} | ${motivacion}`;
-        }
-
-        const hoy = new Date().toISOString().split('T')[0];
-        const resHoy = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&check_in=gte.${hoy}&check_out=is.null&select=*`, {
+        // 2. Buscamos si tiene una entrada abierta hoy (status 'presente')
+        // Quitamos el filtro de fecha GTE para asegurar que encuentre la sesión abierta sin importar la hora UTC
+        const resHoy = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&status=eq.presente&select=*`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
         const reg = await resHoy.json();
 
-        if (reg.length > 0) {
-            // MARCAR SALIDA (Check-out)
+        // LÓGICA DE MENSAJE EXTRA
+        let infoExtra = "";
+        if (userRole === 'barbero') {
+            infoExtra = `✂️ Staff Barbería | ${user.mensaje_motivador || "¡Buen turno!"}`;
+        } else {
+            const estadoCuota = user.cuota_pagada ? "✅ Cuota al Día" : "⚠️ Cuota Pendiente";
+            infoExtra = `${estadoCuota} | ${user.mensaje_motivador || "¡A darle con todo! ✂️"}`;
+        }
+
+        if (reg && reg.length > 0) {
+            // --- MARCAR SALIDA ---
             await fetch(`${URL}/rest/v1/attendance?id=eq.${reg[0].id}`, {
                 method: 'PATCH',
                 headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ check_out: new Date().toISOString(), status: 'completado' })
+                body: JSON.stringify({ 
+                    check_out: new Date().toISOString(), 
+                    status: 'completado' 
+                })
             });
-            res.json({ success: true, message: `👋 ¡Adiós, ${user.full_name}!`, extra: infoExtra });
+            
+            const despedida = userRole === 'barbero' ? `👋 ¡Buen descanso, ${user.full_name}!` : `👋 ¡Adiós, ${user.full_name}!`;
+            res.json({ success: true, message: despedida, extra: infoExtra });
+
         } else {
-            // MARCAR ENTRADA (Check-in)
+            // --- MARCAR ENTRADA ---
             await fetch(`${URL}/rest/v1/attendance`, {
                 method: 'POST',
                 headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: user.id, status: 'presente' })
+                body: JSON.stringify({ 
+                    user_id: user.id, 
+                    status: 'presente',
+                    check_in: new Date().toISOString()
+                })
             });
             res.json({ success: true, message: `✅ ¡Hola, ${user.full_name}!`, extra: infoExtra });
         }
-    } catch (e) { res.json({ success: false, message: "❌ Error de conexión." }); }
+    } catch (e) { 
+        console.error(e);
+        res.json({ success: false, message: "❌ Error de conexión." }); 
+    }
 });
 
 const PORT = process.env.PORT || 3000;
