@@ -18,7 +18,7 @@ app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html'))
 // API PARA OBTENER LOS PRESENTES
 app.get('/api/presentes', async (req, res) => {
     try {
-        const response = await fetch(`${URL}/rest/v1/attendance?select=*,users(full_name,cuota_pagada)&status=eq.presente`, {
+        const response = await fetch(`${URL}/rest/v1/attendance?select=*,users(full_name,cuota_pagada,role)&status=eq.presente`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
         const data = await response.json();
@@ -26,7 +26,7 @@ app.get('/api/presentes', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
-// NUEVA API PARA MARCAR PAGO
+// API PARA MARCAR PAGO
 app.post('/api/usuarios/pagar', async (req, res) => {
     const { id } = req.body;
     try {
@@ -44,7 +44,7 @@ app.post('/api/usuarios/pagar', async (req, res) => {
     } catch (e) { res.json({ success: false }); }
 });
 
-// API PARA ELIMINAR USUARIOS (Agregada para control total)
+// API PARA ELIMINAR USUARIOS
 app.delete('/api/usuarios/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -60,9 +60,9 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     } catch (e) { res.json({ success: false }); }
 });
 
-// API PARA REGISTRAR NUEVOS USUARIOS
+// API PARA REGISTRAR NUEVOS USUARIOS (Actualizada para recibir el ROL)
 app.post('/api/usuarios', async (req, res) => {
-    const { full_name, dni } = req.body;
+    const { full_name, dni, role } = req.body;
     try {
         const response = await fetch(`${URL}/rest/v1/users`, {
             method: 'POST',
@@ -72,18 +72,18 @@ app.post('/api/usuarios', async (req, res) => {
                 "Content-Type": "application/json",
                 "Prefer": "return=minimal" 
             },
-            body: JSON.stringify({ full_name, dni })
+            body: JSON.stringify({ full_name, dni, role: role || 'estudiante' })
         });
         if (response.ok) res.json({ success: true });
         else res.json({ success: false, message: "El DNI ya existe o hay un error de datos." });
     } catch (e) { res.status(500).json({ success: false, message: "Error de servidor." }); }
 });
 
-// LÓGICA DE ASISTENCIA (DNI + CUOTA + MENSAJE)
+// LÓGICA DE ASISTENCIA (DNI + ROL + CUOTA)
 app.post('/asistencia', async (req, res) => {
     const { dni } = req.body;
     try {
-        const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name,cuota_pagada,mensaje_motivador`, {
+        const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name,cuota_pagada,mensaje_motivador,role`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
         const users = await resUser.json();
@@ -91,9 +91,17 @@ app.post('/asistencia', async (req, res) => {
         if (!users.length) return res.json({ success: false, message: "❌ DNI no registrado." });
         const user = users[0];
         
-        const estadoCuota = user.cuota_pagada ? "✅ Cuota al Día" : "⚠️ Cuota Pendiente";
-        const motivacion = user.mensaje_motivador || "¡A darle con todo hoy! ✂️";
-        const infoExtra = `${estadoCuota} | ${motivacion}`;
+        // LÓGICA DE ROLES PARA EL MENSAJE EXTRA
+        let infoExtra = "";
+        const userRole = (user.role || 'estudiante').toLowerCase();
+
+        if (userRole === 'barbero') {
+            infoExtra = `✂️ Staff Barbería | ${user.mensaje_motivador || "¡Buen turno de trabajo!"}`;
+        } else {
+            const estadoCuota = user.cuota_pagada ? "✅ Cuota al Día" : "⚠️ Cuota Pendiente";
+            const motivacion = user.mensaje_motivador || "¡A darle con todo hoy! ✂️";
+            infoExtra = `${estadoCuota} | ${motivacion}`;
+        }
 
         const hoy = new Date().toISOString().split('T')[0];
         const resHoy = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&check_in=gte.${hoy}&check_out=is.null&select=*`, {
