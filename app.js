@@ -79,11 +79,11 @@ app.post('/api/usuarios', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false, message: "Error de servidor." }); }
 });
 
-// LÓGICA DE ASISTENCIA (CORREGIDA PARA SALIDAS EFECTIVAS)
+// LÓGICA DE ASISTENCIA MEJORADA (ENTRADA/SALIDA)
 app.post('/asistencia', async (req, res) => {
     const { dni } = req.body;
     try {
-        // 1. Buscamos al usuario
+        // 1. Buscamos al usuario por DNI
         const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name,cuota_pagada,mensaje_motivador,role`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
@@ -93,13 +93,13 @@ app.post('/asistencia', async (req, res) => {
         const user = users[0];
         const userRole = (user.role || 'estudiante').toLowerCase();
 
-        // 2. Buscamos SI YA ESTÁ PRESENTE (sesión abierta)
-        const resHoy = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&status=eq.presente&select=*`, {
+        // 2. Buscamos SI YA TIENE una entrada activa (status 'presente')
+        const resHoy = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&status=eq.presente&select=id`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
-        const reg = await resHoy.json();
+        const registrosPresentes = await resHoy.json();
 
-        // LÓGICA DE MENSAJE EXTRA
+        // Configuración de información extra
         let infoExtra = "";
         if (userRole === 'barbero') {
             infoExtra = `✂️ Staff Barbería | ${user.mensaje_motivador || "¡Buen turno!"}`;
@@ -108,11 +108,17 @@ app.post('/asistencia', async (req, res) => {
             infoExtra = `${estadoCuota} | ${user.mensaje_motivador || "¡A darle con todo! ✂️"}`;
         }
 
-        if (reg && reg.length > 0) {
-            // --- MARCAR SALIDA (Cambia status a completado para que desaparezca del Admin) ---
-            await fetch(`${URL}/rest/v1/attendance?id=eq.${reg[0].id}`, {
+        // 3. DECISIÓN: SI HAY REGISTRO ABIERTO -> SALIDA. SI NO -> ENTRADA.
+        if (registrosPresentes && registrosPresentes.length > 0) {
+            // --- MARCAR SALIDA ---
+            await fetch(`${URL}/rest/v1/attendance?id=eq.${registrosPresentes[0].id}`, {
                 method: 'PATCH',
-                headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
+                headers: { 
+                    "apikey": KEY, 
+                    "Authorization": `Bearer ${KEY}`, 
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
                 body: JSON.stringify({ 
                     check_out: new Date().toISOString(), 
                     status: 'completado' 
@@ -123,10 +129,15 @@ app.post('/asistencia', async (req, res) => {
             res.json({ success: true, message: despedida, extra: infoExtra });
 
         } else {
-            // --- MARCAR ENTRADA (Crea nuevo registro como presente) ---
+            // --- MARCAR ENTRADA ---
             await fetch(`${URL}/rest/v1/attendance`, {
                 method: 'POST',
-                headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
+                headers: { 
+                    "apikey": KEY, 
+                    "Authorization": `Bearer ${KEY}`, 
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
                 body: JSON.stringify({ 
                     user_id: user.id, 
                     status: 'presente',
@@ -136,8 +147,7 @@ app.post('/asistencia', async (req, res) => {
             res.json({ success: true, message: `✅ ¡Hola, ${user.full_name}!`, extra: infoExtra });
         }
     } catch (e) { 
-        console.error(e);
-        res.json({ success: false, message: "❌ Error de conexión." }); 
+        res.json({ success: false, message: "❌ Error de conexión con la base de datos." }); 
     }
 });
 
