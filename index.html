@@ -11,6 +11,7 @@
             --gris: #1e1e1e;
             --verde: #4caf50;
             --rojo: #f44336;
+            --naranja: #ff9800; /* Color para la salida */
         }
 
         body { 
@@ -99,13 +100,12 @@
             transition: transform 0.1s, background 0.3s;
         }
 
-        /* Estilos para el mensaje extendido */
         #mensaje { 
             margin-top: 25px; 
             border-radius: 12px;
             transition: all 0.5s ease;
             overflow: hidden;
-            display: none; /* Se activa al marcar */
+            display: none;
             padding: 15px;
         }
 
@@ -122,7 +122,9 @@
             font-size: 0.95rem;
         }
 
+        /* Clases de estado dinámicas */
         .exito { background: rgba(76, 175, 80, 0.15); color: var(--verde); border: 1px solid var(--verde); display: block !important; }
+        .salida { background: rgba(255, 152, 0, 0.15); color: var(--naranja); border: 1px solid var(--naranja); display: block !important; }
         .error { background: rgba(244, 67, 54, 0.15); color: var(--rojo); border: 1px solid var(--rojo); display: block !important; }
     </style>
 </head>
@@ -167,7 +169,7 @@
             msgTexto.innerText = "Procesando...";
             msgCuota.innerText = "";
             msgMotivacion.innerText = "";
-            div.className = "exito"; // Clase temporal
+            div.className = "exito"; 
             div.style.display = "block";
 
             try {
@@ -178,10 +180,16 @@
                 });
                 const data = await res.json();
                 
-                div.className = data.success ? 'exito' : 'error';
+                if(data.success) {
+                    // Si el mensaje tiene "Adiós", aplicamos clase 'salida' (naranja)
+                    const esSalida = data.message.includes("Adiós");
+                    div.className = esSalida ? 'salida' : 'exito';
+                } else {
+                    div.className = 'error';
+                }
+
                 msgTexto.innerText = data.message;
 
-                // Si la respuesta trae datos extra (cuota y motivacion)
                 if(data.extra) {
                     const partes = data.extra.split('|');
                     msgCuota.innerText = partes[0] || "";
@@ -191,7 +199,6 @@
                 dniInput.value = '';
                 dniInput.focus();
 
-                // Desaparecer después de 6 segundos
                 setTimeout(() => {
                     div.style.display = "none";
                 }, 6000);
