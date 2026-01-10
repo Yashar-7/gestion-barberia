@@ -15,7 +15,7 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 // RUTA DE ADMINISTRACIÓN
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
-// API PARA OBTENER LOS PRESENTES (Solo los que tienen status 'presente')
+// API PARA OBTENER LOS PRESENTES
 app.get('/api/presentes', async (req, res) => {
     try {
         const response = await fetch(`${URL}/rest/v1/attendance?select=*,users(full_name,cuota_pagada,role)&status=eq.presente`, {
@@ -26,50 +26,11 @@ app.get('/api/presentes', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
-// API PARA MARCAR PAGO
-app.post('/api/usuarios/pagar', async (req, res) => {
-    const { id } = req.body;
-    try {
-        await fetch(`${URL}/rest/v1/users?id=eq.${id}`, {
-            method: 'PATCH',
-            headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ cuota_pagada: true })
-        });
-        res.json({ success: true });
-    } catch (e) { res.json({ success: false }); }
-});
-
-// API PARA ELIMINAR USUARIOS
-app.delete('/api/usuarios/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        await fetch(`${URL}/rest/v1/users?id=eq.${id}`, {
-            method: 'DELETE',
-            headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
-        });
-        res.json({ success: true });
-    } catch (e) { res.json({ success: false }); }
-});
-
-// API PARA REGISTRAR USUARIOS
-app.post('/api/usuarios', async (req, res) => {
-    const { full_name, dni, role } = req.body;
-    try {
-        const response = await fetch(`${URL}/rest/v1/users`, {
-            method: 'POST',
-            headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" },
-            body: JSON.stringify({ full_name, dni, role: role || 'estudiante' })
-        });
-        if (response.ok) res.json({ success: true });
-        else res.json({ success: false, message: "DNI duplicado o error." });
-    } catch (e) { res.status(500).json({ success: false }); }
-});
-
-// LÓGICA DE ASISTENCIA (SINCRONIZADA)
+// LÓGICA DE ASISTENCIA
 app.post('/asistencia', async (req, res) => {
     const { dni } = req.body;
     try {
-        // 1. Buscamos usuario
+        // 1. Buscamos al usuario
         const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name,cuota_pagada,mensaje_motivador,role`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
@@ -79,11 +40,11 @@ app.post('/asistencia', async (req, res) => {
         const user = users[0];
         const userRole = (user.role || 'estudiante').toLowerCase();
 
-        // 2. Buscamos si ya está 'presente'
+        // 2. Buscamos si ya tiene una entrada abierta (status 'presente')
         const resAtt = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&status=eq.presente&select=id`, {
             headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
         });
-        const reg = await resAtt.json();
+        const registros = await resAtt.json();
 
         let infoExtra = "";
         if (userRole === 'barbero') {
@@ -92,27 +53,38 @@ app.post('/asistencia', async (req, res) => {
             infoExtra = `${user.cuota_pagada ? "✅ Cuota al Día" : "⚠️ Cuota Pendiente"} | ${user.mensaje_motivador || "¡Dale con todo!"}`;
         }
 
-        if (reg && reg.length > 0) {
+        if (registros && registros.length > 0) {
             // --- MARCAR SALIDA ---
-            await fetch(`${URL}/rest/v1/attendance?id=eq.${reg[0].id}`, {
+            // Ahora que la columna check_out existe, el PATCH funcionará
+            await fetch(`${URL}/rest/v1/attendance?id=eq.${registros[0].id}`, {
                 method: 'PATCH',
-                headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" },
+                headers: { 
+                    "apikey": KEY, 
+                    "Authorization": `Bearer ${KEY}`, 
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
                 body: JSON.stringify({ 
                     check_out: new Date().toISOString(), 
                     status: 'completado' 
                 })
             });
-            const msgSalida = userRole === 'barbero' ? `👋 ¡Buen descanso, ${user.full_name}!` : `👋 ¡Adiós, ${user.full_name}!`;
-            res.json({ success: true, message: msgSalida, extra: infoExtra });
+            const msg = userRole === 'barbero' ? `👋 ¡Buen descanso, ${user.full_name}!` : `👋 ¡Adiós, ${user.full_name}!`;
+            res.json({ success: true, message: msg, extra: infoExtra });
         } else {
             // --- MARCAR ENTRADA ---
             await fetch(`${URL}/rest/v1/attendance`, {
                 method: 'POST',
-                headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" },
+                headers: { 
+                    "apikey": KEY, 
+                    "Authorization": `Bearer ${KEY}`, 
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
                 body: JSON.stringify({ 
                     user_id: user.id, 
-                    check_in: new Date().toISOString(),
-                    status: 'presente' 
+                    status: 'presente',
+                    check_in: new Date().toISOString()
                 })
             });
             res.json({ success: true, message: `✅ ¡Hola, ${user.full_name}!`, extra: infoExtra });
@@ -121,6 +93,8 @@ app.post('/asistencia', async (req, res) => {
         res.json({ success: false, message: "❌ Error de conexión." });
     }
 });
+
+// Mantén tus rutas de /api/usuarios/pagar, /api/usuarios/:id y /api/usuarios igual...
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor en puerto ${PORT}`));
