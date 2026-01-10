@@ -123,9 +123,9 @@
         }
 
         /* Clases de estado dinámicas */
-        .exito { background: rgba(76, 175, 80, 0.15); color: var(--verde); border: 1px solid var(--verde); display: block !important; }
-        .salida { background: rgba(255, 152, 0, 0.15); color: var(--naranja); border: 1px solid var(--naranja); display: block !important; }
-        .error { background: rgba(244, 67, 54, 0.15); color: var(--rojo); border: 1px solid var(--rojo); display: block !important; }
+        .exito { background: rgba(76, 175, 80, 0.15) !important; color: var(--verde) !important; border: 1px solid var(--verde) !important; display: block !important; }
+        .salida { background: rgba(255, 152, 0, 0.15) !important; color: var(--naranja) !important; border: 1px solid var(--naranja) !important; display: block !important; }
+        .error { background: rgba(244, 67, 54, 0.15) !important; color: var(--rojo) !important; border: 1px solid var(--rojo) !important; display: block !important; }
     </style>
 </head>
 <body>
@@ -166,11 +166,12 @@
             const msgCuota = document.getElementById('msg-cuota');
             const msgMotivacion = document.getElementById('msg-motivacion');
 
+            // Resetear estado visual antes de procesar
+            div.style.display = "block";
+            div.className = ""; 
             msgTexto.innerText = "Procesando...";
             msgCuota.innerText = "";
             msgMotivacion.innerText = "";
-            div.className = "exito"; 
-            div.style.display = "block";
 
             try {
                 const res = await fetch('/asistencia', {
@@ -181,8 +182,10 @@
                 const data = await res.json();
                 
                 if(data.success) {
-                    // Si el mensaje tiene "Adiós", aplicamos clase 'salida' (naranja)
-                    const esSalida = data.message.includes("Adiós");
+                    // DETECTAR SI ES SALIDA: Buscamos palabras clave en el mensaje
+                    const texto = data.message.toLowerCase();
+                    const esSalida = texto.includes("adiós") || texto.includes("descanso") || texto.includes("chau");
+                    
                     div.className = esSalida ? 'salida' : 'exito';
                 } else {
                     div.className = 'error';
@@ -199,6 +202,7 @@
                 dniInput.value = '';
                 dniInput.focus();
 
+                // Ocultar mensaje después de 6 segundos
                 setTimeout(() => {
                     div.style.display = "none";
                 }, 6000);
