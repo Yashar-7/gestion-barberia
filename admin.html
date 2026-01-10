@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Barber School</title>
     <style>
-        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; }
+        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --azul: #0099ff; }
         body { font-family: sans-serif; background-color: var(--oscuro); color: white; padding: 20px; text-align: center; }
         
         .admin-panel {
@@ -16,19 +16,24 @@
             max-width: 600px;
             margin: 0 auto 30px;
         }
-        input { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; margin: 5px; }
+        input, select { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; margin: 5px; }
         button { background: var(--dorado); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { opacity: 0.8; }
         
-        table { width: 100%; max-width: 900px; margin: 0 auto; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
+        table { width: 100%; max-width: 950px; margin: 0 auto; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
         th { background: var(--dorado); color: black; padding: 15px; }
         td { padding: 12px; border-bottom: 1px solid #333; }
         
+        /* Etiquetas de Rol */
+        .badge-rol { padding: 4px 8px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .rol-barbero { background: var(--azul); color: white; }
+        .rol-estudiante { background: #444; color: #ccc; }
+
         .badge-deuda { color: var(--rojo); font-weight: bold; }
         .badge-pago { color: #44ff44; font-weight: bold; }
         
-        .btn-pagar { background: #2e7d32; color: white; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; }
-        .btn-eliminar { background: var(--rojo); color: white; padding: 5px 10px; font-size: 0.8rem; }
+        .btn-pagar { background: #2e7d32; color: white; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-eliminar { background: var(--rojo); color: white; padding: 5px 10px; font-size: 0.8rem; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -36,24 +41,28 @@
     <h1>Panel Administrativo 💈</h1>
 
     <div class="admin-panel">
-        <h3>➕ Registrar Nuevo Alumno o Barbero</h3>
+        <h3>➕ Registrar Nuevo Miembro</h3>
         <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
         <input type="number" id="nuevoDni" placeholder="DNI">
+        <select id="nuevoRol">
+            <option value="estudiante">Estudiante</option>
+            <option value="barbero">Barbero</option>
+        </select>
         <button onclick="registrarUsuario()">Guardar en Base de Datos</button>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Alumno</th>
+                <th>Nombre</th>
+                <th>Rol</th>
                 <th>DNI</th>
                 <th>Entrada</th>
-                <th>Estado</th>
+                <th>Cuota</th>
                 <th>Acciones</th>
             </tr>
         </thead>
-        <tbody id="tabla-presentes">
-            </tbody>
+        <tbody id="tabla-presentes"></tbody>
     </table>
 
     <script>
@@ -65,17 +74,24 @@
                 tabla.innerHTML = "";
 
                 datos.forEach(reg => {
-                    const pagado = reg.users.cuota_pagada;
+                    const user = reg.users;
+                    const pagado = user.cuota_pagada;
+                    const rol = user.role || 'estudiante';
                     const hora = new Date(reg.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     
                     tabla.innerHTML += `
                         <tr>
-                            <td>${reg.users.full_name}</td>
+                            <td style="text-align: left; padding-left: 20px;">${user.full_name}</td>
+                            <td><span class="badge-rol ${rol === 'barbero' ? 'rol-barbero' : 'rol-estudiante'}">${rol}</span></td>
                             <td>${reg.user_id}</td>
                             <td>${hora} hs</td>
-                            <td><span class="${pagado ? 'badge-pago' : 'badge-deuda'}">${pagado ? 'Al Día' : 'Pendiente'}</span></td>
                             <td>
-                                ${!pagado ? `<button class="btn-pagar" onclick="marcarPago('${reg.user_id}')">💰 Pagar</button>` : '✅'}
+                                ${rol === 'estudiante' 
+                                    ? `<span class="${pagado ? 'badge-pago' : 'badge-deuda'}">${pagado ? 'Al Día' : 'Pendiente'}</span>` 
+                                    : '<span style="color:#888">-</span>'}
+                            </td>
+                            <td>
+                                ${rol === 'estudiante' && !pagado ? `<button class="btn-pagar" onclick="marcarPago('${reg.user_id}')">💰 Pagar</button>` : ''}
                                 <button class="btn-eliminar" onclick="eliminarUsuario('${reg.user_id}')">🗑️ Borrar</button>
                             </td>
                         </tr>
@@ -87,18 +103,24 @@
         async function registrarUsuario() {
             const full_name = document.getElementById('nuevoNombre').value;
             const dni = document.getElementById('nuevoDni').value;
+            const role = document.getElementById('nuevoRol').value;
+
             if(!full_name || !dni) return alert("Completa los datos");
 
             const res = await fetch('/api/usuarios', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ full_name, dni })
+                body: JSON.stringify({ full_name, dni, role })
             });
-            if(res.ok) {
-                alert("Usuario registrado con éxito");
+            const data = await res.json();
+
+            if(data.success) {
+                alert(`✅ ${full_name} registrado como ${role}`);
                 document.getElementById('nuevoNombre').value = "";
                 document.getElementById('nuevoDni').value = "";
                 cargarPresentes();
+            } else {
+                alert("❌ Error: " + data.message);
             }
         }
 
@@ -116,23 +138,21 @@
         }
 
         async function eliminarUsuario(id) {
-            if(!confirm("⚠️ ¿ESTÁS SEGURO? \nEsto eliminará al alumno de la base de datos permanentemente.")) return;
+            if(!confirm("⚠️ ¿ESTÁS SEGURO? \nEsto eliminará a la persona de la base de datos permanentemente.")) return;
             
             const res = await fetch(`/api/usuarios/${id}`, {
                 method: 'DELETE'
             });
             
             if(res.ok) {
-                alert("Alumno eliminado de la base de datos");
+                alert("Eliminado con éxito");
                 cargarPresentes();
             } else {
-                alert("No se pudo eliminar el usuario");
+                alert("No se pudo eliminar");
             }
         }
 
-        // Carga inicial
         cargarPresentes();
-        // Recarga automática cada 30 segundos para ver quién llega
         setInterval(cargarPresentes, 30000);
     </script>
 </body>
