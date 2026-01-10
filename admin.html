@@ -24,7 +24,6 @@
         th { background: var(--dorado); color: black; padding: 15px; }
         td { padding: 12px; border-bottom: 1px solid #333; }
         
-        /* Etiquetas de Rol */
         .badge-rol { padding: 4px 8px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
         .rol-barbero { background: var(--azul); color: white; }
         .rol-estudiante { background: #444; color: #ccc; }
@@ -39,6 +38,7 @@
 <body>
 
     <h1>Panel Administrativo 💈</h1>
+    <h2 style="color: var(--dorado); margin-bottom: 20px;">📍 Personas en el Local Ahora</h2>
 
     <div class="admin-panel">
         <h3>➕ Registrar Nuevo Miembro</h3>
@@ -73,10 +73,15 @@
                 const tabla = document.getElementById('tabla-presentes');
                 tabla.innerHTML = "";
 
+                if (datos.length === 0) {
+                    tabla.innerHTML = "<tr><td colspan='6' style='padding:20px; color:#888;'>No hay nadie presente en este momento.</td></tr>";
+                    return;
+                }
+
                 datos.forEach(reg => {
                     const user = reg.users;
                     const pagado = user.cuota_pagada;
-                    const rol = user.role || 'estudiante';
+                    const rol = (user.role || 'estudiante').toLowerCase();
                     const hora = new Date(reg.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     
                     tabla.innerHTML += `
@@ -88,7 +93,7 @@
                             <td>
                                 ${rol === 'estudiante' 
                                     ? `<span class="${pagado ? 'badge-pago' : 'badge-deuda'}">${pagado ? 'Al Día' : 'Pendiente'}</span>` 
-                                    : '<span style="color:#888">-</span>'}
+                                    : '<span style="color:#888">Personal</span>'}
                             </td>
                             <td>
                                 ${rol === 'estudiante' && !pagado ? `<button class="btn-pagar" onclick="marcarPago('${reg.user_id}')">💰 Pagar</button>` : ''}
@@ -105,7 +110,7 @@
             const dni = document.getElementById('nuevoDni').value;
             const role = document.getElementById('nuevoRol').value;
 
-            if(!full_name || !dni) return alert("Completa los datos");
+            if(!full_name || !dni) return alert("Por favor, completa todos los campos.");
 
             const res = await fetch('/api/usuarios', {
                 method: 'POST',
@@ -115,7 +120,7 @@
             const data = await res.json();
 
             if(data.success) {
-                alert(`✅ ${full_name} registrado como ${role}`);
+                alert(`✅ ${full_name} registrado correctamente como ${role}.`);
                 document.getElementById('nuevoNombre').value = "";
                 document.getElementById('nuevoDni').value = "";
                 cargarPresentes();
@@ -132,26 +137,27 @@
                 body: JSON.stringify({ id })
             });
             if(res.ok) {
-                alert("Pago registrado");
+                alert("✅ Pago registrado con éxito.");
                 cargarPresentes();
             }
         }
 
         async function eliminarUsuario(id) {
-            if(!confirm("⚠️ ¿ESTÁS SEGURO? \nEsto eliminará a la persona de la base de datos permanentemente.")) return;
+            if(!confirm("⚠️ ¿ESTÁS SEGURO? \nEsto eliminará permanentemente a la persona de la base de datos.")) return;
             
             const res = await fetch(`/api/usuarios/${id}`, {
                 method: 'DELETE'
             });
             
             if(res.ok) {
-                alert("Eliminado con éxito");
+                alert("🗑️ Usuario eliminado.");
                 cargarPresentes();
             } else {
-                alert("No se pudo eliminar");
+                alert("❌ No se pudo eliminar el usuario.");
             }
         }
 
+        // Carga inicial y refresco cada 30 segundos
         cargarPresentes();
         setInterval(cargarPresentes, 30000);
     </script>
