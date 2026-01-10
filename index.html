@@ -11,12 +11,14 @@
             --gris: #1e1e1e;
             --verde: #4caf50;
             --rojo: #f44336;
-            --naranja: #ff9800; /* Color para la salida */
+            --naranja: #ff9800;
         }
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('logo.png');
+            /* IMAGEN DE FONDO CON FILTRO OSCURO PROFESIONAL */
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+                        url('black_school.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -31,44 +33,57 @@
         }
 
         #reloj {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: bold;
             color: var(--dorado);
             margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+            background: rgba(0,0,0,0.4);
+            padding: 10px 30px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
         }
 
         .card { 
-            background: rgba(30, 30, 30, 0.9); 
-            padding: 3rem; 
-            border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7); 
+            background: rgba(20, 20, 20, 0.85); 
+            padding: 2.5rem; 
+            border-radius: 25px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9); 
             text-align: center; 
             width: 90%;
-            max-width: 450px; 
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            max-width: 420px; 
+            border: 1px solid rgba(212, 175, 55, 0.3);
             position: relative;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             transition: all 0.5s ease;
         }
 
         .card::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; right: 0; height: 5px;
-            background: var(--dorado);
+            top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(90deg, transparent, var(--dorado), transparent);
             border-radius: 20px 20px 0 0;
         }
         
-        h1 { 
-            color: var(--dorado); 
-            margin: 0; 
-            font-size: 1.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        /* Contenedor del Logo */
+        .logo-container {
+            margin-bottom: 15px;
+        }
+        .logo-container img {
+            width: 120px;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.2));
         }
 
-        p { color: #888; margin-bottom: 30px; }
+        h1 { 
+            color: var(--dorado); 
+            margin: 5px 0; 
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        p { color: #aaa; margin-bottom: 25px; font-size: 0.9rem; letter-spacing: 1px; }
 
         input { 
             width: 100%; 
@@ -76,16 +91,19 @@
             margin-bottom: 20px; 
             border-radius: 12px; 
             border: 2px solid #333; 
-            background: #000;
+            background: rgba(0,0,0,0.6);
             color: var(--dorado);
-            font-size: 1.5rem; 
+            font-size: 1.6rem; 
             text-align: center; 
             box-sizing: border-box;
             outline: none;
-            transition: border 0.3s;
+            transition: all 0.3s;
         }
 
-        input:focus { border-color: var(--dorado); }
+        input:focus { 
+            border-color: var(--dorado); 
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
 
         button { 
             background: var(--dorado); 
@@ -97,16 +115,21 @@
             cursor: pointer; 
             font-size: 1.2rem; 
             width: 100%; 
-            transition: transform 0.1s, background 0.3s;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: #f1c40f;
+            transform: translateY(-2px);
         }
 
         #mensaje { 
             margin-top: 25px; 
             border-radius: 12px;
             transition: all 0.5s ease;
-            overflow: hidden;
             display: none;
-            padding: 15px;
+            padding: 20px;
         }
 
         .info-cuota {
@@ -117,15 +140,15 @@
 
         .info-motivacion {
             font-style: italic;
-            color: #ccc;
+            color: #ddd;
             margin-top: 10px;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
-        /* Clases de estado dinámicas */
-        .exito { background: rgba(76, 175, 80, 0.15) !important; color: var(--verde) !important; border: 1px solid var(--verde) !important; display: block !important; }
-        .salida { background: rgba(255, 152, 0, 0.15) !important; color: var(--naranja) !important; border: 1px solid var(--naranja) !important; display: block !important; }
-        .error { background: rgba(244, 67, 54, 0.15) !important; color: var(--rojo) !important; border: 1px solid var(--rojo) !important; display: block !important; }
+        /* Estados dinámicos */
+        .exito { background: rgba(76, 175, 80, 0.2) !important; color: #81c784 !important; border: 1px solid var(--verde) !important; display: block !important; }
+        .salida { background: rgba(255, 152, 0, 0.2) !important; color: #ffb74d !important; border: 1px solid var(--naranja) !important; display: block !important; }
+        .error { background: rgba(244, 67, 54, 0.2) !important; color: #e57373 !important; border: 1px solid var(--rojo) !important; display: block !important; }
     </style>
 </head>
 <body>
@@ -133,8 +156,10 @@
     <div id="reloj">00:00:00</div>
 
     <div class="card">
-        <img src="logo.png" alt="Logo" style="width: 100px; margin-bottom: 10px;">
-        <h1>💈 Barber School</h1>
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <h1>💈 Black School</h1>
         <p>CONTROL DE ASISTENCIA</p>
         
         <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
@@ -166,7 +191,6 @@
             const msgCuota = document.getElementById('msg-cuota');
             const msgMotivacion = document.getElementById('msg-motivacion');
 
-            // Resetear estado visual antes de procesar
             div.style.display = "block";
             div.className = ""; 
             msgTexto.innerText = "Procesando...";
@@ -182,10 +206,8 @@
                 const data = await res.json();
                 
                 if(data.success) {
-                    // DETECTAR SI ES SALIDA: Buscamos palabras clave en el mensaje
                     const texto = data.message.toLowerCase();
                     const esSalida = texto.includes("adiós") || texto.includes("descanso") || texto.includes("chau");
-                    
                     div.className = esSalida ? 'salida' : 'exito';
                 } else {
                     div.className = 'error';
@@ -202,7 +224,6 @@
                 dniInput.value = '';
                 dniInput.focus();
 
-                // Ocultar mensaje después de 6 segundos
                 setTimeout(() => {
                     div.style.display = "none";
                 }, 6000);
