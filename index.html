@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SmartBarber - Gestión de Asistencia</title>
+    <title>SmartBarber - Sistema de Asistencia</title>
     <style>
         :root {
             --dorado: #d4af37;
             --oscuro: #121212;
-            --gris: #1e1e1e;
             --verde: #4caf50;
             --rojo: #f44336;
             --naranja: #ff9800;
@@ -53,7 +52,6 @@
             width: 85%;
             max-width: 420px; 
             border: 1px solid rgba(212, 175, 55, 0.3);
-            position: relative;
             backdrop-filter: blur(20px);
         }
 
@@ -79,12 +77,6 @@
             text-align: center; 
             box-sizing: border-box;
             outline: none;
-            transition: all 0.3s ease;
-        }
-
-        input:focus { 
-            border-color: var(--dorado); 
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
         }
 
         button { 
@@ -97,27 +89,19 @@
             cursor: pointer; 
             font-size: 1.2rem; 
             width: 100%; 
-            transition: all 0.3s;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
-
-        button:active { transform: scale(0.98); }
 
         #mensaje { 
             margin-top: 25px; 
             border-radius: 15px;
             display: none;
             padding: 20px;
-            animation: fadeIn 0.4s ease;
         }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .info-cuota { font-weight: bold; font-size: 1.2rem; margin: 10px 0; }
         .info-motivacion { font-style: italic; color: #eee; margin-top: 10px; font-size: 0.95rem; }
 
-        /* Estados de respuesta */
         .exito { background: rgba(76, 175, 80, 0.25) !important; color: #a2fca2 !important; border: 1px solid var(--verde) !important; display: block !important; }
         .salida { background: rgba(255, 152, 0, 0.25) !important; color: #ffcc80 !important; border: 1px solid var(--naranja) !important; display: block !important; }
         .error { background: rgba(244, 67, 54, 0.25) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
@@ -130,10 +114,10 @@
 
     <div class="card">
         <h1>💈 SmartBarber</h1>
-        <p>REGISTRO DE TURNO</p>
+        <p>CONTROL DE ASISTENCIA</p>
         
-        <input type="number" id="dni" placeholder="DNI" inputmode="numeric" autofocus>
-        <button id="btnRegistrar" onclick="marcar()">REGISTRAR</button>
+        <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
+        <button onclick="marcar()">REGISTRAR</button>
         
         <div id="mensaje">
             <div id="msg-texto" style="font-weight: 900; font-size: 1.4rem;"></div>
@@ -143,7 +127,8 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxVN6oHIIzypZHu5pdf53mziOqNYDm31rZtBd7pT7wdKwU6eXMfJFyxvXAotKgJonN6/exec";
+        // URL DE TU NUEVA IMPLEMENTACIÓN
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
         function actualizarReloj() {
             const ahora = new Date();
@@ -164,47 +149,46 @@
 
             div.style.display = "block";
             div.className = "espera";
-            msgTexto.innerText = "VERIFICANDO...";
+            msgTexto.innerText = "PROCESANDO...";
             msgCuota.innerText = "";
             msgMotivacion.innerText = "";
 
             try {
+                // Usamos t=Date.now() para evitar que el navegador guarde una respuesta vieja
                 const response = await fetch(`${WEB_APP_URL}?dni=${dni}&t=${Date.now()}`);
                 const data = await response.json();
                 
                 if(data.success) {
-                    // Cambiamos color según ENTRADA o SALIDA
+                    // Cambia a NARANJA si es SALIDA o VERDE si es ENTRADA
                     div.className = (data.accion === "SALIDA") ? 'salida' : 'exito';
                     msgTexto.innerText = `${data.accion}: ${data.nombre}`;
                     
                     if(data.accion === "ENTRADA") {
-                        const cuotaStatus = data.cuota ? data.cuota.toString().toUpperCase() : "";
-                        if(cuotaStatus === "SI") {
-                            msgCuota.innerText = "✅ ACCESO AUTORIZADO";
-                            msgCuota.style.color = "#a2fca2";
-                            msgMotivacion.innerText = "¡Buen inicio de turno! " + data.hora;
+                        const cuota = data.cuota ? data.cuota.toString().toUpperCase() : "";
+                        if(cuota === "SI") {
+                            msgCuota.innerText = "✅ CUOTA AL DÍA";
+                            msgMotivacion.innerText = "¡Buen turno! Ingreso: " + data.hora;
                         } else {
-                            msgCuota.innerText = "⚠️ REVISAR ADMINISTRACIÓN";
-                            msgCuota.style.color = "#ffcc80";
-                            msgMotivacion.innerText = "Tu cuota figura pendiente.";
+                            msgCuota.innerText = "⚠️ REVISAR PAGO";
+                            msgMotivacion.innerText = "Por favor, pasá por administración.";
                         }
                     } else {
-                        msgCuota.innerText = "¡NOS VEMOS LUEGO!";
-                        msgMotivacion.innerText = "Salida registrada a las " + data.hora;
+                        msgCuota.innerText = "¡HASTA LUEGO!";
+                        msgMotivacion.innerText = "Salida registrada: " + data.hora;
                     }
                 } else {
                     div.className = 'error';
-                    msgTexto.innerText = "DNI NO REGISTRADO";
-                    msgMotivacion.innerText = "Consultá con el encargado.";
+                    msgTexto.innerText = "DNI NO ENCONTRADO";
+                    msgMotivacion.innerText = "Verificá los datos con el encargado.";
                 }
             } catch (err) {
                 div.className = 'error';
                 msgTexto.innerText = "❌ ERROR DE RED";
-                msgMotivacion.innerText = "Intentá de nuevo.";
+                msgMotivacion.innerText = "Reintentá en unos segundos.";
             } finally {
                 dniInput.value = '';
                 dniInput.focus();
-                setTimeout(() => { div.style.display = "none"; }, 6000);
+                setTimeout(() => { div.style.display = "none"; }, 5000);
             }
         }
 
