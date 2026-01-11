@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SmartBarber</title>
+    <title>Panel Administrativo - SmartBarber</title>
     <style>
         :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --azul: #0099ff; }
-        body { font-family: sans-serif; background-color: var(--oscuro); color: white; padding: 20px; text-align: center; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; text-align: center; }
         
         .admin-panel {
             background: rgba(212, 175, 55, 0.1);
@@ -16,69 +16,68 @@
             max-width: 600px;
             margin: 0 auto 30px;
         }
-        input, select { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; margin: 5px; }
-        button { background: var(--dorado); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: white; margin: 5px; width: 80%; }
+        button { background: var(--dorado); color: black; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 85%; margin-top: 10px; text-transform: uppercase; }
+        button:hover { background: #b8952d; }
         
-        table { width: 100%; max-width: 950px; margin: 0 auto; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
-        th { background: var(--dorado); color: black; padding: 15px; }
-        td { padding: 12px; border-bottom: 1px solid #333; }
-        
-        .badge-rol { padding: 4px 8px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-        .rol-barbero { background: var(--azul); color: white; }
-        .rol-estudiante { background: #444; color: #ccc; }
+        #status { margin-top: 15px; font-weight: bold; color: var(--dorado); }
     </style>
 </head>
 <body>
 
     <h1>Panel Administrativo 💈</h1>
-    <p style="color: var(--dorado)">GESTIÓN DE BASE DE DATOS EN TIEMPO REAL</p>
+    <p>GESTIÓN DE MIEMBROS</p>
 
     <div class="admin-panel">
         <h3>➕ Registrar Nuevo Miembro</h3>
         <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
-        <input type="number" id="nuevoDni" placeholder="DNI">
+        <input type="number" id="nuevoDni" placeholder="DNI (Sin puntos)">
         <select id="nuevoRol">
             <option value="Estudiante">Estudiante</option>
             <option value="Barbero">Barbero</option>
         </select>
-        <button onclick="registrarUsuario()">Guardar en Google Sheets</button>
+        <button onclick="registrarUsuario()">Guardar en Base de Datos</button>
+        <div id="status"></div>
     </div>
 
-    <div id="status" style="margin-bottom: 10px; color: var(--dorado); font-weight: bold;"></div>
-
     <script>
-        // URL DE TU GOOGLE APPS SCRIPT (LA MISMA QUE USASTE EN EL INDEX)
+        // TU URL DE GOOGLE APPS SCRIPT
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
         async function registrarUsuario() {
-            const nombre = document.getElementById('nuevoNombre').value;
-            const dni = document.getElementById('nuevoDni').value;
+            const nombre = document.getElementById('nuevoNombre').value.trim();
+            const dni = document.getElementById('nuevoDni').value.trim();
             const rol = document.getElementById('nuevoRol').value;
-            const status = document.getElementById('status');
+            const statusDiv = document.getElementById('status');
 
-            if(!nombre || !dni) return alert("Completa nombre y DNI");
+            if(!nombre || !dni) {
+                alert("Por favor, completa Nombre y DNI");
+                return;
+            }
 
-            status.innerText = "⏳ Guardando en la nube...";
+            statusDiv.innerText = "⏳ Guardando en Google Sheets...";
 
             try {
-                // Enviamos los datos a Google Sheets usando modo 'no-cors' para el envío simple
-                // O usamos una URL con parámetros para que el doGet que ya tienes lo procese
-                const urlRegistro = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}`;
+                // Importante: Enviamos action=add para que el Script sepa que es un registro
+                const params = `?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&t=${Date.now()}`;
                 
-                const res = await fetch(urlRegistro);
-                const data = await res.json();
+                const response = await fetch(WEB_APP_URL + params);
+                const data = await response.json();
 
-                if(data.success || res.ok) {
-                    alert(`✅ ${nombre} guardado con éxito.`);
+                if(data.success) {
+                    alert("✅ Registrado con éxito: " + nombre);
                     document.getElementById('nuevoNombre').value = "";
                     document.getElementById('nuevoDni').value = "";
-                    status.innerText = "¡Listo!";
+                    statusDiv.innerText = "¡Registro exitoso!";
+                } else {
+                    alert("❌ Error al guardar.");
+                    statusDiv.innerText = "Error en el servidor.";
                 }
             } catch (err) {
-                console.error(err);
-                // Si da error de CORS pero se guarda igual, avisamos
-                alert("Verificá tu Excel. Si no aparece, es necesario actualizar el Script.");
-                status.innerText = "";
+                // Si hay error de CORS pero los datos llegan al Excel, lo manejamos
+                console.log("CORS o Red:", err);
+                alert("Petición enviada. Verificá tu planilla de Excel en unos segundos.");
+                statusDiv.innerText = "Verificá el Excel.";
             }
         }
     </script>
