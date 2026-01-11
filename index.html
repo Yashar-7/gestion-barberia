@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Asistencia - Escuela de Barbería</title>
+    <title>Sistema de Asistencia - SmartBarber</title>
     <style>
         :root {
             --dorado: #d4af37;
@@ -32,7 +32,7 @@
         }
 
         #reloj {
-            font-size: clamp(2.5rem, 8vw, 3.5rem); /* Ajuste automático de tamaño */
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
             font-weight: bold;
             color: var(--dorado);
             margin-bottom: 20px;
@@ -68,7 +68,7 @@
             margin-bottom: 15px;
         }
         .logo-container img {
-            width: 140px; /* Un poquito más grande para que luzca */
+            width: 140px;
             height: auto;
             filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
         }
@@ -128,8 +128,8 @@
         .info-motivacion { font-style: italic; color: #ddd; margin-top: 8px; font-size: 0.9rem; }
 
         .exito { background: rgba(76, 175, 80, 0.2) !important; color: #81c784 !important; border: 1px solid var(--verde) !important; display: block !important; }
-        .salida { background: rgba(255, 152, 0, 0.2) !important; color: #ffb74d !important; border: 1px solid var(--naranja) !important; display: block !important; }
         .error { background: rgba(244, 67, 54, 0.2) !important; color: #e57373 !important; border: 1px solid var(--rojo) !important; display: block !important; }
+        .espera { background: rgba(212, 175, 55, 0.1) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
     </style>
 </head>
 <body>
@@ -140,20 +140,23 @@
         <div class="logo-container">
             <img src="logo.png" alt="Logo">
         </div>
-        <h1>💈 Black School</h1>
+        <h1>💈 SmartBarber</h1>
         <p>CONTROL DE ASISTENCIA</p>
         
         <input type="number" id="dni" placeholder="INGRESE DNI" inputmode="numeric" pattern="[0-9]*" autofocus>
-        <button id="btnRegistrar" onclick="marcar()">REGISTRAR TURNO</button>
+        <button id="btnRegistrar" onclick="marcar()">REGISTRAR INGRESO</button>
         
         <div id="mensaje">
-            <div id="msg-texto" style="font-weight: bold; font-size: 1.3rem;"></div>
+            <div id="msg-texto" style="font-weight: bold; font-size: 1.2rem;"></div>
             <div id="msg-cuota" class="info-cuota"></div>
             <div id="msg-motivacion" class="info-motivacion"></div>
         </div>
     </div>
 
     <script>
+        // URL de tu Google Apps Script
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzzCYvnMgejXSTFlZ-2A8iA4LX4cgffPjxlZlK_G8g4QLdBBjRVooBqK6JoMjW-DTvT8g/exec";
+
         function actualizarReloj() {
             const ahora = new Date();
             const tiempo = ahora.toLocaleTimeString('es-AR');
@@ -172,45 +175,48 @@
             const msgCuota = document.getElementById('msg-cuota');
             const msgMotivacion = document.getElementById('msg-motivacion');
 
+            // Estado de espera
             div.style.display = "block";
-            div.className = ""; 
-            msgTexto.innerText = "Procesando...";
+            div.className = "espera";
+            msgTexto.innerText = "Buscando en base de datos...";
             msgCuota.innerText = "";
             msgMotivacion.innerText = "";
 
             try {
-                const res = await fetch('/asistencia', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ dni })
-                });
-                const data = await res.json();
+                // Consultamos a Google Sheets
+                const response = await fetch(`${WEB_APP_URL}?dni=${dni}`);
+                const data = await response.json();
                 
                 if(data.success) {
-                    const texto = data.message.toLowerCase();
-                    // Palabras clave para detectar salida
-                    const esSalida = texto.includes("adiós") || texto.includes("descanso") || texto.includes("chau") || texto.includes("salida");
-                    div.className = esSalida ? 'salida' : 'exito';
+                    div.className = 'exito';
+                    msgTexto.innerText = `¡Hola, ${data.nombre}!`;
+                    
+                    // Lógica de cuota
+                    if(data.cuota.toUpperCase() === "SI") {
+                        msgCuota.innerText = "✅ Cuota al día";
+                        msgCuota.style.color = "#81c784";
+                        msgMotivacion.innerText = "¡Que tengas una excelente clase!";
+                    } else {
+                        msgCuota.innerText = "⚠️ Cuota Pendiente";
+                        msgCuota.style.color = "#ffb74d";
+                        msgMotivacion.innerText = "Por favor, pasá por administración.";
+                    }
                 } else {
                     div.className = 'error';
+                    msgTexto.innerText = "DNI no encontrado";
+                    msgMotivacion.innerText = "Verificá el número o registrate en admin.";
                 }
 
-                msgTexto.innerText = data.message;
-
-                if(data.extra) {
-                    const partes = data.extra.split('|');
-                    msgCuota.innerText = partes[0] || "";
-                    msgMotivacion.innerText = partes[1] || "";
-                }
-                
                 dniInput.value = '';
                 dniInput.focus();
 
+                // Ocultar mensaje después de 6 segundos
                 setTimeout(() => {
                     div.style.display = "none";
                 }, 6000);
 
             } catch (err) {
+                console.error(err);
                 div.className = 'error';
                 msgTexto.innerText = "❌ Error de conexión";
             }
