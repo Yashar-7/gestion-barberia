@@ -3,83 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrativo - SmartBarber</title>
+    <title>Admin - SmartBarber</title>
     <style>
-        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --azul: #0099ff; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; text-align: center; }
+        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; text-align: center; }
         
         .admin-panel {
-            background: rgba(212, 175, 55, 0.1);
+            background: rgba(212, 175, 55, 0.05);
             border: 1px solid var(--dorado);
             padding: 20px;
             border-radius: 15px;
-            max-width: 600px;
-            margin: 0 auto 30px;
+            margin-bottom: 30px;
         }
-        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: white; margin: 5px; width: 80%; }
-        button { background: var(--dorado); color: black; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 85%; margin-top: 10px; text-transform: uppercase; }
-        button:hover { background: #b8952d; }
+        input, select { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; margin: 5px; }
+        button { background: var(--dorado); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
         
-        #status { margin-top: 15px; font-weight: bold; color: var(--dorado); }
+        table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; margin-top: 20px; }
+        th { background: var(--dorado); color: black; padding: 15px; }
+        td { padding: 12px; border-bottom: 1px solid #333; text-align: center; }
+        .badge { padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .bg-si { background: var(--verde); color: white; }
+        .bg-no { background: var(--rojo); color: white; }
     </style>
 </head>
 <body>
 
+<div class="container">
     <h1>Panel Administrativo 💈</h1>
-    <p>GESTIÓN DE MIEMBROS</p>
-
+    
     <div class="admin-panel">
         <h3>➕ Registrar Nuevo Miembro</h3>
         <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
-        <input type="number" id="nuevoDni" placeholder="DNI (Sin puntos)">
+        <input type="number" id="nuevoDni" placeholder="DNI">
         <select id="nuevoRol">
             <option value="Estudiante">Estudiante</option>
             <option value="Barbero">Barbero</option>
         </select>
-        <button onclick="registrarUsuario()">Guardar en Base de Datos</button>
-        <div id="status"></div>
+        <button onclick="registrarUsuario()">GUARDAR</button>
     </div>
 
-    <script>
-        // TU URL DE GOOGLE APPS SCRIPT
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
+    <h2>📍 Lista de Miembros en Sistema</h2>
+    <button onclick="cargarMiembros()" style="background: #444; color: white; margin-bottom: 10px;">🔄 Sincronizar con Excel</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th>Cuota</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-miembros">
+            <tr><td colspan="4">Cargando datos...</td></tr>
+        </tbody>
+    </table>
+</div>
 
-        async function registrarUsuario() {
-            const nombre = document.getElementById('nuevoNombre').value.trim();
-            const dni = document.getElementById('nuevoDni').value.trim();
-            const rol = document.getElementById('nuevoRol').value;
-            const statusDiv = document.getElementById('status');
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
-            if(!nombre || !dni) {
-                alert("Por favor, completa Nombre y DNI");
-                return;
-            }
-
-            statusDiv.innerText = "⏳ Guardando en Google Sheets...";
-
-            try {
-                // Importante: Enviamos action=add para que el Script sepa que es un registro
-                const params = `?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&t=${Date.now()}`;
-                
-                const response = await fetch(WEB_APP_URL + params);
-                const data = await response.json();
-
-                if(data.success) {
-                    alert("✅ Registrado con éxito: " + nombre);
-                    document.getElementById('nuevoNombre').value = "";
-                    document.getElementById('nuevoDni').value = "";
-                    statusDiv.innerText = "¡Registro exitoso!";
-                } else {
-                    alert("❌ Error al guardar.");
-                    statusDiv.innerText = "Error en el servidor.";
-                }
-            } catch (err) {
-                // Si hay error de CORS pero los datos llegan al Excel, lo manejamos
-                console.log("CORS o Red:", err);
-                alert("Petición enviada. Verificá tu planilla de Excel en unos segundos.");
-                statusDiv.innerText = "Verificá el Excel.";
-            }
+    // 1. FUNCIÓN PARA CARGAR LA LISTA DESDE EXCEL
+    async function cargarMiembros() {
+        const tabla = document.getElementById('tabla-miembros');
+        try {
+            const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
+            const data = await res.json();
+            
+            tabla.innerHTML = "";
+            data.forEach(m => {
+                const badgeClass = m.cuota.toUpperCase() === 'SI' ? 'bg-si' : 'bg-no';
+                tabla.innerHTML += `
+                    <tr>
+                        <td>${m.dni}</td>
+                        <td style="text-align: left;">${m.nombre}</td>
+                        <td>${m.rol}</td>
+                        <td><span class="badge ${badgeClass}">${m.cuota}</span></td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            tabla.innerHTML = "<tr><td colspan='4'>Error al conectar con Google Sheets</td></tr>";
         }
-    </script>
+    }
+
+    // 2. FUNCIÓN PARA REGISTRAR
+    async function registrarUsuario() {
+        const nombre = document.getElementById('nuevoNombre').value;
+        const dni = document.getElementById('nuevoDni').value;
+        const rol = document.getElementById('nuevoRol').value;
+
+        if(!nombre || !dni) return alert("Completa todos los campos");
+
+        try {
+            const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}`;
+            await fetch(url);
+            alert("✅ Guardado correctamente");
+            document.getElementById('nuevoNombre').value = "";
+            document.getElementById('nuevoDni').value = "";
+            cargarMiembros(); // Recargamos la tabla automáticamente
+        } catch (e) {
+            alert("Enviado. Refresca la lista en unos segundos.");
+            cargarMiembros();
+        }
+    }
+
+    // Cargar al iniciar la página
+    window.onload = cargarMiembros;
+</script>
+
 </body>
 </html>
