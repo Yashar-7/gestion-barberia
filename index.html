@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Asistencia - SmartBarber</title>
+    <title>SmartBarber - Gestión de Asistencia</title>
     <style>
         :root {
             --dorado: #d4af37;
@@ -16,7 +16,7 @@
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
                         url('black_school.jpg');
             background-size: cover;
             background-position: center;
@@ -32,104 +32,96 @@
         }
 
         #reloj {
-            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            font-size: clamp(2rem, 7vw, 3.5rem);
             font-weight: bold;
             color: var(--dorado);
             margin-bottom: 20px;
             text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
-            background: rgba(0,0,0,0.4);
-            padding: 10px 30px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 40px;
             border-radius: 50px;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
         }
 
         .card { 
-            background: rgba(20, 20, 20, 0.85); 
-            padding: 2rem; 
-            border-radius: 25px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9); 
+            background: rgba(25, 25, 25, 0.9); 
+            padding: 2.5rem; 
+            border-radius: 30px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
             text-align: center; 
             width: 85%;
-            max-width: 400px; 
+            max-width: 420px; 
             border: 1px solid rgba(212, 175, 55, 0.3);
             position: relative;
-            backdrop-filter: blur(15px);
-        }
-
-        .card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 6px;
-            background: linear-gradient(90deg, transparent, var(--dorado), transparent);
-            border-radius: 20px 20px 0 0;
-        }
-        
-        .logo-container {
-            margin-bottom: 15px;
-        }
-        .logo-container img {
-            width: 140px;
-            height: auto;
-            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+            backdrop-filter: blur(20px);
         }
 
         h1 { 
             color: var(--dorado); 
-            margin: 5px 0; 
-            font-size: 1.6rem;
+            margin: 10px 0; 
+            font-size: 1.8rem;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
         }
 
-        p { color: #aaa; margin-bottom: 25px; font-size: 0.85rem; letter-spacing: 1px; }
+        p { color: #888; margin-bottom: 30px; font-size: 0.9rem; letter-spacing: 2px; }
 
         input { 
             width: 100%; 
-            padding: 18px; 
-            margin-bottom: 20px; 
-            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 25px; 
+            border-radius: 15px; 
             border: 2px solid #333; 
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             color: var(--dorado);
-            font-size: 1.6rem; 
+            font-size: 2rem; 
             text-align: center; 
             box-sizing: border-box;
             outline: none;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         input:focus { 
             border-color: var(--dorado); 
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
         }
 
         button { 
             background: var(--dorado); 
             color: black; 
             border: none; 
-            padding: 18px; 
-            border-radius: 12px; 
-            font-weight: bold; 
+            padding: 20px; 
+            border-radius: 15px; 
+            font-weight: 900; 
             cursor: pointer; 
-            font-size: 1.1rem; 
+            font-size: 1.2rem; 
             width: 100%; 
             transition: all 0.3s;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
+
+        button:active { transform: scale(0.98); }
 
         #mensaje { 
             margin-top: 25px; 
-            border-radius: 12px;
+            border-radius: 15px;
             display: none;
-            padding: 15px;
+            padding: 20px;
+            animation: fadeIn 0.4s ease;
         }
 
-        .info-cuota { font-weight: bold; font-size: 1.1rem; margin: 8px 0; }
-        .info-motivacion { font-style: italic; color: #ddd; margin-top: 8px; font-size: 0.9rem; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .exito { background: rgba(76, 175, 80, 0.2) !important; color: #81c784 !important; border: 1px solid var(--verde) !important; display: block !important; }
-        .error { background: rgba(244, 67, 54, 0.2) !important; color: #e57373 !important; border: 1px solid var(--rojo) !important; display: block !important; }
-        .espera { background: rgba(212, 175, 55, 0.1) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
+        .info-cuota { font-weight: bold; font-size: 1.2rem; margin: 10px 0; }
+        .info-motivacion { font-style: italic; color: #eee; margin-top: 10px; font-size: 0.95rem; }
+
+        /* Estados de respuesta */
+        .exito { background: rgba(76, 175, 80, 0.25) !important; color: #a2fca2 !important; border: 1px solid var(--verde) !important; display: block !important; }
+        .salida { background: rgba(255, 152, 0, 0.25) !important; color: #ffcc80 !important; border: 1px solid var(--naranja) !important; display: block !important; }
+        .error { background: rgba(244, 67, 54, 0.25) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
+        .espera { background: rgba(212, 175, 55, 0.15) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
     </style>
 </head>
 <body>
@@ -137,37 +129,32 @@
     <div id="reloj">00:00:00</div>
 
     <div class="card">
-        <div class="logo-container">
-            <img src="logo.png" alt="Logo">
-        </div>
         <h1>💈 SmartBarber</h1>
-        <p>CONTROL DE ASISTENCIA</p>
+        <p>REGISTRO DE TURNO</p>
         
-        <input type="number" id="dni" placeholder="INGRESE DNI" inputmode="numeric" pattern="[0-9]*" autofocus>
-        <button id="btnRegistrar" onclick="marcar()">REGISTRAR INGRESO</button>
+        <input type="number" id="dni" placeholder="DNI" inputmode="numeric" autofocus>
+        <button id="btnRegistrar" onclick="marcar()">REGISTRAR</button>
         
         <div id="mensaje">
-            <div id="msg-texto" style="font-weight: bold; font-size: 1.2rem;"></div>
+            <div id="msg-texto" style="font-weight: 900; font-size: 1.4rem;"></div>
             <div id="msg-cuota" class="info-cuota"></div>
             <div id="msg-motivacion" class="info-motivacion"></div>
         </div>
     </div>
 
     <script>
-        // URL de tu Google Apps Script
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzzCYvnMgejXSTFlZ-2A8iA4LX4cgffPjxlZlK_G8g4QLdBBjRVooBqK6JoMjW-DTvT8g/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxVN6oHIIzypZHu5pdf53mziOqNYDm31rZtBd7pT7wdKwU6eXMfJFyxvXAotKgJonN6/exec";
 
         function actualizarReloj() {
             const ahora = new Date();
-            const tiempo = ahora.toLocaleTimeString('es-AR');
-            document.getElementById('reloj').innerText = tiempo;
+            document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-AR');
         }
         setInterval(actualizarReloj, 1000);
         actualizarReloj();
 
         async function marcar() {
             const dniInput = document.getElementById('dni');
-            const dni = dniInput.value;
+            const dni = dniInput.value.trim();
             if(!dni) return;
 
             const div = document.getElementById('mensaje');
@@ -175,54 +162,53 @@
             const msgCuota = document.getElementById('msg-cuota');
             const msgMotivacion = document.getElementById('msg-motivacion');
 
-            // Estado de espera
             div.style.display = "block";
             div.className = "espera";
-            msgTexto.innerText = "Buscando en base de datos...";
+            msgTexto.innerText = "VERIFICANDO...";
             msgCuota.innerText = "";
             msgMotivacion.innerText = "";
 
             try {
-                // Consultamos a Google Sheets
-                const response = await fetch(`${WEB_APP_URL}?dni=${dni}`);
+                const response = await fetch(`${WEB_APP_URL}?dni=${dni}&t=${Date.now()}`);
                 const data = await response.json();
                 
                 if(data.success) {
-                    div.className = 'exito';
-                    msgTexto.innerText = `¡Hola, ${data.nombre}!`;
+                    // Cambiamos color según ENTRADA o SALIDA
+                    div.className = (data.accion === "SALIDA") ? 'salida' : 'exito';
+                    msgTexto.innerText = `${data.accion}: ${data.nombre}`;
                     
-                    // Lógica de cuota
-                    if(data.cuota.toUpperCase() === "SI") {
-                        msgCuota.innerText = "✅ Cuota al día";
-                        msgCuota.style.color = "#81c784";
-                        msgMotivacion.innerText = "¡Que tengas una excelente clase!";
+                    if(data.accion === "ENTRADA") {
+                        const cuotaStatus = data.cuota ? data.cuota.toString().toUpperCase() : "";
+                        if(cuotaStatus === "SI") {
+                            msgCuota.innerText = "✅ ACCESO AUTORIZADO";
+                            msgCuota.style.color = "#a2fca2";
+                            msgMotivacion.innerText = "¡Buen inicio de turno! " + data.hora;
+                        } else {
+                            msgCuota.innerText = "⚠️ REVISAR ADMINISTRACIÓN";
+                            msgCuota.style.color = "#ffcc80";
+                            msgMotivacion.innerText = "Tu cuota figura pendiente.";
+                        }
                     } else {
-                        msgCuota.innerText = "⚠️ Cuota Pendiente";
-                        msgCuota.style.color = "#ffb74d";
-                        msgMotivacion.innerText = "Por favor, pasá por administración.";
+                        msgCuota.innerText = "¡NOS VEMOS LUEGO!";
+                        msgMotivacion.innerText = "Salida registrada a las " + data.hora;
                     }
                 } else {
                     div.className = 'error';
-                    msgTexto.innerText = "DNI no encontrado";
-                    msgMotivacion.innerText = "Verificá el número o registrate en admin.";
+                    msgTexto.innerText = "DNI NO REGISTRADO";
+                    msgMotivacion.innerText = "Consultá con el encargado.";
                 }
-
+            } catch (err) {
+                div.className = 'error';
+                msgTexto.innerText = "❌ ERROR DE RED";
+                msgMotivacion.innerText = "Intentá de nuevo.";
+            } finally {
                 dniInput.value = '';
                 dniInput.focus();
-
-                // Ocultar mensaje después de 6 segundos
-                setTimeout(() => {
-                    div.style.display = "none";
-                }, 6000);
-
-            } catch (err) {
-                console.error(err);
-                div.className = 'error';
-                msgTexto.innerText = "❌ Error de conexión";
+                setTimeout(() => { div.style.display = "none"; }, 6000);
             }
         }
 
-        document.getElementById('dni').addEventListener('keypress', function (e) {
+        document.getElementById('dni').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') marcar();
         });
     </script>
