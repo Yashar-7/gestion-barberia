@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Barber School</title>
+    <title>Admin - SmartBarber</title>
     <style>
         :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --azul: #0099ff; }
         body { font-family: sans-serif; background-color: var(--oscuro); color: white; padding: 20px; text-align: center; }
@@ -18,7 +18,6 @@
         }
         input, select { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; margin: 5px; }
         button { background: var(--dorado); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { opacity: 0.8; }
         
         table { width: 100%; max-width: 950px; margin: 0 auto; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
         th { background: var(--dorado); color: black; padding: 15px; }
@@ -27,139 +26,61 @@
         .badge-rol { padding: 4px 8px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
         .rol-barbero { background: var(--azul); color: white; }
         .rol-estudiante { background: #444; color: #ccc; }
-
-        .badge-deuda { color: var(--rojo); font-weight: bold; }
-        .badge-pago { color: #44ff44; font-weight: bold; }
-        
-        .btn-pagar { background: #2e7d32; color: white; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-eliminar { background: var(--rojo); color: white; padding: 5px 10px; font-size: 0.8rem; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <h1>Panel Administrativo 💈</h1>
-    <h2 style="color: var(--dorado); margin-bottom: 20px;">📍 Personas en el Local Ahora</h2>
+    <p style="color: var(--dorado)">GESTIÓN DE BASE DE DATOS EN TIEMPO REAL</p>
 
     <div class="admin-panel">
         <h3>➕ Registrar Nuevo Miembro</h3>
         <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
         <input type="number" id="nuevoDni" placeholder="DNI">
         <select id="nuevoRol">
-            <option value="estudiante">Estudiante</option>
-            <option value="barbero">Barbero</option>
+            <option value="Estudiante">Estudiante</option>
+            <option value="Barbero">Barbero</option>
         </select>
-        <button onclick="registrarUsuario()">Guardar en Base de Datos</button>
+        <button onclick="registrarUsuario()">Guardar en Google Sheets</button>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Rol</th>
-                <th>DNI</th>
-                <th>Entrada</th>
-                <th>Cuota</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-presentes"></tbody>
-    </table>
+    <div id="status" style="margin-bottom: 10px; color: var(--dorado); font-weight: bold;"></div>
 
     <script>
-        async function cargarPresentes() {
-            try {
-                const res = await fetch('/api/presentes');
-                const datos = await res.json();
-                const tabla = document.getElementById('tabla-presentes');
-                tabla.innerHTML = "";
-
-                if (datos.length === 0) {
-                    tabla.innerHTML = "<tr><td colspan='6' style='padding:20px; color:#888;'>No hay nadie presente en este momento.</td></tr>";
-                    return;
-                }
-
-                datos.forEach(reg => {
-                    const user = reg.users;
-                    const pagado = user.cuota_pagada;
-                    const rol = (user.role || 'estudiante').toLowerCase();
-                    const hora = new Date(reg.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    
-                    tabla.innerHTML += `
-                        <tr>
-                            <td style="text-align: left; padding-left: 20px;">${user.full_name}</td>
-                            <td><span class="badge-rol ${rol === 'barbero' ? 'rol-barbero' : 'rol-estudiante'}">${rol}</span></td>
-                            <td>${reg.user_id}</td>
-                            <td>${hora} hs</td>
-                            <td>
-                                ${rol === 'estudiante' 
-                                    ? `<span class="${pagado ? 'badge-pago' : 'badge-deuda'}">${pagado ? 'Al Día' : 'Pendiente'}</span>` 
-                                    : '<span style="color:#888">Personal</span>'}
-                            </td>
-                            <td>
-                                ${rol === 'estudiante' && !pagado ? `<button class="btn-pagar" onclick="marcarPago('${reg.user_id}')">💰 Pagar</button>` : ''}
-                                <button class="btn-eliminar" onclick="eliminarUsuario('${reg.user_id}')">🗑️ Borrar</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } catch (err) { console.error("Error cargando tabla"); }
-        }
+        // URL DE TU GOOGLE APPS SCRIPT (LA MISMA QUE USASTE EN EL INDEX)
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
         async function registrarUsuario() {
-            const full_name = document.getElementById('nuevoNombre').value;
+            const nombre = document.getElementById('nuevoNombre').value;
             const dni = document.getElementById('nuevoDni').value;
-            const role = document.getElementById('nuevoRol').value;
+            const rol = document.getElementById('nuevoRol').value;
+            const status = document.getElementById('status');
 
-            if(!full_name || !dni) return alert("Por favor, completa todos los campos.");
+            if(!nombre || !dni) return alert("Completa nombre y DNI");
 
-            const res = await fetch('/api/usuarios', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ full_name, dni, role })
-            });
-            const data = await res.json();
+            status.innerText = "⏳ Guardando en la nube...";
 
-            if(data.success) {
-                alert(`✅ ${full_name} registrado correctamente como ${role}.`);
-                document.getElementById('nuevoNombre').value = "";
-                document.getElementById('nuevoDni').value = "";
-                cargarPresentes();
-            } else {
-                alert("❌ Error: " + data.message);
+            try {
+                // Enviamos los datos a Google Sheets usando modo 'no-cors' para el envío simple
+                // O usamos una URL con parámetros para que el doGet que ya tienes lo procese
+                const urlRegistro = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}`;
+                
+                const res = await fetch(urlRegistro);
+                const data = await res.json();
+
+                if(data.success || res.ok) {
+                    alert(`✅ ${nombre} guardado con éxito.`);
+                    document.getElementById('nuevoNombre').value = "";
+                    document.getElementById('nuevoDni').value = "";
+                    status.innerText = "¡Listo!";
+                }
+            } catch (err) {
+                console.error(err);
+                // Si da error de CORS pero se guarda igual, avisamos
+                alert("Verificá tu Excel. Si no aparece, es necesario actualizar el Script.");
+                status.innerText = "";
             }
         }
-
-        async function marcarPago(id) {
-            if(!confirm("¿Confirmar pago de cuota?")) return;
-            const res = await fetch('/api/usuarios/pagar', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id })
-            });
-            if(res.ok) {
-                alert("✅ Pago registrado con éxito.");
-                cargarPresentes();
-            }
-        }
-
-        async function eliminarUsuario(id) {
-            if(!confirm("⚠️ ¿ESTÁS SEGURO? \nEsto eliminará permanentemente a la persona de la base de datos.")) return;
-            
-            const res = await fetch(`/api/usuarios/${id}`, {
-                method: 'DELETE'
-            });
-            
-            if(res.ok) {
-                alert("🗑️ Usuario eliminado.");
-                cargarPresentes();
-            } else {
-                alert("❌ No se pudo eliminar el usuario.");
-            }
-        }
-
-        // Carga inicial y refresco cada 30 segundos
-        cargarPresentes();
-        setInterval(cargarPresentes, 30000);
     </script>
 </body>
 </html>
