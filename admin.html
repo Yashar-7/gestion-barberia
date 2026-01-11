@@ -7,7 +7,7 @@
     <style>
         :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; text-align: center; }
+        .container { max-width: 950px; margin: 0 auto; text-align: center; }
         
         .admin-panel {
             background: rgba(212, 175, 55, 0.05);
@@ -25,6 +25,7 @@
         .badge { padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
         .bg-si { background: var(--verde); color: white; }
         .bg-no { background: var(--rojo); color: white; }
+        .vencimiento-texto { font-size: 0.9rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -53,10 +54,10 @@
                 <th>Nombre</th>
                 <th>Rol</th>
                 <th>Cuota</th>
-            </tr>
+                <th>Vencimiento</th> </tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="4">Cargando datos...</td></tr>
+            <tr><td colspan="5">Cargando datos...</td></tr>
         </tbody>
     </table>
 </div>
@@ -64,7 +65,6 @@
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
-    // 1. FUNCIÓN PARA CARGAR LA LISTA DESDE EXCEL
     async function cargarMiembros() {
         const tabla = document.getElementById('tabla-miembros');
         try {
@@ -74,21 +74,24 @@
             tabla.innerHTML = "";
             data.forEach(m => {
                 const badgeClass = m.cuota.toUpperCase() === 'SI' ? 'bg-si' : 'bg-no';
+                // Definimos el color de la fecha: Rojo si ya venció (Cuota NO)
+                const fechaColor = m.cuota.toUpperCase() === 'NO' ? 'var(--rojo)' : '#aaa';
+                
                 tabla.innerHTML += `
                     <tr>
                         <td>${m.dni}</td>
                         <td style="text-align: left;">${m.nombre}</td>
                         <td>${m.rol}</td>
                         <td><span class="badge ${badgeClass}">${m.cuota}</span></td>
+                        <td class="vencimiento-texto" style="color: ${fechaColor};">${m.vencimiento || '---'}</td>
                     </tr>
                 `;
             });
         } catch (e) {
-            tabla.innerHTML = "<tr><td colspan='4'>Error al conectar con Google Sheets</td></tr>";
+            tabla.innerHTML = "<tr><td colspan='5'>Error al conectar con Google Sheets</td></tr>";
         }
     }
 
-    // 2. FUNCIÓN PARA REGISTRAR
     async function registrarUsuario() {
         const nombre = document.getElementById('nuevoNombre').value;
         const dni = document.getElementById('nuevoDni').value;
@@ -102,14 +105,13 @@
             alert("✅ Guardado correctamente");
             document.getElementById('nuevoNombre').value = "";
             document.getElementById('nuevoDni').value = "";
-            cargarMiembros(); // Recargamos la tabla automáticamente
+            cargarMiembros(); 
         } catch (e) {
             alert("Enviado. Refresca la lista en unos segundos.");
             cargarMiembros();
         }
     }
 
-    // Cargar al iniciar la página
     window.onload = cargarMiembros;
 </script>
 
