@@ -197,22 +197,29 @@
                         const rol = data.rol ? data.rol.toUpperCase() : "";
                         const cuota = data.cuota ? data.cuota.toString().toUpperCase() : "";
 
-                        if(rol === "BARBERO") {
+                        // SONIDO: Caja para cuota al día, Ding para el resto
+                        if (cuota === "SI") {
+                            sonidoCaja.play();
+                        } else {
                             sonidoDing.play();
+                        }
+
+                        if(rol === "BARBERO") {
                             msgCuota.innerText = "⚡ EQUIPO SMARTBARBER";
                             msgMotivacion.innerText = "¡Buen turno, colega! Hoy se corta fuerte.";
                             saludoVoz = `¡Bienvenido ${data.nombre}! Buen turno colega, hoy se corta fuerte.`;
-                        } else if(cuota === "SI") {
-                            sonidoCaja.play();
-                            msgCuota.innerText = "✅ CUOTA AL DÍA";
-                            msgMotivacion.innerText = "¡A darle con todo al estudio!";
-                            saludoVoz = `Hola ${data.nombre}, un gusto verte. Que tengas una excelente clase.`;
                         } else {
-                            // DISCRECIÓN PARA DEUDORES
-                            sonidoDing.play();
-                            msgCuota.innerText = "⚠️ REVISAR PAGO";
-                            msgMotivacion.innerText = "Por favor, acercate a administración.";
-                            saludoVoz = `Hola ${data.nombre}, por favor consulta en recepción antes de ingresar.`;
+                            // SALUDO UNIFICADO Y POSITIVO PARA TODOS LOS ALUMNOS
+                            if(cuota === "SI") {
+                                msgCuota.innerText = "✅ CUOTA AL DÍA";
+                                msgMotivacion.innerText = "¡A darle con todo al estudio!";
+                            } else {
+                                // En pantalla se ve el aviso, pero la voz dirá lo mismo que a todos
+                                msgCuota.innerText = "⚠️ REVISAR PAGO";
+                                msgMotivacion.innerText = "Por favor, consultar con administración.";
+                            }
+                            // La voz es 100% amigable e igual para todos
+                            saludoVoz = `Hola ${data.nombre}, bienvenido a Smart Barber. ¡Qué bueno verte!`;
                         }
                     } else {
                         sonidoDing.play();
@@ -227,7 +234,7 @@
                     div.className = 'error';
                     msgTexto.innerText = "DNI NO ENCONTRADO";
                     msgMotivacion.innerText = "Verificá los datos con el encargado.";
-                    hablar("DNI no encontrado. Intenta nuevamente.");
+                    hablar("DNI no encontrado.");
                 }
             } catch (err) {
                 div.className = 'error';
@@ -244,7 +251,6 @@
             if (e.key === 'Enter') marcar();
         });
 
-        // Habilita el audio con el primer clic del usuario en la pantalla
         document.body.addEventListener('click', () => {
             const silence = new SpeechSynthesisUtterance("");
             window.speechSynthesis.speak(silence);
