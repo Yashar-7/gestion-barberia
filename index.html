@@ -55,6 +55,13 @@
             backdrop-filter: blur(20px);
         }
 
+        /* Estilo para el Logo PNG */
+        .logo-png {
+            width: 120px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+        }
+
         h1 { 
             color: var(--dorado); 
             margin: 10px 0; 
@@ -113,6 +120,8 @@
     <div id="reloj">00:00:00</div>
 
     <div class="card">
+        <img src="logo.png" alt="Logo SmartBarber" class="logo-png">
+        
         <h1>💈 SmartBarber</h1>
         <p>CONTROL DE ASISTENCIA</p>
         
@@ -127,7 +136,6 @@
     </div>
 
     <script>
-        // URL DE TU NUEVA IMPLEMENTACIÓN
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
         function actualizarReloj() {
@@ -154,20 +162,24 @@
             msgMotivacion.innerText = "";
 
             try {
-                // Usamos t=Date.now() para evitar que el navegador guarde una respuesta vieja
                 const response = await fetch(`${WEB_APP_URL}?dni=${dni}&t=${Date.now()}`);
                 const data = await response.json();
                 
                 if(data.success) {
-                    // Cambia a NARANJA si es SALIDA o VERDE si es ENTRADA
                     div.className = (data.accion === "SALIDA") ? 'salida' : 'exito';
                     msgTexto.innerText = `${data.accion}: ${data.nombre}`;
                     
                     if(data.accion === "ENTRADA") {
+                        // LÓGICA ESPECIAL PARA ROLES
+                        const rol = data.rol ? data.rol.toUpperCase() : "";
                         const cuota = data.cuota ? data.cuota.toString().toUpperCase() : "";
-                        if(cuota === "SI") {
+
+                        if(rol === "BARBERO") {
+                            msgCuota.innerText = "⚡ EQUIPO SMARTBARBER";
+                            msgMotivacion.innerText = "¡Buen turno, colega! Ingreso: " + data.hora;
+                        } else if(cuota === "SI") {
                             msgCuota.innerText = "✅ CUOTA AL DÍA";
-                            msgMotivacion.innerText = "¡Buen turno! Ingreso: " + data.hora;
+                            msgMotivacion.innerText = "¡Bienvenido! Ingreso: " + data.hora;
                         } else {
                             msgCuota.innerText = "⚠️ REVISAR PAGO";
                             msgMotivacion.innerText = "Por favor, pasá por administración.";
