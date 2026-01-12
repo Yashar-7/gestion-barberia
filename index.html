@@ -137,13 +137,25 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
-        // Función de Voz
+        // CONFIGURACIÓN DE SONIDOS
+        const sonidoCaja = new Audio('https://www.myinstants.com/media/sounds/cash-register-purchase.mp3');
+        const sonidoDing = new Audio('https://www.myinstants.com/media/sounds/ding-sound-effect_2.mp3');
+
+        // FUNCIÓN DE VOZ MEJORADA
         function hablar(texto) {
             if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
                 const mensaje = new SpeechSynthesisUtterance(texto);
+                let voces = window.speechSynthesis.getVoices();
+
+                // Busca una voz natural en español
+                let vozPreferida = voces.find(v => v.name.includes('Google') && v.lang.includes('es')) || 
+                                   voces.find(v => v.lang.includes('es'));
+
+                if (vozPreferida) mensaje.voice = vozPreferida;
                 mensaje.lang = 'es-ES';
-                mensaje.rate = 1.1; // Un poquito más rápido para que suene natural
-                mensaje.pitch = 1;
+                mensaje.rate = 1.05; 
+                mensaje.pitch = 1.02;
                 window.speechSynthesis.speak(mensaje);
             }
         }
@@ -186,22 +198,27 @@
                         const cuota = data.cuota ? data.cuota.toString().toUpperCase() : "";
 
                         if(rol === "BARBERO") {
+                            sonidoDing.play();
                             msgCuota.innerText = "⚡ EQUIPO SMARTBARBER";
                             msgMotivacion.innerText = "¡Buen turno, colega! Hoy se corta fuerte.";
                             saludoVoz = `¡Bienvenido ${data.nombre}! Buen turno colega, hoy se corta fuerte.`;
                         } else if(cuota === "SI") {
+                            sonidoCaja.play();
                             msgCuota.innerText = "✅ CUOTA AL DÍA";
                             msgMotivacion.innerText = "¡A darle con todo al estudio!";
-                            saludoVoz = `Hola ${data.nombre}, bienvenido a Smart Barber. A darle con todo al estudio.`;
+                            saludoVoz = `Hola ${data.nombre}, un gusto verte. Que tengas una excelente clase.`;
                         } else {
+                            // DISCRECIÓN PARA DEUDORES
+                            sonidoDing.play();
                             msgCuota.innerText = "⚠️ REVISAR PAGO";
-                            msgMotivacion.innerText = "Por favor, pasá por administración.";
-                            saludoVoz = `Atención ${data.nombre}. Por favor, pasa por administración antes de ingresar.`;
+                            msgMotivacion.innerText = "Por favor, acercate a administración.";
+                            saludoVoz = `Hola ${data.nombre}, por favor consulta en recepción antes de ingresar.`;
                         }
                     } else {
+                        sonidoDing.play();
                         msgCuota.innerText = "¡HASTA LUEGO!";
                         msgMotivacion.innerText = "Que tengas un excelente descanso.";
-                        saludoVoz = `Hasta luego ${data.nombre}. Que tengas un excelente descanso.`;
+                        saludoVoz = `Hasta luego ${data.nombre}. Que descanses.`;
                     }
 
                     hablar(saludoVoz);
@@ -227,11 +244,14 @@
             if (e.key === 'Enter') marcar();
         });
 
-        // Truco para activar la voz: el primer clic en cualquier lado habilita el audio
+        // Habilita el audio con el primer clic del usuario en la pantalla
         document.body.addEventListener('click', () => {
             const silence = new SpeechSynthesisUtterance("");
             window.speechSynthesis.speak(silence);
+            window.speechSynthesis.getVoices();
         }, { once: true });
+
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     </script>
 </body>
 </html>
