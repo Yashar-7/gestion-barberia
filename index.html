@@ -55,7 +55,6 @@
             backdrop-filter: blur(20px);
         }
 
-        /* Estilo para el Logo PNG */
         .logo-png {
             width: 120px;
             margin-bottom: 15px;
@@ -138,6 +137,17 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
+        // Función de Voz
+        function hablar(texto) {
+            if ('speechSynthesis' in window) {
+                const mensaje = new SpeechSynthesisUtterance(texto);
+                mensaje.lang = 'es-ES';
+                mensaje.rate = 1.1; // Un poquito más rápido para que suene natural
+                mensaje.pitch = 1;
+                window.speechSynthesis.speak(mensaje);
+            }
+        }
+
         function actualizarReloj() {
             const ahora = new Date();
             document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-AR');
@@ -169,29 +179,38 @@
                     div.className = (data.accion === "SALIDA") ? 'salida' : 'exito';
                     msgTexto.innerText = `${data.accion}: ${data.nombre}`;
                     
+                    let saludoVoz = "";
+
                     if(data.accion === "ENTRADA") {
-                        // LÓGICA ESPECIAL PARA ROLES
                         const rol = data.rol ? data.rol.toUpperCase() : "";
                         const cuota = data.cuota ? data.cuota.toString().toUpperCase() : "";
 
                         if(rol === "BARBERO") {
                             msgCuota.innerText = "⚡ EQUIPO SMARTBARBER";
-                            msgMotivacion.innerText = "¡Buen turno, colega! Ingreso: " + data.hora;
+                            msgMotivacion.innerText = "¡Buen turno, colega! Hoy se corta fuerte.";
+                            saludoVoz = `¡Bienvenido ${data.nombre}! Buen turno colega, hoy se corta fuerte.`;
                         } else if(cuota === "SI") {
                             msgCuota.innerText = "✅ CUOTA AL DÍA";
-                            msgMotivacion.innerText = "¡Bienvenido! Ingreso: " + data.hora;
+                            msgMotivacion.innerText = "¡A darle con todo al estudio!";
+                            saludoVoz = `Hola ${data.nombre}, bienvenido a Smart Barber. A darle con todo al estudio.`;
                         } else {
                             msgCuota.innerText = "⚠️ REVISAR PAGO";
                             msgMotivacion.innerText = "Por favor, pasá por administración.";
+                            saludoVoz = `Atención ${data.nombre}. Por favor, pasa por administración antes de ingresar.`;
                         }
                     } else {
                         msgCuota.innerText = "¡HASTA LUEGO!";
-                        msgMotivacion.innerText = "Salida registrada: " + data.hora;
+                        msgMotivacion.innerText = "Que tengas un excelente descanso.";
+                        saludoVoz = `Hasta luego ${data.nombre}. Que tengas un excelente descanso.`;
                     }
+
+                    hablar(saludoVoz);
+
                 } else {
                     div.className = 'error';
                     msgTexto.innerText = "DNI NO ENCONTRADO";
                     msgMotivacion.innerText = "Verificá los datos con el encargado.";
+                    hablar("DNI no encontrado. Intenta nuevamente.");
                 }
             } catch (err) {
                 div.className = 'error';
@@ -207,6 +226,12 @@
         document.getElementById('dni').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') marcar();
         });
+
+        // Truco para activar la voz: el primer clic en cualquier lado habilita el audio
+        document.body.addEventListener('click', () => {
+            const silence = new SpeechSynthesisUtterance("");
+            window.speechSynthesis.speak(silence);
+        }, { once: true });
     </script>
 </body>
 </html>
