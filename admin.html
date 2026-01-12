@@ -7,7 +7,7 @@
     <style>
         :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; text-align: center; }
+        .container { max-width: 1100px; margin: 0 auto; text-align: center; }
         
         .admin-panel {
             background: rgba(212, 175, 55, 0.05);
@@ -31,6 +31,8 @@
         .bg-no { background: var(--rojo); color: white; }
         .vencimiento-texto { font-size: 0.9rem; font-weight: bold; }
 
+        /* Estilos de botones de acción */
+        .btn-renovar { background: var(--verde); color: white; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; }
         .btn-eliminar { background: var(--rojo); color: white; padding: 5px 10px; font-size: 0.8rem; }
         .btn-eliminar:hover { background: #cc0000; }
     </style>
@@ -76,7 +78,7 @@
 
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
-    let miembrosCache = []; // Guardamos la lista aquí para el buscador
+    let miembrosCache = []; 
 
     async function cargarMiembros() {
         const tabla = document.getElementById('tabla-miembros');
@@ -104,11 +106,24 @@
                     <td><span class="badge ${badgeClass}">${m.cuota}</span></td>
                     <td class="vencimiento-texto" style="color: ${fechaColor};">${m.vencimiento || '---'}</td>
                     <td>
+                        <button class="btn-renovar" onclick="renovarCuota('${m.dni}', '${m.nombre}')">➕ PAGO (+30d)</button>
                         <button class="btn-eliminar" onclick="eliminarMiembro('${m.dni}', '${m.nombre}')">🗑️ Borrar</button>
                     </td>
                 </tr>
             `;
         });
+    }
+
+    async function renovarCuota(dni, nombre) {
+        if(!confirm(`¿Deseas registrar pago para ${nombre}? Se sumarán 30 días a su vencimiento actual.`)) return;
+        try {
+            const url = `${WEB_APP_URL}?action=renew&dni=${dni}`;
+            await fetch(url);
+            alert("✅ Cuota renovada con éxito");
+            cargarMiembros();
+        } catch (e) {
+            alert("Error al renovar. Reintenta en unos segundos.");
+        }
     }
 
     function filtrarTabla() {
@@ -122,17 +137,13 @@
 
     async function eliminarMiembro(dni, nombre) {
         if(!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
-
         try {
             const url = `${WEB_APP_URL}?action=delete&dni=${dni}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            if(data.success) {
-                alert("Eliminado correctamente");
-                cargarMiembros();
-            }
+            await fetch(url);
+            alert("Eliminado correctamente");
+            cargarMiembros();
         } catch (e) {
-            alert("Solicitud enviada. Refresca la lista en unos segundos.");
+            alert("Solicitud enviada. Refresca la lista.");
             cargarMiembros();
         }
     }
@@ -144,10 +155,14 @@
 
         if(!nombre || !dni) return alert("Completa todos los campos");
 
+        // Cálculo de fecha automática: hoy + 30 días
+        const hoy = new Date();
+        const vencimientoAuto = new Date(hoy.getFullYear(), hoy.getMonth() + 1, hoy.getDate()).toISOString().split('T')[0];
+
         try {
-            const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}`;
+            const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&vencimiento=${vencimientoAuto}`;
             await fetch(url);
-            alert("✅ Guardado correctamente");
+            alert("✅ Guardado con éxito. Vencimiento: " + vencimientoAuto);
             document.getElementById('nuevoNombre').value = "";
             document.getElementById('nuevoDni').value = "";
             cargarMiembros(); 
