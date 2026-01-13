@@ -2,119 +2,96 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SmartBarber - Sistema de Asistencia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBarber - Asistencia</title>
     <style>
-        :root {
-            --dorado: #d4af37;
-            --oscuro: #121212;
-            --verde: #4caf50;
-            --rojo: #f44336;
-            --naranja: #ff9800;
-        }
-
-        /* Fuerza el fondo negro por si la imagen de la escuela no carga */
+        /* ESTILOS CRÍTICOS - NO ELIMINAR */
         body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: #000; 
-            background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('black_school.jpg');
+            background-color: #000000 !important; 
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('black_school.jpg');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
-            color: white; 
-            margin: 0; 
-            display: flex; 
+            color: #ffffff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            display: flex;
             flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh;
-            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
         }
 
         #reloj {
             font-size: 3.5rem;
+            color: #d4af37;
             font-weight: bold;
-            color: var(--dorado);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
             margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
-            background: rgba(0,0,0,0.7);
-            padding: 10px 45px;
+            background: rgba(20, 20, 20, 0.8);
+            padding: 10px 40px;
             border-radius: 50px;
-            border: 1px solid var(--dorado);
+            border: 2px solid #d4af37;
+        }
+
+        .card {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid #d4af37;
+            padding: 40px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             backdrop-filter: blur(10px);
         }
 
-        .card { 
-            background: rgba(20, 20, 20, 0.95); 
-            padding: 40px; 
-            border-radius: 30px; 
-            box-shadow: 0 25px 50px rgba(0,0,0,1); 
-            text-align: center; 
-            width: 90%;
-            max-width: 400px; 
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            backdrop-filter: blur(15px);
-        }
-
-        h1 { 
-            color: var(--dorado); 
-            margin: 10px 0; 
-            font-size: 1.8rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        input { 
-            width: 100%; 
-            padding: 15px; 
-            margin: 20px 0; 
-            border-radius: 12px; 
-            border: 2px solid #333; 
+        h1 { color: #d4af37; text-transform: uppercase; letter-spacing: 3px; margin: 0; font-size: 1.8rem; }
+        
+        input {
+            width: 100%;
             background: #000;
-            color: var(--dorado);
-            font-size: 2rem; 
-            text-align: center; 
+            border: 2px solid #444;
+            color: #d4af37;
+            padding: 15px;
+            font-size: 2rem;
+            text-align: center;
+            border-radius: 15px;
+            margin: 20px 0;
             outline: none;
+            box-sizing: border-box;
         }
+        input:focus { border-color: #d4af37; }
 
         .btn-group { display: flex; gap: 10px; }
-
-        button { 
+        
+        button {
             flex: 1;
-            padding: 18px; 
-            border-radius: 12px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            font-size: 1rem; 
-            text-transform: uppercase;
+            padding: 15px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
             border: none;
+            text-transform: uppercase;
             transition: 0.3s;
         }
 
-        .btn-entrada { background: var(--dorado); color: black; }
-        .btn-salida { background: #333; color: white; border: 1px solid #444; }
+        .btn-entrada { background: #d4af37; color: #000; }
+        .btn-salida { background: #333; color: #fff; border: 1px solid #555; }
 
-        #mensaje { 
-            margin-top: 25px; 
-            padding: 20px;
-            border-radius: 15px;
-            display: none; /* Se activa con JS */
-        }
-
-        /* Estados de mensaje */
-        .exito { border: 1px solid var(--verde); background: rgba(76, 175, 80, 0.2); color: #afffaf; }
-        .salida-msg { border: 1px solid var(--naranja); background: rgba(255, 152, 0, 0.2); color: #ffdbaf; }
-        .error { border: 1px solid var(--rojo); background: rgba(244, 67, 54, 0.2); color: #ffbaba; }
-        .espera { border: 1px solid var(--dorado); background: rgba(212, 175, 55, 0.1); color: var(--dorado); }
-
+        /* Mensajes de Respuesta */
+        #mensaje { margin-top: 20px; padding: 15px; border-radius: 15px; display: none; }
+        .exito { background: rgba(76, 175, 80, 0.2); border: 1px solid #4caf50; color: #afffaf; }
+        .salida-msg { background: rgba(255, 152, 0, 0.2); border: 1px solid #ff9800; color: #ffdbaf; }
+        .error { background: rgba(244, 67, 54, 0.2); border: 1px solid #f44336; color: #ffbaba; }
+        
         #user-foto {
-            width: 130px;
-            height: 130px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            border: 3px solid var(--dorado);
-            margin: 0 auto 15px;
-            display: none;
+            border: 3px solid #d4af37;
+            margin: 0 auto 10px;
             object-fit: cover;
+            display: none;
         }
     </style>
 </head>
@@ -123,9 +100,8 @@
     <div id="reloj">00:00:00</div>
 
     <div class="card">
-        <img src="logo.png" style="width: 80px;" onerror="this.style.display='none'">
-        <h1>SmartBarber</h1>
-        <p style="color: #888; margin-bottom: 20px;">SISTEMA DE ASISTENCIA</p>
+        <h1>💈 SmartBarber</h1>
+        <p style="color: #aaa; font-size: 0.9rem;">CONTROL DE ASISTENCIA</p>
         
         <input type="number" id="dni" placeholder="DNI" autofocus>
         
@@ -136,9 +112,8 @@
         
         <div id="mensaje">
             <img id="user-foto" src="">
-            <div id="msg-texto" style="font-weight: bold; font-size: 1.5rem;"></div>
-            <div id="msg-cuota"></div>
-            <div id="msg-motivacion" style="font-style: italic; margin-top: 10px;"></div>
+            <div id="msg-nombre" style="font-size: 1.5rem; font-weight: bold;"></div>
+            <div id="msg-extra" style="margin-top: 5px;"></div>
         </div>
     </div>
 
@@ -146,8 +121,7 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
         function actualizarReloj() {
-            const ahora = new Date();
-            document.getElementById('reloj').innerText = ahora.toLocaleTimeString();
+            document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
         }
         setInterval(actualizarReloj, 1000);
         actualizarReloj();
@@ -158,12 +132,11 @@
 
             const div = document.getElementById('mensaje');
             const img = document.getElementById('user-foto');
-            const txt = document.getElementById('msg-texto');
+            const nom = document.getElementById('msg-nombre');
 
-            // Mostrar estado de carga
             div.style.display = "block";
-            div.className = "espera";
-            txt.innerText = "BUSCANDO...";
+            div.className = ""; 
+            nom.innerText = "VERIFICANDO...";
             img.style.display = "none";
 
             try {
@@ -172,8 +145,8 @@
 
                 if(data.success) {
                     div.className = tipo === 'ENTRADA' ? 'exito' : 'salida-msg';
-                    txt.innerText = data.nombre;
-                    document.getElementById('msg-cuota').innerText = data.cuota === 'SI' ? "CUOTA AL DÍA" : "PAGO PENDIENTE";
+                    nom.innerText = data.nombre;
+                    document.getElementById('msg-extra').innerText = (tipo === 'ENTRADA') ? "¡Bienvenido!" : "¡Buen descanso!";
                     
                     if(data.foto) {
                         img.src = data.foto;
@@ -181,15 +154,17 @@
                     }
                 } else {
                     div.className = "error";
-                    txt.innerText = "NO ENCONTRADO";
+                    nom.innerText = "ERROR";
+                    document.getElementById('msg-extra').innerText = data.message || "No encontrado";
                 }
             } catch (e) {
                 div.className = "error";
-                txt.innerText = "ERROR DE CONEXIÓN";
+                nom.innerText = "SIN CONEXIÓN";
             }
 
-            setTimeout(() => { div.style.display = "none"; }, 5000);
+            setTimeout(() => { div.style.display = "none"; }, 6000);
             document.getElementById('dni').value = "";
+            document.getElementById('dni').focus();
         }
     </script>
 </body>
