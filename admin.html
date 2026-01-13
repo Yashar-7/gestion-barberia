@@ -5,62 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - SmartBarber</title>
     <style>
-        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; }
+        :root { 
+            --dorado: #d4af37; 
+            --oscuro: #121212; 
+            --gris: #1e1e1e; 
+            --rojo: #ff4444; 
+            --verde: #4caf50; 
+        }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--oscuro); 
+            color: white; 
+            padding: 20px; 
+            margin: 0;
+        }
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
         
+        /* Panel de Registro */
         .admin-panel {
             background: rgba(212, 175, 55, 0.05);
             border: 1px solid var(--dorado);
-            padding: 20px;
+            padding: 25px;
             border-radius: 15px;
             margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
-        input, select { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; margin: 5px; }
-        button { background: var(--dorado); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .admin-panel h3 { width: 100%; margin-top: 0; color: var(--dorado); }
         
-        .search-container { margin-bottom: 20px; text-align: left; }
-        #buscador { width: 100%; max-width: 300px; border-color: var(--dorado); padding: 12px; }
+        input, select { 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 1px solid #444; 
+            background: #000; 
+            color: white; 
+            outline: none;
+        }
+        input:focus { border-color: var(--dorado); }
+        
+        button { 
+            background: var(--dorado); 
+            color: black; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        button:hover { transform: scale(1.05); opacity: 0.9; }
+        
+        /* Buscador */
+        .search-container { 
+            margin-bottom: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: var(--gris);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        #buscador { width: 300px; border-color: var(--dorado); }
 
-        table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; margin-top: 20px; }
-        th { background: var(--dorado); color: black; padding: 15px; }
-        td { padding: 12px; border-bottom: 1px solid #333; text-align: center; }
+        /* Tabla */
+        table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
+        th { background: var(--dorado); color: black; padding: 15px; font-weight: bold; }
+        td { padding: 15px; border-bottom: 1px solid #333; text-align: center; vertical-align: middle; }
+        tr:hover { background: rgba(255,255,255,0.02); }
         
-        .badge { padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .badge { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
         .bg-si { background: var(--verde); color: white; }
         .bg-no { background: var(--rojo); color: white; }
-        .vencimiento-texto { font-size: 0.9rem; font-weight: bold; }
-
-        .btn-renovar { background: var(--verde); color: white; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; }
-        .btn-eliminar { background: var(--rojo); color: white; padding: 5px 10px; font-size: 0.8rem; }
-        .btn-eliminar:hover { background: #cc0000; }
         
-        /* Estilo para la foto en la tabla */
-        .img-tabla { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--dorado); }
+        .img-tabla { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--dorado); 
+            background: #000;
+        }
+
+        .btn-renovar { background: var(--verde); color: white; padding: 8px 12px; font-size: 0.75rem; margin-right: 5px; }
+        .btn-eliminar { background: var(--rojo); color: white; padding: 8px 12px; font-size: 0.75rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Panel Administrativo 💈</h1>
+    <h1>Panel Administrativo 💈 SmartBarber</h1>
     
     <div class="admin-panel">
         <h3>➕ Registrar Nuevo Miembro</h3>
         <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
         <input type="number" id="nuevoDni" placeholder="DNI">
         <input type="date" id="nuevoCumple" title="Fecha de Nacimiento">
-        <input type="text" id="nuevaFoto" placeholder="URL de la Foto (opcional)">
+        <input type="text" id="nuevaFoto" placeholder="URL de Foto (opcional)">
         <select id="nuevoRol">
             <option value="Estudiante">Estudiante</option>
             <option value="Barbero">Barbero</option>
         </select>
-        <button onclick="registrarUsuario()">GUARDAR</button>
+        <button onclick="registrarUsuario()">GUARDAR MIEMBRO</button>
     </div>
 
     <div class="search-container">
-        <h2>📍 Lista de Miembros</h2>
-        <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
-        <button onclick="cargarMiembros()" style="background: #444; color: white;">🔄 Sincronizar</button>
+        <h2 style="margin:0; font-size: 1.2rem;">📍 Gestión de Miembros</h2>
+        <div>
+            <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
+            <button onclick="cargarMiembros()" style="background: #444; color: white; padding: 10px;">🔄 Sincronizar</button>
+        </div>
     </div>
     
     <table>
@@ -76,15 +131,17 @@
             </tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="7">Cargando datos...</td></tr>
+            <tr><td colspan="7">Cargando base de datos...</td></tr>
         </tbody>
     </table>
 </div>
 
 <script>
+    // URL DE TU SCRIPT
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
     let miembrosCache = []; 
 
+    // CARGAR DATOS
     async function cargarMiembros() {
         const tabla = document.getElementById('tabla-miembros');
         try {
@@ -93,84 +150,103 @@
             renderizarTabla(miembrosCache);
         } catch (e) {
             console.error(e);
-            tabla.innerHTML = "<tr><td colspan='7'>Error al conectar con Google Sheets</td></tr>";
+            tabla.innerHTML = "<tr><td colspan='7' style='color:var(--rojo)'>Error de conexión con el servidor</td></tr>";
         }
     }
 
+    // DIBUJAR TABLA
     function renderizarTabla(datos) {
         const tabla = document.getElementById('tabla-miembros');
         tabla.innerHTML = "";
+        
+        if(datos.length === 0) {
+            tabla.innerHTML = "<tr><td colspan='7'>No se encontraron miembros</td></tr>";
+            return;
+        }
+
         datos.forEach(m => {
             const cuotaVal = m.cuota ? m.cuota.toUpperCase() : 'NO';
             const badgeClass = cuotaVal === 'SI' ? 'bg-si' : 'bg-no';
-            const fotoUrl = m.foto || "https://via.placeholder.com/40/000000/d4af37?text=B";
+            // Si no hay foto, ponemos una por defecto con estilo dorado
+            const fotoUrl = m.foto && m.foto.startsWith('http') ? m.foto : "https://via.placeholder.com/100/000000/d4af37?text=Perfil";
             
             tabla.innerHTML += `
                 <tr>
-                    <td><img src="${fotoUrl}" class="img-tabla"></td>
-                    <td>${m.dni}</td>
+                    <td><img src="${fotoUrl}" class="img-tabla" onerror="this.src='https://via.placeholder.com/100/000000/d4af37?text=Error'"></td>
+                    <td><b>${m.dni}</b></td>
                     <td style="text-align: left;">${m.nombre}</td>
                     <td>${m.rol || 'Estudiante'}</td>
                     <td><span class="badge ${badgeClass}">${cuotaVal}</span></td>
-                    <td class="vencimiento-texto">${m.vencimiento || '---'}</td>
+                    <td style="font-size:0.9rem; color:#aaa;">${m.vencimiento || 'No asignado'}</td>
                     <td>
                         <button class="btn-renovar" onclick="renovarCuota('${m.dni}', '${m.nombre}')">➕ PAGO</button>
-                        <button class="btn-eliminar" onclick="eliminarMiembro('${m.dni}', '${m.nombre}')">🗑️ Borrar</button>
+                        <button class="btn-eliminar" onclick="eliminarMiembro('${m.dni}', '${m.nombre}')">🗑️</button>
                     </td>
                 </tr>
             `;
         });
     }
 
+    // REGISTRAR
     async function registrarUsuario() {
-        const nombre = document.getElementById('nuevoNombre').value;
-        const dni = document.getElementById('nuevoDni').value;
+        const nombre = document.getElementById('nuevoNombre').value.trim();
+        const dni = document.getElementById('nuevoDni').value.trim();
         const cumple = document.getElementById('nuevoCumple').value;
-        const foto = document.getElementById('nuevaFoto').value;
+        const foto = document.getElementById('nuevaFoto').value.trim();
         const rol = document.getElementById('nuevoRol').value;
 
-        if(!nombre || !dni) return alert("Nombre y DNI son obligatorios");
+        if(!nombre || !dni) return alert("El Nombre y el DNI son campos obligatorios.");
 
         try {
+            // Construimos la URL con todos los parámetros necesarios para el script
             const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&cumple=${cumple}&foto=${encodeURIComponent(foto)}`;
+            
             await fetch(url);
-            alert("✅ Guardado con éxito");
+            alert("✅ " + nombre + " ha sido registrado exitosamente.");
+            
+            // Limpiar formulario
             document.getElementById('nuevoNombre').value = "";
             document.getElementById('nuevoDni').value = "";
             document.getElementById('nuevoCumple').value = "";
             document.getElementById('nuevaFoto').value = "";
+            
             cargarMiembros(); 
         } catch (e) {
-            alert("Error al registrar.");
+            alert("Error al intentar registrar el usuario.");
         }
     }
 
+    // REGISTRAR PAGO (RENOVAR)
     async function renovarCuota(dni, nombre) {
-        if(!confirm(`¿Registrar pago para ${nombre}?`)) return;
+        if(!confirm(`¿Confirmas el pago de cuota para ${nombre}?`)) return;
         try {
             await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`);
-            alert("✅ Cuota al día");
+            alert("✅ Cuota actualizada para " + nombre);
             cargarMiembros();
-        } catch (e) { alert("Error."); }
+        } catch (e) { alert("Error al procesar el pago."); }
     }
 
+    // ELIMINAR
     async function eliminarMiembro(dni, nombre) {
-        if(!confirm(`¿Eliminar a ${nombre}?`)) return;
+        if(!confirm(`¿ESTÁS SEGURO? Se eliminará a ${nombre} permanentemente.`)) return;
         try {
             await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`);
-            alert("Eliminado");
+            alert("Usuario eliminado correctamente.");
             cargarMiembros();
-        } catch (e) { alert("Error."); }
+        } catch (e) { alert("Error al eliminar."); }
     }
 
+    // BUSCADOR EN TIEMPO REAL
     function filtrarTabla() {
         const busqueda = document.getElementById('buscador').value.toLowerCase();
         const filtrados = miembrosCache.filter(m => 
-            m.nombre.toLowerCase().includes(busqueda) || m.dni.toString().includes(busqueda)
+            m.nombre.toLowerCase().includes(busqueda) || 
+            m.dni.toString().includes(busqueda)
         );
         renderizarTabla(filtrados);
     }
 
+    // Al cargar la página
     window.onload = cargarMiembros;
 </script>
 </body>
