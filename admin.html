@@ -8,38 +8,20 @@
         :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
-        
-        /* Logo en Admin */
         .admin-logo { width: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 5px var(--dorado)); }
-
-        .admin-panel {
-            background: rgba(212, 175, 55, 0.05);
-            border: 1px solid var(--dorado);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-        }
-
+        .admin-panel { background: rgba(212, 175, 55, 0.05); border: 1px solid var(--dorado); padding: 25px; border-radius: 15px; margin-bottom: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         .cam-box { display: flex; flex-direction: column; align-items: center; gap: 10px; }
         #video { border: 2px solid var(--dorado); border-radius: 10px; background: #000; width: 220px; height: 165px; object-fit: cover; }
         #canvas { display: none; }
-
         .form-box { display: flex; flex-direction: column; gap: 8px; width: 300px; }
         input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: white; outline: none; }
         input:focus { border-color: var(--dorado); }
-        
         button { background: var(--dorado); color: black; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { transform: scale(1.05); opacity: 0.9; }
         .btn-cam { background: #444; color: white; font-size: 0.8rem; }
         .btn-capture { background: var(--verde); color: white; font-size: 0.8rem; }
-
         .search-container { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--gris); padding: 15px; border-radius: 10px; }
         #buscador { width: 300px; border-color: var(--dorado); }
-
         table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; margin-bottom: 50px; }
         th { background: var(--dorado); color: black; padding: 15px; }
         td { padding: 12px; border-bottom: 1px solid #333; text-align: center; }
@@ -93,7 +75,6 @@
 </div>
 
 <script>
-    // URL DE TU GOOGLE SCRIPT (Asegúrate de que sea la última implementación)
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
     
     let miembrosCache = [];
@@ -105,13 +86,13 @@
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
             video.srcObject = stream;
-        } catch (err) { alert("Error: No se pudo acceder a la cámara. Asegúrate de usar HTTPS."); }
+        } catch (err) { alert("Error de cámara. Asegúrate de usar HTTPS en el celular."); }
     }
 
     function tomarFoto() {
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, 320, 240);
-        const dataURL = canvas.toDataURL('image/jpeg', 0.6);
+        const dataURL = canvas.toDataURL('image/jpeg', 0.5); // Comprimimos un poco más para el celular
         document.getElementById('nuevaFoto').value = dataURL;
         preview.src = dataURL;
         preview.style.display = 'block';
@@ -122,7 +103,7 @@
             const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
-        } catch (e) { console.error("Error cargando lista", e); }
+        } catch (e) { console.error("Error", e); }
     }
 
     function renderizarTabla(datos) {
@@ -147,6 +128,7 @@
         });
     }
 
+    // FUNCIÓN MEJORADA PARA CELULAR (USA POST)
     async function registrarUsuario() {
         const btn = document.getElementById('btnGuardar');
         const nombre = document.getElementById('nuevoNombre').value;
@@ -155,41 +137,42 @@
         const rol = document.getElementById('nuevoRol').value;
         const cumple = document.getElementById('nuevoCumple').value;
 
-        if(!nombre || !dni) return alert("Nombre y DNI son obligatorios");
+        if(!nombre || !dni) return alert("Nombre y DNI obligatorios");
         
-        btn.innerText = "GUARDANDO...";
+        btn.innerText = "ENVIANDO...";
         btn.disabled = true;
 
+        const datos = {
+            nombre: nombre,
+            dni: dni,
+            foto: foto,
+            rol: rol,
+            cumple: cumple
+        };
+
         try {
-            const finalUrl = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&cumple=${cumple}&foto=${encodeURIComponent(foto)}`;
-            await fetch(finalUrl, { mode: 'no-cors' });
-            alert("Miembro guardado con éxito. Sincroniza para ver los cambios.");
-            location.reload();
+            // Enviamos como POST para que la foto no rompa el link
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Importante para evitar bloqueos de seguridad
+                body: JSON.stringify(datos)
+            });
+            
+            alert("Registro enviado. Pulsa 'Sincronizar' para ver.");
+            setTimeout(() => { location.reload(); }, 500);
         } catch (err) {
-            alert("Error al guardar");
+            alert("Error al registrar");
             btn.disabled = false;
             btn.innerText = "GUARDAR MIEMBRO";
         }
     }
 
-    async function renovarCuota(dni) { 
-        await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); 
-        alert("Pago registrado");
-        cargarMiembros(); 
-    }
-
-    async function eliminarMiembro(dni) { 
-        if(confirm("¿Estás seguro de eliminar este registro?")) { 
-            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
-            cargarMiembros(); 
-        } 
-    }
-
+    async function renovarCuota(dni) { await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); cargarMiembros(); }
+    async function eliminarMiembro(dni) { if(confirm("¿Eliminar?")) { await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); cargarMiembros(); } }
     function filtrarTabla() { 
         const b = document.getElementById('buscador').value.toLowerCase();
         renderizarTabla(miembrosCache.filter(m => m.nombre.toLowerCase().includes(b) || m.dni.toString().includes(b)));
     }
-
     window.onload = cargarMiembros;
 </script>
 </body>
