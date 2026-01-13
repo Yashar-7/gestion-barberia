@@ -55,10 +55,18 @@
             backdrop-filter: blur(20px);
         }
 
+        /* Ajuste del Logo */
+        .logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
         .logo-png {
-            width: 80px;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+            width: 100px; /* Tamaño un poco más grande para que destaque */
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
         }
 
         h1 { 
@@ -132,23 +140,30 @@
 <body>
     <div id="reloj">00:00:00</div>
     <div class="card">
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo" class="logo-png" onerror="this.style.display='none'">
+        </div>
         <h1>💈 SmartBarber</h1>
-        <p>GESTIÓN ACADÉMICA Y STAFF</p>
+        <p style="font-size: 0.8rem; letter-spacing: 1px; color: #aaa;">GESTIÓN ACADÉMICA Y STAFF</p>
+        
         <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
+        
         <div class="btn-group">
             <button class="btn-entrada" onclick="marcar('ENTRADA')">Entrada</button>
             <button class="btn-salida" onclick="marcar('SALIDA')">Salida</button>
         </div>
+        
         <div id="mensaje">
             <img id="user-foto" src="" alt="Perfil">
             <div id="msg-texto" style="font-weight: 900; font-size: 1.4rem;"></div>
-            <div id="msg-cuota" class="info-cuota" style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;"></div>
+            <div id="msg-cuota" style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;"></div>
             <div id="msg-motivacion" style="font-style: italic; color: #eee; margin-top: 10px; font-size: 0.95rem;"></div>
             <div id="msg-cumple" style="color: #ffeb3b; font-weight: bold; margin-top: 10px;"></div>
         </div>
     </div>
 
     <script>
+        // RECUERDA: Si vuelves a implementar el Script en Google, cambia este link por el nuevo
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
         function hablar(texto) {
@@ -173,10 +188,12 @@
             const div = document.getElementById('mensaje');
             const imgFoto = document.getElementById('user-foto');
             const msgTexto = document.getElementById('msg-texto');
+            const msgCuota = document.getElementById('msg-cuota');
 
             div.style.display = "block";
             div.className = "espera";
             msgTexto.innerText = "VERIFICANDO...";
+            msgCuota.innerText = "";
             imgFoto.style.display = "none";
 
             try {
@@ -186,18 +203,23 @@
                 if(data.success) {
                     div.className = (tipo === "SALIDA") ? 'salida-msg' : 'exito';
                     msgTexto.innerText = data.nombre;
+                    
                     if(data.foto) {
                         imgFoto.src = data.foto;
                         imgFoto.style.display = "block";
                     }
 
-                    let saludo = (tipo === "ENTRADA") ? `Hola ${data.nombre}, bienvenido.` : `Hasta luego ${data.nombre}`;
-                    document.getElementById('msg-cuota').innerText = data.cuota === "SI" ? "✅ AL DÍA" : "⚠️ REVISAR";
-                    hablar(saludo);
+                    if(tipo === "ENTRADA") {
+                        msgCuota.innerText = data.cuota === "SI" ? "✅ CUOTA AL DÍA" : "⚠️ REVISAR PAGO";
+                        hablar(`Hola ${data.nombre}, bienvenido.`);
+                    } else {
+                        msgCuota.innerText = "SALIDA REGISTRADA";
+                        hablar(`Hasta luego ${data.nombre}, buen descanso.`);
+                    }
                 } else {
                     div.className = 'error';
                     msgTexto.innerText = "NO ENCONTRADO";
-                    hablar("DNI no encontrado");
+                    hablar("DNI no registrado");
                 }
             } catch (err) {
                 div.className = 'error';
@@ -205,7 +227,7 @@
             } finally {
                 dniInput.value = '';
                 dniInput.focus();
-                setTimeout(() => { div.style.display = "none"; }, 7000);
+                setTimeout(() => { div.style.display = "none"; }, 6000);
             }
         }
 
