@@ -5,23 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - SmartBarber</title>
     <style>
-        :root { 
-            --dorado: #d4af37; 
-            --oscuro: #121212; 
-            --gris: #1e1e1e; 
-            --rojo: #ff4444; 
-            --verde: #4caf50; 
-        }
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background-color: var(--oscuro); 
-            color: white; 
-            padding: 20px; 
-            margin: 0;
-        }
+        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
         
-        /* Panel de Registro */
         .admin-panel {
             background: rgba(212, 175, 55, 0.05);
             border: 1px solid var(--dorado);
@@ -31,222 +18,142 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 20px;
         }
-        .admin-panel h3 { width: 100%; margin-top: 0; color: var(--dorado); }
-        
-        input, select { 
-            padding: 12px; 
-            border-radius: 8px; 
-            border: 1px solid #444; 
-            background: #000; 
-            color: white; 
-            outline: none;
-        }
+
+        .cam-box { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        #video { border: 2px solid var(--dorado); border-radius: 10px; background: #000; width: 220px; height: 165px; object-fit: cover; }
+        #canvas { display: none; }
+
+        .form-box { display: flex; flex-direction: column; gap: 8px; width: 300px; }
+        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: white; outline: none; }
         input:focus { border-color: var(--dorado); }
         
-        button { 
-            background: var(--dorado); 
-            color: black; 
-            border: none; 
-            padding: 12px 25px; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.3s;
-        }
-        button:hover { transform: scale(1.05); opacity: 0.9; }
-        
-        /* Buscador */
-        .search-container { 
-            margin-bottom: 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: var(--gris);
-            padding: 15px;
-            border-radius: 10px;
-        }
+        button { background: var(--dorado); color: black; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { transform: scale(1.05); }
+        .btn-cam { background: #444; color: white; font-size: 0.8rem; }
+        .btn-capture { background: var(--verde); color: white; font-size: 0.8rem; }
+
+        .search-container { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--gris); padding: 15px; border-radius: 10px; }
         #buscador { width: 300px; border-color: var(--dorado); }
 
-        /* Tabla */
         table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
-        th { background: var(--dorado); color: black; padding: 15px; font-weight: bold; }
-        td { padding: 15px; border-bottom: 1px solid #333; text-align: center; vertical-align: middle; }
-        tr:hover { background: rgba(255,255,255,0.02); }
-        
+        th { background: var(--dorado); color: black; padding: 15px; }
+        td { padding: 12px; border-bottom: 1px solid #333; text-align: center; }
+        .img-tabla { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--dorado); }
         .badge { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
         .bg-si { background: var(--verde); color: white; }
         .bg-no { background: var(--rojo); color: white; }
-        
-        .img-tabla { 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid var(--dorado); 
-            background: #000;
-        }
-
-        .btn-renovar { background: var(--verde); color: white; padding: 8px 12px; font-size: 0.75rem; margin-right: 5px; }
-        .btn-eliminar { background: var(--rojo); color: white; padding: 8px 12px; font-size: 0.75rem; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>Panel Administrativo 💈 SmartBarber</h1>
     
     <div class="admin-panel">
-        <h3>➕ Registrar Nuevo Miembro</h3>
-        <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
-        <input type="number" id="nuevoDni" placeholder="DNI">
-        <input type="date" id="nuevoCumple" title="Fecha de Nacimiento">
-        <input type="text" id="nuevaFoto" placeholder="URL de Foto (opcional)">
-        <select id="nuevoRol">
-            <option value="Estudiante">Estudiante</option>
-            <option value="Barbero">Barbero</option>
-        </select>
-        <button onclick="registrarUsuario()">GUARDAR MIEMBRO</button>
+        <div class="cam-box">
+            <video id="video" autoplay playsinline></video>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-cam" onclick="activarCamara()">📷 ENCENDER</button>
+                <button class="btn-capture" onclick="tomarFoto()">📸 CAPTURAR</button>
+            </div>
+            <canvas id="canvas" width="320" height="240"></canvas>
+            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; border:2px solid var(--verde);">
+        </div>
+
+        <div class="form-box">
+            <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
+            <input type="number" id="nuevoDni" placeholder="DNI">
+            <input type="date" id="nuevoCumple">
+            <select id="nuevoRol">
+                <option value="Estudiante">Estudiante</option>
+                <option value="Barbero">Barbero</option>
+            </select>
+            <input type="hidden" id="nuevaFoto">
+            <button onclick="registrarUsuario()">GUARDAR MIEMBRO</button>
+        </div>
     </div>
 
     <div class="search-container">
-        <h2 style="margin:0; font-size: 1.2rem;">📍 Gestión de Miembros</h2>
-        <div>
-            <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
-            <button onclick="cargarMiembros()" style="background: #444; color: white; padding: 10px;">🔄 Sincronizar</button>
-        </div>
+        <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
+        <button onclick="cargarMiembros()" style="background: #444; color: white;">🔄 Sincronizar</button>
     </div>
     
     <table>
         <thead>
-            <tr>
-                <th>Foto</th>
-                <th>DNI</th>
-                <th>Nombre</th>
-                <th>Rol</th>
-                <th>Cuota</th>
-                <th>Cumpleaños</th>
-                <th>Acciones</th>
-            </tr>
+            <tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Rol</th><th>Cuota</th><th>Cumpleaños</th><th>Acciones</th></tr>
         </thead>
-        <tbody id="tabla-miembros">
-            <tr><td colspan="7">Cargando base de datos...</td></tr>
-        </tbody>
+        <tbody id="tabla-miembros"><tr><td colspan="7">Cargando...</td></tr></tbody>
     </table>
 </div>
 
 <script>
-    // URL DE TU SCRIPT
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
-    let miembrosCache = []; 
+    let miembrosCache = [];
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const preview = document.getElementById('preview');
 
-    // CARGAR DATOS
-    async function cargarMiembros() {
-        const tabla = document.getElementById('tabla-miembros');
+    async function activarCamara() {
         try {
-            const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
-            miembrosCache = await res.json();
-            renderizarTabla(miembrosCache);
-        } catch (e) {
-            console.error(e);
-            tabla.innerHTML = "<tr><td colspan='7' style='color:var(--rojo)'>Error de conexión con el servidor</td></tr>";
-        }
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            video.srcObject = stream;
+        } catch (err) { alert("Permiso de cámara denegado"); }
     }
 
-    // DIBUJAR TABLA
+    function tomarFoto() {
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, 320, 240);
+        const dataURL = canvas.toDataURL('image/jpeg', 0.6);
+        document.getElementById('nuevaFoto').value = dataURL;
+        preview.src = dataURL;
+        preview.style.display = 'block';
+    }
+
+    async function cargarMiembros() {
+        const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
+        miembrosCache = await res.json();
+        renderizarTabla(miembrosCache);
+    }
+
     function renderizarTabla(datos) {
         const tabla = document.getElementById('tabla-miembros');
         tabla.innerHTML = "";
-        
-        if(datos.length === 0) {
-            tabla.innerHTML = "<tr><td colspan='7'>No se encontraron miembros</td></tr>";
-            return;
-        }
-
         datos.forEach(m => {
-            const cuotaVal = m.cuota ? m.cuota.toUpperCase() : 'NO';
-            const badgeClass = cuotaVal === 'SI' ? 'bg-si' : 'bg-no';
-            // Si no hay foto, ponemos una por defecto con estilo dorado
-            const fotoUrl = m.foto && m.foto.startsWith('http') ? m.foto : "https://via.placeholder.com/100/000000/d4af37?text=Perfil";
-            
+            const fotoUrl = m.foto || "https://via.placeholder.com/100/000/d4af37?text=B";
             tabla.innerHTML += `
                 <tr>
-                    <td><img src="${fotoUrl}" class="img-tabla" onerror="this.src='https://via.placeholder.com/100/000000/d4af37?text=Error'"></td>
+                    <td><img src="${fotoUrl}" class="img-tabla"></td>
                     <td><b>${m.dni}</b></td>
-                    <td style="text-align: left;">${m.nombre}</td>
-                    <td>${m.rol || 'Estudiante'}</td>
-                    <td><span class="badge ${badgeClass}">${cuotaVal}</span></td>
-                    <td style="font-size:0.9rem; color:#aaa;">${m.vencimiento || 'No asignado'}</td>
+                    <td>${m.nombre}</td>
+                    <td>${m.rol}</td>
+                    <td><span class="badge ${m.cuota === 'si' ? 'bg-si' : 'bg-no'}">${m.cuota.toUpperCase()}</span></td>
+                    <td>${m.vencimiento || '---'}</td>
                     <td>
-                        <button class="btn-renovar" onclick="renovarCuota('${m.dni}', '${m.nombre}')">➕ PAGO</button>
-                        <button class="btn-eliminar" onclick="eliminarMiembro('${m.dni}', '${m.nombre}')">🗑️</button>
+                        <button style="background:var(--verde); font-size:0.7rem;" onclick="renovarCuota('${m.dni}')">PAGO</button>
+                        <button style="background:var(--rojo); font-size:0.7rem;" onclick="eliminarMiembro('${m.dni}')">🗑️</button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         });
     }
 
-    // REGISTRAR
     async function registrarUsuario() {
-        const nombre = document.getElementById('nuevoNombre').value.trim();
-        const dni = document.getElementById('nuevoDni').value.trim();
-        const cumple = document.getElementById('nuevoCumple').value;
-        const foto = document.getElementById('nuevaFoto').value.trim();
-        const rol = document.getElementById('nuevoRol').value;
-
-        if(!nombre || !dni) return alert("El Nombre y el DNI son campos obligatorios.");
-
-        try {
-            // Construimos la URL con todos los parámetros necesarios para el script
-            const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&cumple=${cumple}&foto=${encodeURIComponent(foto)}`;
-            
-            await fetch(url);
-            alert("✅ " + nombre + " ha sido registrado exitosamente.");
-            
-            // Limpiar formulario
-            document.getElementById('nuevoNombre').value = "";
-            document.getElementById('nuevoDni').value = "";
-            document.getElementById('nuevoCumple').value = "";
-            document.getElementById('nuevaFoto').value = "";
-            
-            cargarMiembros(); 
-        } catch (e) {
-            alert("Error al intentar registrar el usuario.");
-        }
+        const nombre = document.getElementById('nuevoNombre').value;
+        const dni = document.getElementById('nuevoDni').value;
+        const foto = document.getElementById('nuevaFoto').value;
+        if(!nombre || !dni) return alert("Faltan datos");
+        
+        await fetch(`${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${document.getElementById('nuevoRol').value}&cumple=${document.getElementById('nuevoCumple').value}&foto=${encodeURIComponent(foto)}`);
+        alert("Registrado");
+        location.reload();
     }
 
-    // REGISTRAR PAGO (RENOVAR)
-    async function renovarCuota(dni, nombre) {
-        if(!confirm(`¿Confirmas el pago de cuota para ${nombre}?`)) return;
-        try {
-            await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`);
-            alert("✅ Cuota actualizada para " + nombre);
-            cargarMiembros();
-        } catch (e) { alert("Error al procesar el pago."); }
+    async function renovarCuota(dni) { await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`); cargarMiembros(); }
+    async function eliminarMiembro(dni) { if(confirm("¿Eliminar?")) { await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`); cargarMiembros(); } }
+    function filtrarTabla() { 
+        const b = document.getElementById('buscador').value.toLowerCase();
+        renderizarTabla(miembrosCache.filter(m => m.nombre.toLowerCase().includes(b) || m.dni.toString().includes(b)));
     }
-
-    // ELIMINAR
-    async function eliminarMiembro(dni, nombre) {
-        if(!confirm(`¿ESTÁS SEGURO? Se eliminará a ${nombre} permanentemente.`)) return;
-        try {
-            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`);
-            alert("Usuario eliminado correctamente.");
-            cargarMiembros();
-        } catch (e) { alert("Error al eliminar."); }
-    }
-
-    // BUSCADOR EN TIEMPO REAL
-    function filtrarTabla() {
-        const busqueda = document.getElementById('buscador').value.toLowerCase();
-        const filtrados = miembrosCache.filter(m => 
-            m.nombre.toLowerCase().includes(busqueda) || 
-            m.dni.toString().includes(busqueda)
-        );
-        renderizarTabla(filtrados);
-    }
-
-    // Al cargar la página
     window.onload = cargarMiembros;
 </script>
 </body>
