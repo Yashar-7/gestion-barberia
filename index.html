@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SmartBarber</title>
+    <title>SmartBarber - Sistema Central</title>
     <style>
         :root { 
             --dorado: #d4af37; 
@@ -18,10 +18,11 @@
             color: white; 
             padding: 20px; 
             margin: 0;
+            /* Añadimos un sutil degradado para que se vea más premium */
+            background: radial-gradient(circle at top, #1e1e1e 0%, #121212 100%);
         }
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
         
-        /* Panel de Registro Modificado para Cámara */
         .admin-panel {
             background: rgba(212, 175, 55, 0.05);
             border: 1px solid var(--dorado);
@@ -32,10 +33,10 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .admin-panel h3 { width: 100%; margin-top: 0; color: var(--dorado); }
+        .admin-panel h3 { width: 100%; margin-top: 0; color: var(--dorado); letter-spacing: 2px; }
 
-        /* Contenedor de Video */
         .cam-container {
             display: flex;
             flex-direction: column;
@@ -49,15 +50,17 @@
             width: 240px;
             height: 180px;
             object-fit: cover;
-            display: none; /* Se activa al abrir cámara */
+            display: none;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
         #foto-preview {
-            width: 80px;
-            height: 80px;
+            width: 100px; /* Un poco más grande para ver mejor */
+            height: 100px;
             border-radius: 50%;
-            border: 2px solid var(--verde);
+            border: 3px solid var(--verde);
             display: none;
             object-fit: cover;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
         }
         
         input, select { 
@@ -67,8 +70,9 @@
             background: #000; 
             color: white; 
             outline: none;
+            transition: 0.3s;
         }
-        input:focus { border-color: var(--dorado); }
+        input:focus { border-color: var(--dorado); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
         
         button { 
             background: var(--dorado); 
@@ -79,12 +83,13 @@
             font-weight: bold; 
             cursor: pointer; 
             transition: 0.3s;
+            text-transform: uppercase;
         }
-        button:hover { transform: scale(1.05); opacity: 0.9; }
+        button:hover { transform: scale(1.03); filter: brightness(1.1); }
+        button:active { transform: scale(0.98); }
         .btn-secundario { background: #444; color: white; }
         .btn-capturar { background: var(--verde); color: white; }
 
-        /* Buscador y Tabla (Tus estilos originales) */
         .search-container { 
             margin-bottom: 20px; 
             display: flex; 
@@ -93,12 +98,24 @@
             background: var(--gris);
             padding: 15px;
             border-radius: 10px;
+            border: 1px solid #333;
         }
         #buscador { width: 300px; border-color: var(--dorado); }
         table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
-        th { background: var(--dorado); color: black; padding: 15px; font-weight: bold; }
+        th { background: var(--dorado); color: black; padding: 15px; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; }
         td { padding: 15px; border-bottom: 1px solid #333; text-align: center; vertical-align: middle; }
-        .img-tabla { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--dorado); background: #000; }
+        
+        .img-tabla { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--dorado); 
+            background: #000;
+            transition: 0.3s;
+        }
+        .img-tabla:hover { transform: scale(1.2); }
+
         .badge { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
         .bg-si { background: var(--verde); color: white; }
         .bg-no { background: var(--rojo); color: white; }
@@ -109,10 +126,10 @@
 <body>
 
 <div class="container">
-    <h1>Panel Administrativo 💈 SmartBarber</h1>
+    <h1 style="color: var(--dorado); letter-spacing: 3px;">CENTRO DE GESTIÓN 💈 SMARTBARBER</h1>
     
     <div class="admin-panel">
-        <h3>➕ Registrar Nuevo Miembro</h3>
+        <h3>➕ REGISTRAR NUEVO MIEMBRO</h3>
         
         <div class="cam-container">
             <video id="video" autoplay playsinline></video>
@@ -128,16 +145,17 @@
             <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
             <input type="number" id="nuevoDni" placeholder="DNI">
             <input type="date" id="nuevoCumple" title="Fecha de Nacimiento">
-            <input type="hidden" id="nuevaFoto"> <select id="nuevoRol">
+            <input type="hidden" id="nuevaFoto"> 
+            <select id="nuevoRol">
                 <option value="Estudiante">Estudiante</option>
                 <option value="Barbero">Barbero</option>
             </select>
-            <button onclick="registrarUsuario()">GUARDAR MIEMBRO</button>
+            <button id="btn-guardar" onclick="registrarUsuario()">GUARDAR MIEMBRO</button>
         </div>
     </div>
 
     <div class="search-container">
-        <h2 style="margin:0; font-size: 1.2rem;">📍 Gestión de Miembros</h2>
+        <h2 style="margin:0; font-size: 1.2rem; color: var(--dorado);">📍 LISTADO DE STAFF Y ALUMNOS</h2>
         <div>
             <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
             <button onclick="cargarMiembros()" style="background: #444; color: white; padding: 10px;">🔄 Sincronizar</button>
@@ -147,7 +165,7 @@
     <table>
         <thead>
             <tr>
-                <th>Foto</th><th>DNI</th><th>Nombre</th><th>Rol</th><th>Cuota</th><th>Cumpleaños</th><th>Acciones</th>
+                <th>Foto</th><th>DNI</th><th>Nombre</th><th>Rol</th><th>Cuota</th><th>Próximo Venc.</th><th>Acciones</th>
             </tr>
         </thead>
         <tbody id="tabla-miembros">
@@ -160,7 +178,6 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
     let miembrosCache = []; 
 
-    // --- LÓGICA DE CÁMARA ---
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const fotoPreview = document.getElementById('foto-preview');
@@ -172,6 +189,7 @@
             video.srcObject = stream;
             video.style.display = 'block';
             btnFoto.style.display = 'block';
+            fotoPreview.style.display = 'none';
         } catch (err) {
             alert("No se pudo acceder a la cámara. Revisa los permisos.");
         }
@@ -179,19 +197,17 @@
 
     function tomarFoto() {
         const context = canvas.getContext('2d');
-        // Capturar frame del video
         context.drawImage(video, 0, 0, 320, 240);
-        // Convertir a Base64 comprimido
         const dataURL = canvas.toDataURL('image/jpeg', 0.6);
         document.getElementById('nuevaFoto').value = dataURL;
         
-        // Mostrar preview
         fotoPreview.src = dataURL;
         fotoPreview.style.display = 'block';
-        alert("✅ Foto capturada");
+        video.style.display = 'none';
+        btnFoto.style.display = 'none';
+        alert("✅ Foto capturada con éxito");
     }
 
-    // --- GESTIÓN DE DATOS ---
     async function cargarMiembros() {
         const tabla = document.getElementById('tabla-miembros');
         try {
@@ -199,14 +215,14 @@
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
         } catch (e) {
-            tabla.innerHTML = "<tr><td colspan='7' style='color:var(--rojo)'>Error de conexión</td></tr>";
+            tabla.innerHTML = "<tr><td colspan='7' style='color:var(--rojo)'>Error de conexión con Google Sheets</td></tr>";
         }
     }
 
     function renderizarTabla(datos) {
         const tabla = document.getElementById('tabla-miembros');
         tabla.innerHTML = "";
-        if(datos.length === 0) { tabla.innerHTML = "<tr><td colspan='7'>No hay miembros</td></tr>"; return; }
+        if(datos.length === 0) { tabla.innerHTML = "<tr><td colspan='7'>No hay miembros registrados</td></tr>"; return; }
 
         datos.forEach(m => {
             const cuotaVal = m.cuota ? m.cuota.toUpperCase() : 'NO';
@@ -229,55 +245,34 @@
     }
 
     async function registrarUsuario() {
+        const btn = document.getElementById('btn-guardar');
         const nombre = document.getElementById('nuevoNombre').value.trim();
         const dni = document.getElementById('nuevoDni').value.trim();
         const cumple = document.getElementById('nuevoCumple').value;
-        const foto = document.getElementById('nuevaFoto').value; // Base64 de la cámara
+        const foto = document.getElementById('nuevaFoto').value; 
         const rol = document.getElementById('nuevoRol').value;
 
-        if(!nombre || !dni) return alert("Nombre y DNI obligatorios");
+        if(!nombre || !dni) return alert("Nombre y DNI son obligatorios");
+
+        btn.disabled = true;
+        btn.innerText = "PROCESANDO...";
 
         try {
-            const response = await fetch(WEB_APP_URL, {
+            await fetch(WEB_APP_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: "add",
-                    nombre: nombre,
-                    dni: dni,
-                    rol: rol,
-                    cumple: cumple,
-                    foto: foto
-                })
+                body: JSON.stringify({ action: "add", nombre, dni, rol, cumple, foto })
             });
             
-            alert("✅ Registrado con éxito");
+            alert("✅ " + nombre + " ha sido registrado.");
             location.reload(); 
         } catch (e) {
-            alert("Error al registrar");
+            alert("Error al registrar. Intenta de nuevo.");
+            btn.disabled = false;
+            btn.innerText = "GUARDAR MIEMBRO";
         }
     }
 
     async function renovarCuota(dni, nombre) {
-        if(!confirm(`¿Pago para ${nombre}?`)) return;
-        await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`);
-        cargarMiembros();
-    }
-
-    async function eliminarMiembro(dni, nombre) {
-        if(!confirm(`¿Eliminar a ${nombre}?`)) return;
-        await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`);
-        cargarMiembros();
-    }
-
-    function filtrarTabla() {
-        const busqueda = document.getElementById('buscador').value.toLowerCase();
-        const filtrados = miembrosCache.filter(m => m.nombre.toLowerCase().includes(busqueda) || m.dni.toString().includes(busqueda));
-        renderizarTabla(filtrados);
-    }
-
-    window.onload = cargarMiembros;
-</script>
-</body>
-</html>
+        if(!confirm(`¿Confirm
