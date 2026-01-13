@@ -2,169 +2,97 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartBarber - Asistencia</title>
+    <title>SmartBarber - Sistema Central</title>
     <style>
-        /* ESTILOS CRÍTICOS - NO ELIMINAR */
+        /* Estilos incrustados para que no fallen */
         body { 
-            background-color: #000000 !important; 
-            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('black_school.jpg');
-            background-size: cover;
-            background-position: center;
-            color: #ffffff;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #000 !important; 
+            color: white !important; 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        }
+        .card { 
+            background: #1a1a1a; 
+            border: 2px solid #d4af37; 
+            padding: 40px; 
+            border-radius: 20px; 
             text-align: center;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
         }
-
-        #reloj {
-            font-size: 3.5rem;
-            color: #d4af37;
-            font-weight: bold;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-            margin-bottom: 20px;
-            background: rgba(20, 20, 20, 0.8);
-            padding: 10px 40px;
-            border-radius: 50px;
-            border: 2px solid #d4af37;
-        }
-
-        .card {
-            background: rgba(30, 30, 30, 0.95);
-            border: 1px solid #d4af37;
-            padding: 40px;
-            border-radius: 25px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-        }
-
-        h1 { color: #d4af37; text-transform: uppercase; letter-spacing: 3px; margin: 0; font-size: 1.8rem; }
-        
-        input {
-            width: 100%;
-            background: #000;
-            border: 2px solid #444;
-            color: #d4af37;
-            padding: 15px;
-            font-size: 2rem;
-            text-align: center;
-            border-radius: 15px;
-            margin: 20px 0;
-            outline: none;
-            box-sizing: border-box;
-        }
-        input:focus { border-color: #d4af37; }
-
-        .btn-group { display: flex; gap: 10px; }
-        
-        button {
-            flex: 1;
-            padding: 15px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            border: none;
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
-
-        .btn-entrada { background: #d4af37; color: #000; }
-        .btn-salida { background: #333; color: #fff; border: 1px solid #555; }
-
-        /* Mensajes de Respuesta */
-        #mensaje { margin-top: 20px; padding: 15px; border-radius: 15px; display: none; }
-        .exito { background: rgba(76, 175, 80, 0.2); border: 1px solid #4caf50; color: #afffaf; }
-        .salida-msg { background: rgba(255, 152, 0, 0.2); border: 1px solid #ff9800; color: #ffdbaf; }
-        .error { background: rgba(244, 67, 54, 0.2); border: 1px solid #f44336; color: #ffbaba; }
-        
-        #user-foto {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid #d4af37;
-            margin: 0 auto 10px;
-            object-fit: cover;
-            display: none;
-        }
+        #reloj { font-size: 3rem; color: #d4af37; margin-bottom: 20px; font-weight: bold; }
+        input { font-size: 2rem; width: 80%; padding: 10px; text-align: center; background: #000; color: #d4af37; border: 1px solid #d4af37; border-radius: 10px; }
+        .btn-group { margin-top: 20px; display: flex; gap: 10px; }
+        button { padding: 15px 30px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; text-transform: uppercase; }
+        .btn-entrada { background: #d4af37; color: black; }
+        .btn-salida { background: #333; color: white; }
+        #mensaje { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; border: 1px solid #444; }
+        #user-foto { width: 100px; height: 100px; border-radius: 50%; border: 2px solid #d4af37; display: none; margin: 0 auto 10px; object-fit: cover; }
     </style>
 </head>
 <body>
-
     <div id="reloj">00:00:00</div>
-
     <div class="card">
-        <h1>💈 SmartBarber</h1>
-        <p style="color: #aaa; font-size: 0.9rem;">CONTROL DE ASISTENCIA</p>
-        
+        <h1 style="color:#d4af37; margin:0;">BARBER SCHOOL</h1>
+        <p>CONTROL DE ASISTENCIA</p>
         <input type="number" id="dni" placeholder="DNI" autofocus>
-        
         <div class="btn-group">
             <button class="btn-entrada" onclick="marcar('ENTRADA')">Entrada</button>
             <button class="btn-salida" onclick="marcar('SALIDA')">Salida</button>
         </div>
-        
         <div id="mensaje">
             <img id="user-foto" src="">
-            <div id="msg-nombre" style="font-size: 1.5rem; font-weight: bold;"></div>
-            <div id="msg-extra" style="margin-top: 5px;"></div>
+            <div id="nombre" style="font-size: 1.5rem; font-weight: bold;"></div>
+            <div id="info"></div>
         </div>
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
+        // ESTA URL ES TU CONEXIÓN CON EL ADMIN Y EL EXCEL
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
 
-        function actualizarReloj() {
+        function updateTime() {
             document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
         }
-        setInterval(actualizarReloj, 1000);
-        actualizarReloj();
+        setInterval(updateTime, 1000);
+        updateTime();
 
         async function marcar(tipo) {
             const dni = document.getElementById('dni').value;
             if(!dni) return;
 
-            const div = document.getElementById('mensaje');
-            const img = document.getElementById('user-foto');
-            const nom = document.getElementById('msg-nombre');
-
-            div.style.display = "block";
-            div.className = ""; 
-            nom.innerText = "VERIFICANDO...";
-            img.style.display = "none";
+            const msgDiv = document.getElementById('mensaje');
+            const foto = document.getElementById('user-foto');
+            msgDiv.style.display = "block";
+            msgDiv.style.background = "#222";
+            document.getElementById('nombre').innerText = "BUSCANDO...";
+            document.getElementById('info').innerText = "";
+            foto.style.display = "none";
 
             try {
-                const response = await fetch(`${WEB_APP_URL}?dni=${dni}&tipo=${tipo}&t=${Date.now()}`);
-                const data = await response.json();
-
+                const r = await fetch(`${WEB_APP_URL}?dni=${dni}&tipo=${tipo}&t=${Date.now()}`);
+                const data = await r.json();
                 if(data.success) {
-                    div.className = tipo === 'ENTRADA' ? 'exito' : 'salida-msg';
-                    nom.innerText = data.nombre;
-                    document.getElementById('msg-extra').innerText = (tipo === 'ENTRADA') ? "¡Bienvenido!" : "¡Buen descanso!";
-                    
+                    msgDiv.style.background = tipo === 'ENTRADA' ? "rgba(0,100,0,0.3)" : "rgba(100,50,0,0.3)";
+                    document.getElementById('nombre').innerText = data.nombre;
+                    document.getElementById('info').innerText = data.cuota === "SI" ? "CUOTA AL DÍA" : "PAGO PENDIENTE";
                     if(data.foto) {
-                        img.src = data.foto;
-                        img.style.display = "block";
+                        foto.src = data.foto;
+                        foto.style.display = "block";
                     }
                 } else {
-                    div.className = "error";
-                    nom.innerText = "ERROR";
-                    document.getElementById('msg-extra').innerText = data.message || "No encontrado";
+                    msgDiv.style.background = "rgba(100,0,0,0.3)";
+                    document.getElementById('nombre').innerText = "NO ENCONTRADO";
                 }
-            } catch (e) {
-                div.className = "error";
-                nom.innerText = "SIN CONEXIÓN";
+            } catch(e) {
+                document.getElementById('nombre').innerText = "ERROR DE RED";
             }
-
-            setTimeout(() => { div.style.display = "none"; }, 6000);
+            setTimeout(() => { msgDiv.style.display = "none"; }, 5000);
             document.getElementById('dni').value = "";
-            document.getElementById('dni').focus();
         }
     </script>
 </body>
