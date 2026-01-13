@@ -151,7 +151,8 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; // REEMPLAZA CON TU URL AL PUBLICAR
+        // URL ACTUALIZADA
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
         const sonidoCaja = new Audio('https://www.myinstants.com/media/sounds/cash-register-purchase.mp3');
         const sonidoDing = new Audio('https://www.myinstants.com/media/sounds/ding-sound-effect_2.mp3');
@@ -191,7 +192,7 @@
             msgCumple.innerText = "";
 
             try {
-                // Enviamos DNI y TIPO (ENTRADA o SALIDA)
+                // Parámetros t=Date.now() para evitar caché del navegador
                 const response = await fetch(`${WEB_APP_URL}?dni=${dni}&tipo=${tipo}&t=${Date.now()}`);
                 const data = await response.json();
                 
@@ -207,7 +208,6 @@
                         msgMotivacion.innerText = "¡Bienvenido a clase!";
                         saludoVoz = `Hola ${data.nombre}, bienvenido.`;
 
-                        // Lógica de Cumpleaños
                         if(data.esCumple) {
                             msgCumple.innerText = "🎂 ¡FELIZ CUMPLEAÑOS! 🎈";
                             saludoVoz += " ¡Y muy feliz cumpleaños!";
@@ -223,13 +223,14 @@
 
                 } else {
                     div.className = 'error';
-                    msgTexto.innerText = "ERROR";
+                    msgTexto.innerText = "AVISO";
                     msgMotivacion.innerText = data.message || "DNI no encontrado";
-                    hablar("DNI no encontrado o error en registro.");
+                    hablar(data.message || "DNI no encontrado.");
                 }
             } catch (err) {
                 div.className = 'error';
                 msgTexto.innerText = "❌ ERROR DE RED";
+                console.error(err);
             } finally {
                 dniInput.value = '';
                 dniInput.focus();
@@ -238,11 +239,8 @@
         }
 
         document.getElementById('dni').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') marcar('ENTRADA'); // Por defecto al dar Enter marca Entrada
+            if (e.key === 'Enter') marcar('ENTRADA'); 
         });
     </script>
 </body>
 </html>
-
-
-
