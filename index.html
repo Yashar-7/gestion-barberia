@@ -56,7 +56,7 @@
         }
 
         .logo-png {
-            width: 100px;
+            width: 80px;
             margin-bottom: 10px;
             filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
         }
@@ -69,7 +69,17 @@
             letter-spacing: 4px;
         }
 
-        p { color: #888; margin-bottom: 20px; font-size: 0.8rem; letter-spacing: 2px; }
+        /* Estilo para la foto de perfil en el mensaje */
+        #user-foto {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid var(--dorado);
+            margin: 0 auto 15px;
+            display: none; /* Se activa por JS */
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
 
         input { 
             width: 100%; 
@@ -113,7 +123,10 @@
             border-radius: 15px;
             display: none;
             padding: 20px;
+            animation: fadeIn 0.5s ease;
         }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .info-cuota { font-weight: bold; font-size: 1.2rem; margin: 10px 0; }
         .info-motivacion { font-style: italic; color: #eee; margin-top: 10px; font-size: 0.95rem; }
@@ -123,7 +136,8 @@
         .error { background: rgba(244, 67, 54, 0.25) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
         .espera { background: rgba(212, 175, 55, 0.15) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
         
-        .cumple-anim { color: #ffeb3b; text-shadow: 0 0 10px gold; font-size: 1.2rem; margin-top: 5px; }
+        .cumple-anim { color: #ffeb3b; text-shadow: 0 0 10px gold; font-size: 1.3rem; font-weight: bold; margin-top: 10px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -131,7 +145,7 @@
     <div id="reloj">00:00:00</div>
 
     <div class="card">
-        <img src="logo.png" alt="Logo" class="logo-png">
+        <img src="logo.png" alt="Logo" class="logo-png" onerror="this.style.display='none'">
         <h1>💈 SmartBarber</h1>
         <p>GESTIÓN ACADÉMICA Y STAFF</p>
         
@@ -143,6 +157,7 @@
         </div>
         
         <div id="mensaje">
+            <img id="user-foto" src="" alt="Perfil">
             <div id="msg-texto" style="font-weight: 900; font-size: 1.4rem;"></div>
             <div id="msg-cuota" class="info-cuota"></div>
             <div id="msg-motivacion" class="info-motivacion"></div>
@@ -151,7 +166,6 @@
     </div>
 
     <script>
-        // URL ACTUALIZADA
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
         const sonidoCaja = new Audio('https://www.myinstants.com/media/sounds/cash-register-purchase.mp3');
@@ -162,7 +176,6 @@
                 window.speechSynthesis.cancel();
                 const mensaje = new SpeechSynthesisUtterance(texto);
                 mensaje.lang = 'es-ES';
-                mensaje.rate = 1.0; 
                 window.speechSynthesis.speak(mensaje);
             }
         }
@@ -179,20 +192,22 @@
             if(!dni) return;
 
             const div = document.getElementById('mensaje');
+            const imgFoto = document.getElementById('user-foto');
             const msgTexto = document.getElementById('msg-texto');
             const msgCuota = document.getElementById('msg-cuota');
             const msgMotivacion = document.getElementById('msg-motivacion');
             const msgCumple = document.getElementById('msg-cumple');
 
+            // Reset inicial
             div.style.display = "block";
             div.className = "espera";
-            msgTexto.innerText = "PROCESANDO " + tipo + "...";
+            imgFoto.style.display = "none";
+            msgTexto.innerText = "VERIFICANDO...";
             msgCuota.innerText = "";
             msgMotivacion.innerText = "";
             msgCumple.innerText = "";
 
             try {
-                // Parámetros t=Date.now() para evitar caché del navegador
                 const response = await fetch(`${WEB_APP_URL}?dni=${dni}&tipo=${tipo}&t=${Date.now()}`);
                 const data = await response.json();
                 
@@ -200,6 +215,14 @@
                     div.className = (tipo === "SALIDA") ? 'salida-msg' : 'exito';
                     msgTexto.innerText = data.nombre;
                     
+                    // Mostrar foto si existe
+                    if(data.foto) {
+                        imgFoto.src = data.foto;
+                        imgFoto.style.display = "block";
+                    } else {
+                        imgFoto.style.display = "none";
+                    }
+
                     let saludoVoz = "";
 
                     if(tipo === "ENTRADA") {
@@ -224,17 +247,20 @@
                 } else {
                     div.className = 'error';
                     msgTexto.innerText = "AVISO";
-                    msgMotivacion.innerText = data.message || "DNI no encontrado";
+                    msgMotivacion.innerText = data.message || "No registrado";
                     hablar(data.message || "DNI no encontrado.");
                 }
             } catch (err) {
                 div.className = 'error';
-                msgTexto.innerText = "❌ ERROR DE RED";
+                msgTexto.innerText = "ERROR DE RED";
                 console.error(err);
             } finally {
                 dniInput.value = '';
                 dniInput.focus();
-                setTimeout(() => { div.style.display = "none"; }, 6000);
+                setTimeout(() => { 
+                    div.style.display = "none";
+                    imgFoto.src = ""; // Limpiar imagen para la próxima
+                }, 7000);
             }
         }
 
