@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SmartBarber - Sistema de Asistencia</title>
+    <title>SmartBarber - Asistencia</title>
     <style>
         :root {
             --dorado: #d4af37;
             --oscuro: #121212;
             --verde: #4caf50;
             --rojo: #f44336;
-            --naranja: #ff9800;
-            --fondo-card: rgba(25, 25, 25, 0.95);
         }
 
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,1) 100%), 
+            /* Recuperamos el fondo que tenías con la imagen de la escuela */
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
                         url('black_school.jpg');
             background-size: cover;
             background-position: center;
@@ -32,153 +31,130 @@
         }
 
         #reloj {
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            font-weight: 800;
+            font-size: clamp(2rem, 7vw, 3.5rem);
+            font-weight: bold;
             color: var(--dorado);
-            margin-bottom: 25px;
-            text-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
-            background: rgba(0,0,0,0.6);
-            padding: 15px 50px;
-            border-radius: 60px;
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            font-variant-numeric: tabular-nums;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+            background: rgba(0,0,0,0.5);
+            padding: 10px 40px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
         }
 
         .card { 
-            background: var(--fondo-card); 
-            padding: 3rem; 
-            border-radius: 35px; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
+            background: rgba(25, 25, 25, 0.9); 
+            padding: 2.5rem; 
+            border-radius: 30px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
             text-align: center; 
-            width: 90%;
-            max-width: 450px; 
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            backdrop-filter: blur(25px);
-            transition: transform 0.3s ease;
+            width: 85%;
+            max-width: 420px; 
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            backdrop-filter: blur(20px);
         }
 
         .logo-png {
-            width: 90px;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
+            width: 80px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
         }
 
         h1 { 
             color: var(--dorado); 
             margin: 5px 0; 
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             text-transform: uppercase;
-            letter-spacing: 5px;
-            font-weight: 900;
+            letter-spacing: 4px;
         }
 
-        p.subtitulo {
-            letter-spacing: 2px;
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-bottom: 20px;
-        }
-
+        /* Foto de perfil recuperada */
         #user-foto {
-            width: 140px;
-            height: 140px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            border: 4px solid var(--dorado);
-            margin: 0 auto 20px;
+            border: 3px solid var(--dorado);
+            margin: 0 auto 15px;
             display: none;
             object-fit: cover;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
-            animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
         }
-
-        @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
 
         input { 
             width: 100%; 
-            padding: 18px; 
-            margin-bottom: 25px; 
-            border-radius: 15px; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            border-radius: 12px; 
             border: 2px solid #333; 
-            background: #000;
+            background: rgba(0,0,0,0.7);
             color: var(--dorado);
-            font-size: 2.2rem; 
+            font-size: 1.8rem; 
             text-align: center; 
             box-sizing: border-box;
             outline: none;
-            transition: 0.3s;
         }
-        input:focus { border-color: var(--dorado); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
 
         .btn-group {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
         }
 
         button { 
+            color: black; 
             border: none; 
-            padding: 20px; 
-            border-radius: 15px; 
+            padding: 18px; 
+            border-radius: 12px; 
             font-weight: 900; 
             cursor: pointer; 
-            font-size: 1.1rem; 
+            font-size: 1rem; 
             width: 100%; 
             text-transform: uppercase;
             transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
-        .btn-entrada { background: var(--dorado); color: black; }
-        .btn-salida { background: #222; color: #fff; border: 1px solid #444; }
-        button:hover { filter: brightness(1.2); transform: translateY(-2px); }
-        button:active { transform: scale(0.96); }
+        .btn-entrada { background: var(--dorado); }
+        .btn-salida { background: #333; color: white; border: 1px solid #444; }
 
         #mensaje { 
-            margin-top: 25px; 
-            border-radius: 20px;
+            margin-top: 20px; 
+            border-radius: 15px;
             display: none;
-            padding: 25px;
-            animation: fadeIn 0.5s ease;
+            padding: 20px;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Estilos de los mensajes de estado */
+        .exito { background: rgba(76, 175, 80, 0.25) !important; color: #a2fca2 !important; border: 1px solid var(--verde) !important; display: block !important; }
+        .salida-msg { background: rgba(255, 152, 0, 0.25) !important; color: #ffcc80 !important; border: 1px solid #ff9800 !important; display: block !important; }
+        .error { background: rgba(244, 67, 54, 0.25) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
+        .espera { background: rgba(212, 175, 55, 0.15) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
 
-        .info-cuota { font-weight: 800; font-size: 1.3rem; margin: 10px 0; letter-spacing: 1px; }
-        .info-motivacion { color: #fff; margin-top: 8px; font-size: 1.1rem; opacity: 0.9; }
-
-        /* Estados */
-        .exito { background: rgba(76, 175, 80, 0.2) !important; color: #a2fca2 !important; border: 1px solid var(--verde) !important; display: block !important; }
-        .salida-msg { background: rgba(255, 152, 0, 0.2) !important; color: #ffcc80 !important; border: 1px solid var(--naranja) !important; display: block !important; }
-        .error { background: rgba(244, 67, 54, 0.2) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
-        .espera { background: rgba(212, 175, 55, 0.1) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
-        
-        .cumple-anim { color: #fff; font-size: 1.4rem; font-weight: bold; margin-top: 15px; text-shadow: 0 0 10px #ffeb3b; animation: bounce 1s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .info-cuota { font-weight: bold; font-size: 1.2rem; margin: 10px 0; }
+        .info-motivacion { font-style: italic; color: #eee; margin-top: 10px; }
+        .cumple-anim { color: #ffeb3b; font-weight: bold; margin-top: 10px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
     <div id="reloj">00:00:00</div>
 
-    <div class="card" id="main-card">
+    <div class="card">
         <img src="logo.png" alt="Logo" class="logo-png" onerror="this.style.display='none'">
-        <h1>SmartBarber</h1>
-        <p class="subtitulo">ACADEMIA & STAFF</p>
+        <h1>💈 SmartBarber</h1>
+        <p style="letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 15px;">ASISTENCIA Y CONTROL</p>
         
-        <input type="number" id="dni" placeholder="DNI" autocomplete="off">
+        <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
         
         <div class="btn-group">
-            <button class="btn-entrada" onclick="marcar('ENTRADA')">🚀 Entrada</button>
-            <button class="btn-salida" onclick="marcar('SALIDA')">🏠 Salida</button>
+            <button class="btn-entrada" onclick="marcar('ENTRADA')">Entrada</button>
+            <button class="btn-salida" onclick="marcar('SALIDA')">Salida</button>
         </div>
         
         <div id="mensaje">
             <img id="user-foto" src="" alt="Perfil">
-            <div id="msg-texto" style="font-weight: 900; font-size: 1.6rem; text-transform: uppercase;"></div>
+            <div id="msg-texto" style="font-weight: 900; font-size: 1.4rem;"></div>
             <div id="msg-cuota" class="info-cuota"></div>
             <div id="msg-motivacion" class="info-motivacion"></div>
             <div id="msg-cumple" class="cumple-anim"></div>
@@ -188,4 +164,91 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
-        const
+        function hablar(texto) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const mensaje = new SpeechSynthesisUtterance(texto);
+                mensaje.lang = 'es-ES';
+                window.speechSynthesis.speak(mensaje);
+            }
+        }
+
+        function actualizarReloj() {
+            const ahora = new Date();
+            document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-AR');
+        }
+        setInterval(actualizarReloj, 1000);
+
+        async function marcar(tipo) {
+            const dniInput = document.getElementById('dni');
+            const dni = dniInput.value.trim();
+            if(!dni) return;
+
+            const div = document.getElementById('mensaje');
+            const imgFoto = document.getElementById('user-foto');
+            const msgTexto = document.getElementById('msg-texto');
+            const msgCuota = document.getElementById('msg-cuota');
+            const msgMotivacion = document.getElementById('msg-motivacion');
+            const msgCumple = document.getElementById('msg-cumple');
+
+            div.style.display = "block";
+            div.className = "espera";
+            imgFoto.style.display = "none";
+            msgTexto.innerText = "VERIFICANDO...";
+            msgCuota.innerText = "";
+            msgMotivacion.innerText = "";
+            msgCumple.innerText = "";
+
+            try {
+                const response = await fetch(`${WEB_APP_URL}?dni=${dni}&tipo=${tipo}&t=${Date.now()}`);
+                const data = await response.json();
+                
+                if(data.success) {
+                    div.className = (tipo === "SALIDA") ? 'salida-msg' : 'exito';
+                    msgTexto.innerText = data.nombre;
+                    
+                    if(data.foto) {
+                        imgFoto.src = data.foto;
+                        imgFoto.style.display = "block";
+                    }
+
+                    let saludoVoz = "";
+                    if(tipo === "ENTRADA") {
+                        msgCuota.innerText = data.cuota === "SI" ? "✅ CUOTA AL DÍA" : "⚠️ REVISAR PAGO";
+                        msgMotivacion.innerText = "¡Bienvenido a clase!";
+                        saludoVoz = `Hola ${data.nombre}, bienvenido.`;
+                        if(data.esCumple) {
+                            msgCumple.innerText = "🎂 ¡FELIZ CUMPLEAÑOS! 🎈";
+                            saludoVoz += " ¡Y muy feliz cumpleaños!";
+                        }
+                    } else {
+                        msgCuota.innerText = "SALIDA REGISTRADA";
+                        msgMotivacion.innerText = "¡Buen descanso!";
+                        saludoVoz = `Hasta luego ${data.nombre}, que descanses.`;
+                    }
+                    hablar(saludoVoz);
+
+                } else {
+                    div.className = 'error';
+                    msgTexto.innerText = "AVISO";
+                    msgMotivacion.innerText = data.message || "No registrado";
+                    hablar(data.message || "No encontrado.");
+                }
+            } catch (err) {
+                div.className = 'error';
+                msgTexto.innerText = "ERROR DE RED";
+            } finally {
+                dniInput.value = '';
+                dniInput.focus();
+                setTimeout(() => { 
+                    div.style.display = "none";
+                }, 7000);
+            }
+        }
+
+        document.getElementById('dni').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') marcar('ENTRADA'); 
+        });
+    </script>
+</body>
+</html>
