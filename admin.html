@@ -31,7 +31,6 @@
         .bg-no { background: var(--rojo); color: white; }
         .vencimiento-texto { font-size: 0.9rem; font-weight: bold; }
 
-        /* Estilos de botones de acción */
         .btn-renovar { background: var(--verde); color: white; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; }
         .btn-eliminar { background: var(--rojo); color: white; padding: 5px 10px; font-size: 0.8rem; }
         .btn-eliminar:hover { background: #cc0000; }
@@ -77,6 +76,7 @@
 </div>
 
 <script>
+    // URL ACTUALIZADA CON TU IMPLEMENTACIÓN
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
     let miembrosCache = []; 
 
@@ -87,6 +87,7 @@
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
         } catch (e) {
+            console.error(e);
             tabla.innerHTML = "<tr><td colspan='6'>Error al conectar con Google Sheets</td></tr>";
         }
     }
@@ -95,15 +96,16 @@
         const tabla = document.getElementById('tabla-miembros');
         tabla.innerHTML = "";
         datos.forEach(m => {
-            const badgeClass = m.cuota.toUpperCase() === 'SI' ? 'bg-si' : 'bg-no';
-            const fechaColor = m.cuota.toUpperCase() === 'NO' ? 'var(--rojo)' : '#aaa';
+            const cuotaVal = m.cuota ? m.cuota.toUpperCase() : 'NO';
+            const badgeClass = cuotaVal === 'SI' ? 'bg-si' : 'bg-no';
+            const fechaColor = cuotaVal === 'NO' ? 'var(--rojo)' : '#aaa';
             
             tabla.innerHTML += `
                 <tr>
                     <td>${m.dni}</td>
                     <td style="text-align: left;">${m.nombre}</td>
-                    <td>${m.rol}</td>
-                    <td><span class="badge ${badgeClass}">${m.cuota}</span></td>
+                    <td>${m.rol || 'Estudiante'}</td>
+                    <td><span class="badge ${badgeClass}">${cuotaVal}</span></td>
                     <td class="vencimiento-texto" style="color: ${fechaColor};">${m.vencimiento || '---'}</td>
                     <td>
                         <button class="btn-renovar" onclick="renovarCuota('${m.dni}', '${m.nombre}')">➕ PAGO (+30d)</button>
@@ -115,14 +117,46 @@
     }
 
     async function renovarCuota(dni, nombre) {
-        if(!confirm(`¿Deseas registrar pago para ${nombre}? Se sumarán 30 días a su vencimiento actual.`)) return;
+        if(!confirm(`¿Deseas registrar pago para ${nombre}? Se pondrá cuota al día y sumará 30 días.`)) return;
         try {
-            const url = `${WEB_APP_URL}?action=renew&dni=${dni}`;
-            await fetch(url);
-            alert("✅ Cuota renovada con éxito");
+            await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`);
+            alert("✅ Pago registrado con éxito");
             cargarMiembros();
         } catch (e) {
-            alert("Error al renovar. Reintenta en unos segundos.");
+            alert("Error en la conexión. Reintenta.");
+        }
+    }
+
+    async function eliminarMiembro(dni, nombre) {
+        if(!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
+        try {
+            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`);
+            alert("Eliminado");
+            cargarMiembros();
+        } catch (e) {
+            alert("Error al eliminar.");
+        }
+    }
+
+    async function registrarUsuario() {
+        const nombre = document.getElementById('nuevoNombre').value;
+        const dni = document.getElementById('nuevoDni').value;
+        const rol = document.getElementById('nuevoRol').value;
+
+        if(!nombre || !dni) return alert("Faltan datos");
+
+        const hoy = new Date();
+        const vencimientoAuto = new Date(hoy.getFullYear(), hoy.getMonth() + 1, hoy.getDate()).toISOString().split('T')[0];
+
+        try {
+            const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&vencimiento=${vencimientoAuto}`;
+            await fetch(url);
+            alert("✅ Usuario Guardado");
+            document.getElementById('nuevoNombre').value = "";
+            document.getElementById('nuevoDni').value = "";
+            cargarMiembros(); 
+        } catch (e) {
+            alert("Error al registrar.");
         }
     }
 
@@ -133,43 +167,6 @@
             m.dni.toString().includes(busqueda)
         );
         renderizarTabla(filtrados);
-    }
-
-    async function eliminarMiembro(dni, nombre) {
-        if(!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
-        try {
-            const url = `${WEB_APP_URL}?action=delete&dni=${dni}`;
-            await fetch(url);
-            alert("Eliminado correctamente");
-            cargarMiembros();
-        } catch (e) {
-            alert("Solicitud enviada. Refresca la lista.");
-            cargarMiembros();
-        }
-    }
-
-    async function registrarUsuario() {
-        const nombre = document.getElementById('nuevoNombre').value;
-        const dni = document.getElementById('nuevoDni').value;
-        const rol = document.getElementById('nuevoRol').value;
-
-        if(!nombre || !dni) return alert("Completa todos los campos");
-
-        // Cálculo de fecha automática: hoy + 30 días
-        const hoy = new Date();
-        const vencimientoAuto = new Date(hoy.getFullYear(), hoy.getMonth() + 1, hoy.getDate()).toISOString().split('T')[0];
-
-        try {
-            const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&vencimiento=${vencimientoAuto}`;
-            await fetch(url);
-            alert("✅ Guardado con éxito. Vencimiento: " + vencimientoAuto);
-            document.getElementById('nuevoNombre').value = "";
-            document.getElementById('nuevoDni').value = "";
-            cargarMiembros(); 
-        } catch (e) {
-            alert("Registro enviado. Refresca la lista.");
-            cargarMiembros();
-        }
     }
 
     window.onload = cargarMiembros;
