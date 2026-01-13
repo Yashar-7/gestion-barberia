@@ -34,6 +34,9 @@
         .btn-renovar { background: var(--verde); color: white; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; }
         .btn-eliminar { background: var(--rojo); color: white; padding: 5px 10px; font-size: 0.8rem; }
         .btn-eliminar:hover { background: #cc0000; }
+        
+        /* Estilo para la foto en la tabla */
+        .img-tabla { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--dorado); }
     </style>
 </head>
 <body>
@@ -45,6 +48,8 @@
         <h3>➕ Registrar Nuevo Miembro</h3>
         <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
         <input type="number" id="nuevoDni" placeholder="DNI">
+        <input type="date" id="nuevoCumple" title="Fecha de Nacimiento">
+        <input type="text" id="nuevaFoto" placeholder="URL de la Foto (opcional)">
         <select id="nuevoRol">
             <option value="Estudiante">Estudiante</option>
             <option value="Barbero">Barbero</option>
@@ -61,22 +66,22 @@
     <table>
         <thead>
             <tr>
+                <th>Foto</th>
                 <th>DNI</th>
                 <th>Nombre</th>
                 <th>Rol</th>
                 <th>Cuota</th>
-                <th>Vencimiento</th>
+                <th>Cumpleaños</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="6">Cargando datos...</td></tr>
+            <tr><td colspan="7">Cargando datos...</td></tr>
         </tbody>
     </table>
 </div>
 
 <script>
-    // URL ACTUALIZADA CON TU IMPLEMENTACIÓN
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
     let miembrosCache = []; 
 
@@ -88,7 +93,7 @@
             renderizarTabla(miembrosCache);
         } catch (e) {
             console.error(e);
-            tabla.innerHTML = "<tr><td colspan='6'>Error al conectar con Google Sheets</td></tr>";
+            tabla.innerHTML = "<tr><td colspan='7'>Error al conectar con Google Sheets</td></tr>";
         }
     }
 
@@ -98,17 +103,18 @@
         datos.forEach(m => {
             const cuotaVal = m.cuota ? m.cuota.toUpperCase() : 'NO';
             const badgeClass = cuotaVal === 'SI' ? 'bg-si' : 'bg-no';
-            const fechaColor = cuotaVal === 'NO' ? 'var(--rojo)' : '#aaa';
+            const fotoUrl = m.foto || "https://via.placeholder.com/40/000000/d4af37?text=B";
             
             tabla.innerHTML += `
                 <tr>
+                    <td><img src="${fotoUrl}" class="img-tabla"></td>
                     <td>${m.dni}</td>
                     <td style="text-align: left;">${m.nombre}</td>
                     <td>${m.rol || 'Estudiante'}</td>
                     <td><span class="badge ${badgeClass}">${cuotaVal}</span></td>
-                    <td class="vencimiento-texto" style="color: ${fechaColor};">${m.vencimiento || '---'}</td>
+                    <td class="vencimiento-texto">${m.vencimiento || '---'}</td>
                     <td>
-                        <button class="btn-renovar" onclick="renovarCuota('${m.dni}', '${m.nombre}')">➕ PAGO (+30d)</button>
+                        <button class="btn-renovar" onclick="renovarCuota('${m.dni}', '${m.nombre}')">➕ PAGO</button>
                         <button class="btn-eliminar" onclick="eliminarMiembro('${m.dni}', '${m.nombre}')">🗑️ Borrar</button>
                     </td>
                 </tr>
@@ -116,61 +122,56 @@
         });
     }
 
-    async function renovarCuota(dni, nombre) {
-        if(!confirm(`¿Deseas registrar pago para ${nombre}? Se pondrá cuota al día y sumará 30 días.`)) return;
-        try {
-            await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`);
-            alert("✅ Pago registrado con éxito");
-            cargarMiembros();
-        } catch (e) {
-            alert("Error en la conexión. Reintenta.");
-        }
-    }
-
-    async function eliminarMiembro(dni, nombre) {
-        if(!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
-        try {
-            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`);
-            alert("Eliminado");
-            cargarMiembros();
-        } catch (e) {
-            alert("Error al eliminar.");
-        }
-    }
-
     async function registrarUsuario() {
         const nombre = document.getElementById('nuevoNombre').value;
         const dni = document.getElementById('nuevoDni').value;
+        const cumple = document.getElementById('nuevoCumple').value;
+        const foto = document.getElementById('nuevaFoto').value;
         const rol = document.getElementById('nuevoRol').value;
 
-        if(!nombre || !dni) return alert("Faltan datos");
-
-        const hoy = new Date();
-        const vencimientoAuto = new Date(hoy.getFullYear(), hoy.getMonth() + 1, hoy.getDate()).toISOString().split('T')[0];
+        if(!nombre || !dni) return alert("Nombre y DNI son obligatorios");
 
         try {
-            const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&vencimiento=${vencimientoAuto}`;
+            const url = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&cumple=${cumple}&foto=${encodeURIComponent(foto)}`;
             await fetch(url);
-            alert("✅ Usuario Guardado");
+            alert("✅ Guardado con éxito");
             document.getElementById('nuevoNombre').value = "";
             document.getElementById('nuevoDni').value = "";
+            document.getElementById('nuevoCumple').value = "";
+            document.getElementById('nuevaFoto').value = "";
             cargarMiembros(); 
         } catch (e) {
             alert("Error al registrar.");
         }
     }
 
+    async function renovarCuota(dni, nombre) {
+        if(!confirm(`¿Registrar pago para ${nombre}?`)) return;
+        try {
+            await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`);
+            alert("✅ Cuota al día");
+            cargarMiembros();
+        } catch (e) { alert("Error."); }
+    }
+
+    async function eliminarMiembro(dni, nombre) {
+        if(!confirm(`¿Eliminar a ${nombre}?`)) return;
+        try {
+            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`);
+            alert("Eliminado");
+            cargarMiembros();
+        } catch (e) { alert("Error."); }
+    }
+
     function filtrarTabla() {
         const busqueda = document.getElementById('buscador').value.toLowerCase();
         const filtrados = miembrosCache.filter(m => 
-            m.nombre.toLowerCase().includes(busqueda) || 
-            m.dni.toString().includes(busqueda)
+            m.nombre.toLowerCase().includes(busqueda) || m.dni.toString().includes(busqueda)
         );
         renderizarTabla(filtrados);
     }
 
     window.onload = cargarMiembros;
 </script>
-
 </body>
 </html>
