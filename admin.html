@@ -9,6 +9,9 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
         
+        /* Logo en Admin */
+        .admin-logo { width: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 5px var(--dorado)); }
+
         .admin-panel {
             background: rgba(212, 175, 55, 0.05);
             border: 1px solid var(--dorado);
@@ -30,14 +33,14 @@
         input:focus { border-color: var(--dorado); }
         
         button { background: var(--dorado); color: black; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { transform: scale(1.05); }
+        button:hover { transform: scale(1.05); opacity: 0.9; }
         .btn-cam { background: #444; color: white; font-size: 0.8rem; }
         .btn-capture { background: var(--verde); color: white; font-size: 0.8rem; }
 
         .search-container { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--gris); padding: 15px; border-radius: 10px; }
         #buscador { width: 300px; border-color: var(--dorado); }
 
-        table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; margin-bottom: 50px; }
         th { background: var(--dorado); color: black; padding: 15px; }
         td { padding: 12px; border-bottom: 1px solid #333; text-align: center; }
         .img-tabla { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--dorado); }
@@ -48,6 +51,7 @@
 </head>
 <body>
 <div class="container">
+    <img src="logo.png" class="admin-logo" onerror="this.style.display='none'">
     <h1>Panel Administrativo 💈 SmartBarber</h1>
     
     <div class="admin-panel">
@@ -58,19 +62,20 @@
                 <button class="btn-capture" onclick="tomarFoto()">📸 CAPTURAR</button>
             </div>
             <canvas id="canvas" width="320" height="240"></canvas>
-            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; border:2px solid var(--verde);">
+            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; border:2px solid var(--verde); object-fit: cover;">
         </div>
 
         <div class="form-box">
             <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
             <input type="number" id="nuevoDni" placeholder="DNI">
+            <label style="font-size: 0.7rem; color: var(--dorado); text-align: left;">Fecha Nacimiento:</label>
             <input type="date" id="nuevoCumple">
             <select id="nuevoRol">
                 <option value="Estudiante">Estudiante</option>
                 <option value="Barbero">Barbero</option>
             </select>
             <input type="hidden" id="nuevaFoto">
-            <button onclick="registrarUsuario()">GUARDAR MIEMBRO</button>
+            <button id="btnGuardar" onclick="registrarUsuario()">GUARDAR MIEMBRO</button>
         </div>
     </div>
 
@@ -83,12 +88,14 @@
         <thead>
             <tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Rol</th><th>Cuota</th><th>Cumpleaños</th><th>Acciones</th></tr>
         </thead>
-        <tbody id="tabla-miembros"><tr><td colspan="7">Cargando...</td></tr></tbody>
+        <tbody id="tabla-miembros"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
     </table>
 </div>
 
 <script>
+    // URL DE TU GOOGLE SCRIPT (Asegúrate de que sea la última implementación)
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
+    
     let miembrosCache = [];
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
@@ -98,7 +105,7 @@
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
             video.srcObject = stream;
-        } catch (err) { alert("Permiso de cámara denegado"); }
+        } catch (err) { alert("Error: No se pudo acceder a la cámara. Asegúrate de usar HTTPS."); }
     }
 
     function tomarFoto() {
@@ -111,49 +118,78 @@
     }
 
     async function cargarMiembros() {
-        const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
-        miembrosCache = await res.json();
-        renderizarTabla(miembrosCache);
+        try {
+            const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
+            miembrosCache = await res.json();
+            renderizarTabla(miembrosCache);
+        } catch (e) { console.error("Error cargando lista", e); }
     }
 
     function renderizarTabla(datos) {
         const tabla = document.getElementById('tabla-miembros');
         tabla.innerHTML = "";
         datos.forEach(m => {
-            const fotoUrl = m.foto || "https://via.placeholder.com/100/000/d4af37?text=B";
+            const fotoUrl = m.foto || "https://via.placeholder.com/100/000/d4af37?text=S";
+            const cuotaStatus = (m.cuota || "").toUpperCase();
             tabla.innerHTML += `
                 <tr>
                     <td><img src="${fotoUrl}" class="img-tabla"></td>
                     <td><b>${m.dni}</b></td>
                     <td>${m.nombre}</td>
                     <td>${m.rol}</td>
-                    <td><span class="badge ${m.cuota === 'si' ? 'bg-si' : 'bg-no'}">${m.cuota.toUpperCase()}</span></td>
+                    <td><span class="badge ${cuotaStatus === 'SI' ? 'bg-si' : 'bg-no'}">${cuotaStatus === 'SI' ? 'AL DÍA' : 'PENDIENTE'}</span></td>
                     <td>${m.vencimiento || '---'}</td>
                     <td>
-                        <button style="background:var(--verde); font-size:0.7rem;" onclick="renovarCuota('${m.dni}')">PAGO</button>
-                        <button style="background:var(--rojo); font-size:0.7rem;" onclick="eliminarMiembro('${m.dni}')">🗑️</button>
+                        <button style="background:var(--verde); font-size:0.7rem; padding: 5px;" onclick="renovarCuota('${m.dni}')">PAGO</button>
+                        <button style="background:var(--rojo); font-size:0.7rem; padding: 5px;" onclick="eliminarMiembro('${m.dni}')">🗑️</button>
                     </td>
                 </tr>`;
         });
     }
 
     async function registrarUsuario() {
+        const btn = document.getElementById('btnGuardar');
         const nombre = document.getElementById('nuevoNombre').value;
         const dni = document.getElementById('nuevoDni').value;
         const foto = document.getElementById('nuevaFoto').value;
-        if(!nombre || !dni) return alert("Faltan datos");
+        const rol = document.getElementById('nuevoRol').value;
+        const cumple = document.getElementById('nuevoCumple').value;
+
+        if(!nombre || !dni) return alert("Nombre y DNI son obligatorios");
         
-        await fetch(`${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${document.getElementById('nuevoRol').value}&cumple=${document.getElementById('nuevoCumple').value}&foto=${encodeURIComponent(foto)}`);
-        alert("Registrado");
-        location.reload();
+        btn.innerText = "GUARDANDO...";
+        btn.disabled = true;
+
+        try {
+            const finalUrl = `${WEB_APP_URL}?action=add&nombre=${encodeURIComponent(nombre)}&dni=${dni}&rol=${rol}&cumple=${cumple}&foto=${encodeURIComponent(foto)}`;
+            await fetch(finalUrl, { mode: 'no-cors' });
+            alert("Miembro guardado con éxito. Sincroniza para ver los cambios.");
+            location.reload();
+        } catch (err) {
+            alert("Error al guardar");
+            btn.disabled = false;
+            btn.innerText = "GUARDAR MIEMBRO";
+        }
     }
 
-    async function renovarCuota(dni) { await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`); cargarMiembros(); }
-    async function eliminarMiembro(dni) { if(confirm("¿Eliminar?")) { await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`); cargarMiembros(); } }
+    async function renovarCuota(dni) { 
+        await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); 
+        alert("Pago registrado");
+        cargarMiembros(); 
+    }
+
+    async function eliminarMiembro(dni) { 
+        if(confirm("¿Estás seguro de eliminar este registro?")) { 
+            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
+            cargarMiembros(); 
+        } 
+    }
+
     function filtrarTabla() { 
         const b = document.getElementById('buscador').value.toLowerCase();
         renderizarTabla(miembrosCache.filter(m => m.nombre.toLowerCase().includes(b) || m.dni.toString().includes(b)));
     }
+
     window.onload = cargarMiembros;
 </script>
 </body>
