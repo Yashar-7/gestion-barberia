@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - SmartBarber</title>
     <style>
-        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; --whatsapp: #25d366; }
+        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; --naranja: #ff9800; --whatsapp: #25d366; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
         .admin-logo { width: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 5px var(--dorado)); }
@@ -29,6 +29,7 @@
         .badge { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
         .bg-si { background: var(--verde); color: white; }
         .bg-no { background: var(--rojo); color: white; }
+        .bg-aviso { background: var(--naranja); color: white; } /* COLOR NARANJA PARA AVISO */
         .btn-wa { background: var(--whatsapp); color: white; text-decoration: none; padding: 5px 10px; border-radius: 5px; font-size: 1.2rem; display: inline-block; line-height: 1; }
     </style>
 </head>
@@ -52,6 +53,8 @@
             <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
             <input type="number" id="nuevoDni" placeholder="DNI">
             <input type="number" id="nuevoTel" placeholder="WhatsApp (Ej: 54911...)">
+            <label style="font-size: 0.7rem; color: var(--dorado); text-align: left;">Fecha Nacimiento:</label>
+            <input type="date" id="nuevoCumple">
             <select id="nuevoRol">
                 <option value="Estudiante">Estudiante</option>
                 <option value="Barbero">Barbero</option>
@@ -86,7 +89,7 @@
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
             video.srcObject = stream;
-        } catch (err) { alert("Error de cámara. Asegúrate de usar HTTPS."); }
+        } catch (err) { alert("Error de cámara."); }
     }
 
     function tomarFoto() {
@@ -109,12 +112,31 @@
     function renderizarTabla(datos) {
         const tabla = document.getElementById('tabla-miembros');
         tabla.innerHTML = "";
+        
+        const hoy = new Date();
+        
         datos.forEach(m => {
             const fotoUrl = m.foto || "https://via.placeholder.com/100/000/d4af37?text=S";
-            const cuotaStatus = (m.cuota || "").toUpperCase();
+            let cuotaStatus = (m.cuota || "").toUpperCase();
+            let claseBadge = cuotaStatus === 'SI' ? 'bg-si' : 'bg-no';
             
-            // Link de WhatsApp con mensaje personalizado
-            const msg = encodeURIComponent(`Hola ${m.nombre}, te saludamos de SmartBarber. Te recordamos que tu cuota venció o está por vencer. ¡Te esperamos para renovar!`);
+            // LÓGICA DE AVISO NARANJA (3 días antes)
+            if (m.vencimiento && m.vencimiento !== '---') {
+                const partes = m.vencimiento.split('/');
+                const fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
+                const diffTiempo = fechaVenc - hoy;
+                const diffDias = Math.ceil(diffTiempo / (1000 * 60 * 60 * 24));
+                
+                if (diffDias <= 3 && diffDias >= 0 && cuotaStatus === 'SI') {
+                    claseBadge = 'bg-aviso';
+                    cuotaStatus = 'POR VENCER';
+                } else if (diffDias < 0) {
+                    claseBadge = 'bg-no';
+                    cuotaStatus = 'VENCIDO';
+                }
+            }
+
+            const msg = encodeURIComponent(`Hola ${m.nombre}, te saludamos de SmartBarber. Te recordamos que tu cuota está próxima a vencer. ¡Te esperamos!`);
             const waLink = `https://wa.me/${m.telefono}?text=${msg}`;
 
             tabla.innerHTML += `
@@ -123,12 +145,12 @@
                     <td><b>${m.dni}</b></td>
                     <td>${m.nombre}</td>
                     <td>${m.rol}</td>
-                    <td><span class="badge ${cuotaStatus === 'SI' ? 'bg-si' : 'bg-no'}">${cuotaStatus === 'SI' ? 'AL DÍA' : 'PENDIENTE'}</span></td>
+                    <td><span class="badge ${claseBadge}">${cuotaStatus}</span></td>
                     <td>${m.vencimiento || '---'}</td>
                     <td>
                         <div style="display:flex; gap:4px; justify-content:center;">
                             <a href="${waLink}" target="_blank" class="btn-wa">💬</a>
-                            <button style="background:var(--verde); font-size:0.7rem; padding: 5px;" onclick="renovarCuota('${m.dni}')">PAGO</button>
+                            <button style="background:var(--verde); font-size:0.7rem; padding: 5px;" onclick="renovarCuota('${m.dni}')">PAGO +30</button>
                             <button style="background:var(--rojo); font-size:0.7rem; padding: 5px;" onclick="eliminarMiembro('${m.dni}')">🗑️</button>
                         </div>
                     </td>
@@ -141,15 +163,15 @@
         const nombre = document.getElementById('nuevoNombre').value;
         const dni = document.getElementById('nuevoDni').value;
         const telefono = document.getElementById('nuevoTel').value;
+        const cumple = document.getElementById('nuevoCumple').value;
         const foto = document.getElementById('nuevaFoto').value;
         const rol = document.getElementById('nuevoRol').value;
 
         if(!nombre || !dni) return alert("Nombre y DNI obligatorios");
-        
         btn.innerText = "ENVIANDO...";
         btn.disabled = true;
 
-        const datos = { nombre, dni, telefono, foto, rol };
+        const datos = { nombre, dni, telefono, cumple, foto, rol };
 
         try {
             await fetch(WEB_APP_URL, {
@@ -157,12 +179,11 @@
                 mode: 'no-cors',
                 body: JSON.stringify(datos)
             });
-            alert("Registro exitoso. Pulsa 'Sincronizar' para ver.");
+            alert("¡Registrado con éxito!");
             location.reload();
         } catch (err) {
-            alert("Error al registrar");
+            alert("Error");
             btn.disabled = false;
-            btn.innerText = "GUARDAR MIEMBRO";
         }
     }
 
@@ -173,7 +194,7 @@
     }
     
     async function eliminarMiembro(dni) { 
-        if(confirm("¿Eliminar registro?")) { 
+        if(confirm("¿Eliminar?")) { 
             await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
             cargarMiembros(); 
         } 
