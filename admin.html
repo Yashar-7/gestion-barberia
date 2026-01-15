@@ -31,6 +31,10 @@
         .bg-no { background: var(--rojo); color: white; }
         .bg-aviso { background: var(--naranja); color: white; }
         .btn-wa { background: var(--whatsapp); color: white; text-decoration: none; padding: 5px 10px; border-radius: 5px; font-size: 1.2rem; display: inline-block; line-height: 1; }
+        
+        /* Estilos Alerta Ausentes */
+        #seccion-ausentes { display:none; background: rgba(255, 68, 68, 0.1); border: 1px dashed var(--rojo); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .ausente-card { background: var(--gris); padding: 10px; border-radius: 8px; border-left: 4px solid var(--rojo); text-align: left; min-width: 200px; }
     </style>
 </head>
 <body>
@@ -64,9 +68,14 @@
         </div>
     </div>
 
+    <div id="seccion-ausentes">
+        <h3 style="color: var(--rojo); margin-top: 0; font-size: 1rem;">⚠️ Alerta de Retención (Ausentes +7 días)</h3>
+        <div id="lista-ausentes" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
+    </div>
+
     <div class="search-container">
         <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
-        <button onclick="cargarMiembros()" style="background: #444; color: white;">🔄 Sincronizar</button>
+        <button onclick="cargarTodo()" style="background: #444; color: white;">🔄 Sincronizar</button>
     </div>
     
     <table>
@@ -101,12 +110,42 @@
         preview.style.display = 'block';
     }
 
+    async function cargarTodo() {
+        await cargarMiembros();
+        await chequearAusentes();
+    }
+
     async function cargarMiembros() {
         try {
             const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
         } catch (e) { console.error("Error", e); }
+    }
+
+    async function chequearAusentes() {
+        try {
+            const res = await fetch(`${WEB_APP_URL}?action=getAusentes&t=${Date.now()}`);
+            const ausentes = await res.json();
+            const divContenedor = document.getElementById('seccion-ausentes');
+            const lista = document.getElementById('lista-ausentes');
+            
+            if (ausentes.length > 0) {
+                divContenedor.style.display = "block";
+                lista.innerHTML = "";
+                ausentes.forEach(a => {
+                    const msg = encodeURIComponent(`Hola ${a.nombre}, ¡te extrañamos en SmartBarber! 💈 Nos importa mucho tu progreso y queremos verte crecer. ¿Está todo bien? ¡Te esperamos pronto!`);
+                    lista.innerHTML += `
+                        <div class="ausente-card">
+                            <small style="color:var(--dorado)">${a.nombre}</small><br>
+                            <small>Ausencia: ${a.dias} días</small><br>
+                            <a href="https://wa.me/${a.telefono}?text=${msg}" target="_blank" style="background: var(--whatsapp); color:white; padding: 2px 8px; border-radius: 4px; text-decoration:none; font-size: 0.7rem; display:inline-block; margin-top:5px;">ENVIAR CARIÑO ❤️</a>
+                        </div>`;
+                });
+            } else {
+                divContenedor.style.display = "none";
+            }
+        } catch (e) { console.log("Error ausentes", e); }
     }
 
     function renderizarTabla(datos) {
@@ -119,7 +158,6 @@
             let cuotaStatus = (m.cuota || "").toUpperCase();
             let claseBadge = cuotaStatus === 'SI' ? 'bg-si' : 'bg-no';
             
-            // Lógica visual de vencimiento (Semaforo naranja)
             if (m.vencimiento && m.vencimiento !== '---') {
                 const partes = m.vencimiento.split('/');
                 const fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
@@ -134,8 +172,8 @@
                 }
             }
 
-            const msg = encodeURIComponent(`Hola ${m.nombre}, te saludamos de SmartBarber. Te recordamos que tu cuota está próxima a vencer. ¡Te esperamos!`);
-            const waLink = `https://wa.me/${m.telefono}?text=${msg}`;
+            const msgVenc = encodeURIComponent(`Hola ${m.nombre}, te saludamos de SmartBarber. Te recordamos que tu cuota está próxima a vencer. ¡Te esperamos!`);
+            const waLink = `https://wa.me/${m.telefono}?text=${msgVenc}`;
 
             tabla.innerHTML += `
                 <tr>
@@ -177,8 +215,10 @@
                 mode: 'no-cors',
                 body: JSON.stringify(datos)
             });
-            alert("Registro exitoso. ¡Sincroniza para ver los cambios!");
-            location.reload();
+            alert("Registro exitoso.");
+            cargarTodo();
+            btn.innerText = "GUARDAR MIEMBRO";
+            btn.disabled = false;
         } catch (err) {
             alert("Error al registrar");
             btn.disabled = false;
@@ -189,13 +229,13 @@
     async function renovarCuota(dni) { 
         await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); 
         alert("¡Cuota renovada!");
-        cargarMiembros(); 
+        cargarTodo(); 
     }
     
     async function eliminarMiembro(dni) { 
         if(confirm("¿Seguro que deseas eliminar?")) { 
             await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
-            cargarMiembros(); 
+            cargarTodo(); 
         } 
     }
 
@@ -203,7 +243,7 @@
         const b = document.getElementById('buscador').value.toLowerCase();
         renderizarTabla(miembrosCache.filter(m => m.nombre.toLowerCase().includes(b) || m.dni.toString().includes(b)));
     }
-    window.onload = cargarMiembros;
+    window.onload = cargarTodo;
 </script>
 </body>
 </html>
