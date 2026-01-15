@@ -55,7 +55,6 @@
             backdrop-filter: blur(20px);
         }
 
-        /* Ajuste del Logo */
         .logo-container {
             width: 100%;
             display: flex;
@@ -64,7 +63,7 @@
         }
 
         .logo-png {
-            width: 100px; /* Tamaño un poco más grande para que destaque */
+            width: 100px;
             height: auto;
             filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
         }
@@ -157,13 +156,11 @@
             <img id="user-foto" src="" alt="Perfil">
             <div id="msg-texto" style="font-weight: 900; font-size: 1.4rem;"></div>
             <div id="msg-cuota" style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;"></div>
-            <div id="msg-motivacion" style="font-style: italic; color: #eee; margin-top: 10px; font-size: 0.95rem;"></div>
-            <div id="msg-cumple" style="color: #ffeb3b; font-weight: bold; margin-top: 10px;"></div>
+            <div id="msg-cumple" style="color: #ffeb3b; font-weight: bold; margin-top: 10px; font-size: 1.3rem;"></div>
         </div>
     </div>
 
     <script>
-        // RECUERDA: Si vuelves a implementar el Script en Google, cambia este link por el nuevo
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
         function hablar(texto) {
@@ -189,11 +186,13 @@
             const imgFoto = document.getElementById('user-foto');
             const msgTexto = document.getElementById('msg-texto');
             const msgCuota = document.getElementById('msg-cuota');
+            const msgCumple = document.getElementById('msg-cumple');
 
             div.style.display = "block";
             div.className = "espera";
             msgTexto.innerText = "VERIFICANDO...";
             msgCuota.innerText = "";
+            msgCumple.innerText = "";
             imgFoto.style.display = "none";
 
             try {
@@ -210,8 +209,23 @@
                     }
 
                     if(tipo === "ENTRADA") {
-                        msgCuota.innerText = data.cuota === "SI" ? "✅ CUOTA AL DÍA" : "⚠️ REVISAR PAGO";
-                        hablar(`Hola ${data.nombre}, bienvenido.`);
+                        // Lógica de Cuota
+                        if (data.cuota === "SI") {
+                            msgCuota.innerText = "✅ CUOTA AL DÍA";
+                            msgCuota.style.color = "#a2fca2";
+                        } else {
+                            msgCuota.innerText = "❌ CUOTA VENCIDA";
+                            msgCuota.style.color = "#ff9999";
+                        }
+
+                        // Mensaje de voz y cumple
+                        let saludo = `Hola ${data.nombre}, bienvenido.`;
+                        if(data.esCumple) {
+                            msgCumple.innerText = "🎂 ¡FELIZ CUMPLEAÑOS! 🎂";
+                            saludo = `¡Feliz cumpleaños ${data.nombre}! Que tengas un excelente día. Bienvenido.`;
+                        }
+                        hablar(saludo);
+
                     } else {
                         msgCuota.innerText = "SALIDA REGISTRADA";
                         hablar(`Hasta luego ${data.nombre}, buen descanso.`);
