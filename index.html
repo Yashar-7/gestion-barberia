@@ -130,6 +130,7 @@
             padding: 20px;
         }
 
+        /* Clases de estado dinámicas */
         .exito { background: rgba(76, 175, 80, 0.25) !important; color: #a2fca2 !important; border: 1px solid var(--verde) !important; display: block !important; }
         .salida-msg { background: rgba(255, 152, 0, 0.25) !important; color: #ffcc80 !important; border: 1px solid var(--naranja) !important; display: block !important; }
         .error { background: rgba(244, 67, 54, 0.25) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
@@ -148,8 +149,8 @@
         <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
         
         <div class="btn-group">
-            <button class="btn-entrada" onclick="marcar('ENTRADA')">Entrada</button>
-            <button class="btn-salida" onclick="marcar('SALIDA')">Salida</button>
+            <button id="btn-entrada" class="btn-entrada" onclick="marcar('ENTRADA')">Entrada</button>
+            <button id="btn-salida" class="btn-salida" onclick="marcar('SALIDA')">Salida</button>
         </div>
         
         <div id="mensaje">
@@ -161,6 +162,7 @@
     </div>
 
     <script>
+        // REEMPLAZAR CON TU URL ACTUALIZADA
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
         function hablar(texto) {
@@ -168,6 +170,7 @@
                 window.speechSynthesis.cancel();
                 const mensaje = new SpeechSynthesisUtterance(texto);
                 mensaje.lang = 'es-ES';
+                mensaje.rate = 1;
                 window.speechSynthesis.speak(mensaje);
             }
         }
@@ -181,6 +184,10 @@
             const dniInput = document.getElementById('dni');
             const dni = dniInput.value.trim();
             if(!dni) return;
+
+            // Bloquear botones para evitar doble clic
+            document.getElementById('btn-entrada').disabled = true;
+            document.getElementById('btn-salida').disabled = true;
 
             const div = document.getElementById('mensaje');
             const imgFoto = document.getElementById('user-foto');
@@ -196,6 +203,7 @@
             imgFoto.style.display = "none";
 
             try {
+                // Se envían los parámetros dni y tipo que el script espera
                 const response = await fetch(`${WEB_APP_URL}?dni=${dni}&tipo=${tipo}&t=${Date.now()}`);
                 const data = await response.json();
                 
@@ -209,42 +217,43 @@
                     }
 
                     if(tipo === "ENTRADA") {
-                        if (data.cuota === "SI") {
-                            msgCuota.innerText = "✅ CUOTA AL DÍA";
-                            msgCuota.style.color = "#a2fca2";
-                        } else {
-                            msgCuota.innerText = "❌ CUOTA VENCIDA";
-                            msgCuota.style.color = "#ff9999";
-                        }
+                        msgCuota.innerText = (data.cuota === "SI") ? "✅ CUOTA AL DÍA" : "❌ CUOTA VENCIDA";
+                        msgCuota.style.color = (data.cuota === "SI") ? "#a2fca2" : "#ff9999";
 
                         let saludo = `Hola ${data.nombre}, bienvenido.`;
                         if(data.esCumple) {
                             msgCumple.innerText = "🎂 ¡FELIZ CUMPLEAÑOS! 🎂";
-                            saludo = `¡Feliz cumpleaños ${data.nombre}! Que tengas un excelente día. Bienvenido.`;
+                            saludo = `¡Feliz cumpleaños ${data.nombre}! Que tengas un gran día. Bienvenido.`;
                         }
                         hablar(saludo);
-
                     } else {
-                        // LÓGICA DE SALIDA CON TIEMPO TRABAJADO
-                        msgCuota.innerText = "TIEMPO HOY: " + data.tiempo;
+                        // Respuesta de SALIDA
+                        let tiempoTxt = data.tiempo || "0h 0m";
+                        msgCuota.innerText = "TIEMPO HOY: " + tiempoTxt;
                         msgCuota.style.color = "#ffcc80";
-                        hablar(`Hasta luego ${data.nombre}. Trabajaste ${data.tiempo}. Buen descanso.`);
+                        hablar(`Hasta luego ${data.nombre}. Hoy trabajaste ${tiempoTxt}. Buen descanso.`);
                     }
                 } else {
                     div.className = 'error';
                     msgTexto.innerText = "NO ENCONTRADO";
-                    hablar("DNI no registrado");
+                    hablar("DNI no registrado.");
                 }
             } catch (err) {
                 div.className = 'error';
-                msgTexto.innerText = "ERROR DE RED";
+                msgTexto.innerText = "ERROR DE CONEXIÓN";
+                console.error(err);
             } finally {
                 dniInput.value = '';
                 dniInput.focus();
-                setTimeout(() => { div.style.display = "none"; }, 6000);
+                // Reactivar botones
+                document.getElementById('btn-entrada').disabled = false;
+                document.getElementById('btn-salida').disabled = false;
+                // Ocultar mensaje después de 7 segundos
+                setTimeout(() => { div.style.display = "none"; }, 7000);
             }
         }
 
+        // Permitir marcar ENTRADA con la tecla Enter para agilidad
         document.getElementById('dni').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') marcar('ENTRADA'); 
         });
