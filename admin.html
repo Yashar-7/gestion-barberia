@@ -5,89 +5,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - SmartBarber</title>
     <style>
-        :root { --dorado: #d4af37; --oscuro: #121212; --gris: #1e1e1e; --rojo: #ff4444; --verde: #4caf50; --naranja: #ff9800; --whatsapp: #25d366; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--oscuro); color: white; padding: 20px; margin: 0; }
+        :root { 
+            --dorado: #d4af37; 
+            --oscuro: #121212; 
+            --gris: rgba(30, 30, 30, 0.8); 
+            --rojo: #ff4444; 
+            --verde: #4caf50; 
+            --naranja: #ff9800; 
+            --whatsapp: #25d366; 
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('Smartbarber.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white; 
+            padding: 20px; 
+            margin: 0; 
+        }
+
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
-        .admin-logo { width: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 5px var(--dorado)); }
-        .admin-panel { background: rgba(212, 175, 55, 0.05); border: 1px solid var(--dorado); padding: 25px; border-radius: 15px; margin-bottom: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .cam-box { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        #video { border: 2px solid var(--dorado); border-radius: 10px; background: #000; width: 220px; height: 165px; object-fit: cover; }
-        #canvas { display: none; }
-        .form-box { display: flex; flex-direction: column; gap: 8px; width: 300px; }
-        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: white; outline: none; }
-        input:focus { border-color: var(--dorado); }
-        button { background: var(--dorado); color: black; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { transform: scale(1.05); opacity: 0.9; }
-        .btn-cam { background: #444; color: white; font-size: 0.8rem; }
-        .btn-capture { background: var(--verde); color: white; font-size: 0.8rem; }
-        .search-container { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--gris); padding: 15px; border-radius: 10px; }
-        #buscador { width: 300px; border-color: var(--dorado); }
-        table { width: 100%; border-collapse: collapse; background: var(--gris); border-radius: 10px; overflow: hidden; margin-bottom: 50px; }
-        th { background: var(--dorado); color: black; padding: 15px; }
-        td { padding: 12px; border-bottom: 1px solid #333; text-align: center; }
-        .img-tabla { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--dorado); }
-        .badge { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
-        .bg-si { background: var(--verde); color: white; }
-        .bg-no { background: var(--rojo); color: white; }
-        .bg-aviso { background: var(--naranja); color: white; }
-        .bg-libre { background: #444; color: white; } /* Para barberos */
-        .btn-wa { background: var(--whatsapp); color: white; text-decoration: none; padding: 5px 10px; border-radius: 5px; font-size: 1.2rem; display: inline-block; line-height: 1; }
+
+        .admin-logo { 
+            width: 80px; 
+            filter: drop-shadow(0 0 10px var(--dorado)); 
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: var(--dorado);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Panel Superior Estilo Glassmorphism */
+        .admin-panel { 
+            background: rgba(20, 20, 20, 0.7); 
+            border: 1px solid rgba(212, 175, 55, 0.3); 
+            padding: 25px; 
+            border-radius: 25px; 
+            margin-bottom: 30px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 30px; 
+            backdrop-filter: blur(15px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .cam-box { display: flex; flex-direction: column; align-items: center; gap: 15px; }
         
-        #seccion-ausentes { display:none; background: rgba(255, 68, 68, 0.1); border: 1px dashed var(--rojo); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        .ausente-card { background: var(--gris); padding: 10px; border-radius: 8px; border-left: 4px solid var(--rojo); text-align: left; min-width: 200px; }
+        #video { 
+            border: 2px solid var(--dorado); 
+            border-radius: 15px; 
+            background: #000; 
+            width: 240px; 
+            height: 180px; 
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .form-box { display: flex; flex-direction: column; gap: 10px; width: 320px; }
+
+        input, select { 
+            padding: 12px; 
+            border-radius: 10px; 
+            border: 1px solid #444; 
+            background: rgba(0, 0, 0, 0.6); 
+            color: white; 
+            outline: none; 
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--dorado); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+
+        button { 
+            background: var(--dorado); 
+            color: black; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 10px; 
+            font-weight: 900; 
+            cursor: pointer; 
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        button:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4); }
+
+        /* Buscador y Tabla */
+        .search-container { 
+            margin-bottom: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(30, 30, 30, 0.7); 
+            padding: 15px 25px; 
+            border-radius: 15px; 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #buscador { width: 350px; border-color: var(--dorado); }
+
+        table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0 8px;
+            margin-bottom: 50px; 
+        }
+
+        th { background: transparent; color: var(--dorado); padding: 15px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+
+        td { 
+            background: rgba(25, 25, 25, 0.8); 
+            padding: 15px; 
+            text-align: center; 
+            backdrop-filter: blur(5px);
+        }
+
+        /* Redondear esquinas de las filas */
+        td:first-child { border-radius: 15px 0 0 15px; border-left: 2px solid rgba(212, 175, 55, 0.2); }
+        td:last-child { border-radius: 0 15px 15px 0; }
+
+        .img-tabla { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--dorado);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .badge { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .bg-si { background: rgba(76, 175, 80, 0.2); color: #a2fca2; border: 1px solid var(--verde); }
+        .bg-no { background: rgba(244, 67, 54, 0.2); color: #ff9999; border: 1px solid var(--rojo); }
+        .bg-aviso { background: rgba(255, 152, 0, 0.2); color: #ffcc80; border: 1px solid var(--naranja); }
+        .bg-libre { background: rgba(255, 255, 255, 0.1); color: #ddd; border: 1px solid #666; }
+
+        .btn-wa { background: var(--whatsapp); color: white; text-decoration: none; padding: 8px; border-radius: 10px; display: inline-flex; transition: 0.3s; }
+        .btn-wa:hover { transform: scale(1.1); background: #1ebe57; }
+        
+        #seccion-ausentes { 
+            display:none; 
+            background: rgba(244, 67, 54, 0.1); 
+            border: 1px dashed var(--rojo); 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin-bottom: 25px; 
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <img src="logo.png" class="admin-logo" onerror="this.style.display='none'">
-    <h1>Panel Administrativo 💈 SmartBarber</h1>
+    <h1>Admin SmartBarber</h1>
     
     <div class="admin-panel">
         <div class="cam-box">
             <video id="video" autoplay playsinline></video>
-            <div style="display:flex; gap:5px;">
-                <button class="btn-cam" onclick="activarCamara()">📷 ENCENDER</button>
-                <button class="btn-capture" onclick="tomarFoto()">📸 CAPTURAR</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-cam" style="background: #333; color: white;" onclick="activarCamara()">📷 Encender</button>
+                <button class="btn-capture" style="background: var(--verde); color: white;" onclick="tomarFoto()">📸 Capturar</button>
             </div>
-            <canvas id="canvas" width="320" height="240"></canvas>
-            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; border:2px solid var(--verde); object-fit: cover;">
+            <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; border:2px solid var(--verde); object-fit: cover; margin-top: 10px;">
         </div>
 
         <div class="form-box">
             <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
             <input type="number" id="nuevoDni" placeholder="DNI">
             <input type="number" id="nuevoTel" placeholder="WhatsApp (Ej: 54911...)">
-            <label style="font-size: 0.7rem; color: var(--dorado); text-align: left;">Fecha Nacimiento:</label>
-            <input type="date" id="nuevoCumple">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-size: 0.7rem; color: var(--dorado); min-width: 80px;">Nacimiento:</label>
+                <input type="date" id="nuevoCumple" style="flex: 1;">
+            </div>
             <select id="nuevoRol">
                 <option value="Estudiante">Estudiante</option>
                 <option value="Barbero">Barbero</option>
             </select>
             <input type="hidden" id="nuevaFoto">
-            <button id="btnGuardar" onclick="registrarUsuario()">GUARDAR MIEMBRO</button>
+            <button id="btnGuardar" onclick="registrarUsuario()">Guardar Miembro</button>
         </div>
     </div>
 
     <div id="seccion-ausentes">
-        <h3 style="color: var(--rojo); margin-top: 0; font-size: 1rem;">⚠️ Alerta de Retención (Ausentes +7 días)</h3>
+        <h3 style="color: var(--rojo); margin-top: 0;">⚠️ Alerta de Ausencias</h3>
         <div id="lista-ausentes" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
     </div>
 
     <div class="search-container">
-        <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
-        <button onclick="cargarTodo()" style="background: #444; color: white;">🔄 Sincronizar</button>
+        <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar barbero o alumno...">
+        <button onclick="cargarTodo()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid #555;">🔄 Sincronizar</button>
     </div>
     
     <table>
         <thead>
-            <tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Rol</th><th>Cuota</th><th>Vence</th><th>WhatsApp</th><th>Acciones</th></tr>
+            <tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Vence</th><th>WA</th><th>Acciones</th></tr>
         </thead>
-        <tbody id="tabla-miembros"><tr><td colspan="8">Cargando datos...</td></tr></tbody>
+        <tbody id="tabla-miembros">
+            <tr><td colspan="8" style="background: transparent;">Cargando base de datos...</td></tr>
+        </tbody>
     </table>
 </div>
 
 <script>
-    // REEMPLAZAR CON TU URL ACTUALIZADA
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
     
     let miembrosCache = [];
@@ -113,7 +239,6 @@
 
     async function cargarTodo() {
         await cargarMiembros();
-        // Nota: Agregaremos la lógica de ausentes si el script la soporta, por ahora cargamos miembros
     }
 
     async function cargarMiembros() {
@@ -121,7 +246,7 @@
             const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
-        } catch (e) { console.error("Error cargando tabla", e); }
+        } catch (e) { console.error("Error", e); }
     }
 
     function renderizarTabla(datos) {
@@ -134,10 +259,9 @@
             let cuotaStatus = (m.cuota || "").toUpperCase();
             let claseBadge = cuotaStatus === 'SI' ? 'bg-si' : 'bg-no';
             
-            // LÓGICA ESPECIAL PARA BARBEROS (No vencen)
             if (m.rol === "Barbero" || m.vencimiento === "---") {
                 claseBadge = 'bg-libre';
-                cuotaStatus = 'LIBRE';
+                cuotaStatus = 'BARBERO';
             } else if (m.vencimiento) {
                 const partes = m.vencimiento.split('/');
                 const fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
@@ -152,22 +276,22 @@
                 }
             }
 
-            const msgVenc = encodeURIComponent(`Hola ${m.nombre}, te saludamos de SmartBarber. Te recordamos que tu cuota está próxima a vencer. ¡Te esperamos!`);
+            const msgVenc = encodeURIComponent(`Hola ${m.nombre}, te saludamos de SmartBarber...`);
             const waLink = `https://wa.me/${m.telefono}?text=${msgVenc}`;
 
             tabla.innerHTML += `
                 <tr>
                     <td><img src="${fotoUrl}" class="img-tabla"></td>
-                    <td><b>${m.dni}</b></td>
-                    <td>${m.nombre}</td>
-                    <td>${m.rol}</td>
+                    <td><span style="color:var(--dorado)">${m.dni}</span></td>
+                    <td style="text-align: left;"><b>${m.nombre}</b></td>
+                    <td><small>${m.rol}</small></td>
                     <td><span class="badge ${claseBadge}">${cuotaStatus}</span></td>
                     <td>${m.vencimiento || '---'}</td>
                     <td><a href="${waLink}" target="_blank" class="btn-wa">💬</a></td>
                     <td>
-                        <div style="display:flex; gap:4px; justify-content:center;">
-                            ${m.rol !== 'Barbero' ? `<button style="background:var(--verde); font-size:0.7rem; padding: 5px;" onclick="renovarCuota('${m.dni}')">PAGO +30</button>` : ''}
-                            <button style="background:var(--rojo); font-size:0.7rem; padding: 5px;" onclick="eliminarMiembro('${m.dni}')">🗑️</button>
+                        <div style="display:flex; gap:8px; justify-content:center;">
+                            ${m.rol !== 'Barbero' ? `<button style="background:var(--verde); font-size:0.65rem; padding: 6px 10px;" onclick="renovarCuota('${m.dni}')">PAGO</button>` : ''}
+                            <button style="background:transparent; border:1px solid var(--rojo); color:var(--rojo); font-size:0.65rem; padding: 6px 10px;" onclick="eliminarMiembro('${m.dni}')">BORRAR</button>
                         </div>
                     </td>
                 </tr>`;
@@ -178,47 +302,44 @@
         const btn = document.getElementById('btnGuardar');
         const nombre = document.getElementById('nuevoNombre').value;
         const dni = document.getElementById('nuevoDni').value;
-        const telefono = document.getElementById('nuevoTel').value;
-        const cumple = document.getElementById('nuevoCumple').value;
-        const foto = document.getElementById('nuevaFoto').value;
-        const rol = document.getElementById('nuevoRol').value;
-
-        if(!nombre || !dni) return alert("Nombre y DNI obligatorios");
-        btn.innerText = "ENVIANDO...";
+        if(!nombre || !dni) return alert("Completa los datos");
+        
+        btn.innerText = "REGISTRANDO...";
         btn.disabled = true;
 
-        const datos = { nombre, dni, telefono, cumple, foto, rol };
+        const datos = { 
+            nombre, 
+            dni, 
+            telefono: document.getElementById('nuevoTel').value, 
+            cumple: document.getElementById('nuevoCumple').value, 
+            foto: document.getElementById('nuevaFoto').value, 
+            rol: document.getElementById('nuevoRol').value 
+        };
 
         try {
-            await fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(datos)
-            });
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
             setTimeout(() => {
-                alert("Registro exitoso.");
+                alert("¡Guardado correctamente!");
                 cargarTodo();
-                btn.innerText = "GUARDAR MIEMBRO";
+                btn.innerText = "Guardar Miembro";
                 btn.disabled = false;
-                // Limpiar campos
                 document.getElementById('nuevoNombre').value = "";
                 document.getElementById('nuevoDni').value = "";
             }, 1000);
         } catch (err) {
-            alert("Error al registrar");
+            alert("Error");
             btn.disabled = false;
-            btn.innerText = "GUARDAR MIEMBRO";
         }
     }
 
     async function renovarCuota(dni) { 
         await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); 
-        alert("¡Cuota renovada!");
+        alert("Pago registrado.");
         cargarTodo(); 
     }
     
     async function eliminarMiembro(dni) { 
-        if(confirm("¿Seguro que deseas eliminar?")) { 
+        if(confirm("¿Eliminar este registro?")) { 
             await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
             cargarTodo(); 
         } 
