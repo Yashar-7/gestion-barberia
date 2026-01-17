@@ -15,7 +15,6 @@
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            /* Cambio a tu nueva imagen Smartbarber.jpg */
             background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
                         url('Smartbarber.jpg');
             background-size: cover;
@@ -64,7 +63,7 @@
         }
 
         .logo-png {
-            width: 120px; /* Un poco más grande para que destaque tu marca */
+            width: 120px;
             height: auto;
             filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
         }
@@ -226,8 +225,10 @@
                         hablar(saludo);
 
                     } else {
-                        msgCuota.innerText = "SALIDA REGISTRADA";
-                        hablar(`Hasta luego ${data.nombre}, buen descanso.`);
+                        // LÓGICA DE SALIDA CON TIEMPO TRABAJADO
+                        msgCuota.innerText = "TIEMPO HOY: " + data.tiempo;
+                        msgCuota.style.color = "#ffcc80";
+                        hablar(`Hasta luego ${data.nombre}. Trabajaste ${data.tiempo}. Buen descanso.`);
                     }
                 } else {
                     div.className = 'error';
