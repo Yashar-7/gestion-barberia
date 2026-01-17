@@ -14,185 +14,128 @@
         }
 
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
-                        url('Smartbarber.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: white; 
-            margin: 0; 
-            padding: 20px;
-            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('Smartbarber.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: white; margin: 0; padding: 20px;
         }
 
         .admin-card { 
-            background: rgba(25, 25, 25, 0.95); 
-            padding: 2.5rem; 
-            border-radius: 30px; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            backdrop-filter: blur(20px);
-            max-width: 1000px;
-            margin: 0 auto 30px auto;
+            background: rgba(25, 25, 25, 0.95); padding: 2.5rem; border-radius: 30px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9); border: 1px solid rgba(212, 175, 55, 0.3);
+            backdrop-filter: blur(20px); max-width: 1000px; margin: 0 auto 40px;
         }
 
-        h1 { 
-            color: var(--dorado); 
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-            margin-bottom: 25px;
-            text-align: center;
-        }
+        h1 { color: var(--dorado); text-transform: uppercase; letter-spacing: 5px; text-align: center; margin-bottom: 30px; }
 
-        .panel-flex {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 40px;
-            justify-content: center;
-            align-items: center;
-        }
+        .panel-flex { display: flex; flex-wrap: wrap; gap: 50px; justify-content: center; align-items: flex-start; }
 
-        /* Estilo Cámara */
-        .cam-section { text-align: center; }
-        #video {
-            width: 280px;
-            height: 210px;
-            border-radius: 20px;
-            border: 2px solid var(--dorado);
-            background: #000;
-            object-fit: cover;
-        }
-
+        /* Cámara */
+        #video { width: 280px; height: 210px; border-radius: 20px; border: 2px solid var(--dorado); background: #000; object-fit: cover; }
+        
+        /* Botones de Cámara (Separados) */
         .btn-cam {
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 1px solid var(--dorado);
-            transition: 0.3s;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            margin: 5px;
+            padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer;
+            border: 1px solid var(--dorado); transition: 0.3s; text-transform: uppercase;
+            margin: 0 10px; /* Separación entre ON y FOTO */
         }
         .btn-on { background: transparent; color: var(--dorado); }
         .btn-foto { background: var(--dorado); color: black; }
 
-        .form-section {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 320px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid #333;
-            background: rgba(0,0,0,0.8) !important;
-            color: var(--dorado) !important;
-            font-size: 1rem;
-            outline: none;
+        /* Formulario */
+        .form-section { display: flex; flex-direction: column; gap: 15px; width: 320px; }
+        input, select { 
+            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #333;
+            background: rgba(0,0,0,0.8) !important; color: var(--dorado) !important; outline: none; box-sizing: border-box;
         }
 
         .btn-principal { 
-            background: var(--dorado); 
-            color: black; 
-            padding: 18px;
-            border-radius: 15px;
-            font-weight: 900;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
+            background: var(--dorado); color: black; padding: 18px; border-radius: 15px;
+            font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; margin-top: 10px;
         }
 
-        /* Tabla Estilo Botón */
+        /* Tabla y Encabezados Separados */
         th { 
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--dorado); 
-            padding: 15px; 
-            font-size: 0.75rem; 
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 10px;
-            text-transform: uppercase;
+            background: rgba(212, 175, 55, 0.05); color: var(--dorado); padding: 18px; 
+            font-size: 0.75rem; border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px; text-transform: uppercase; letter-spacing: 1px;
         }
 
-        tr td { 
-            background: rgba(30, 30, 30, 0.9); 
-            padding: 15px; 
-            text-align: center;
-            border-bottom: 1px solid #333;
-        }
+        /* Filas de la Tabla */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; }
+        tr td { background: rgba(35, 35, 35, 0.9); padding: 18px; text-align: center; border-bottom: 1px solid #333; }
+        tr td:first-child { border-radius: 18px 0 0 18px; border-left: 4px solid var(--dorado); }
+        tr td:last-child { border-radius: 0 18px 18px 0; }
 
-        tr td:first-child { border-radius: 15px 0 0 15px; border-left: 4px solid var(--dorado); }
-        tr td:last-child { border-radius: 0 15px 15px 0; }
-
-        .img-perfil { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--dorado); object-fit: cover; }
+        .img-perfil { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--dorado); object-fit: cover; }
         
-        /* Badges de Estado */
-        .badge { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; display: inline-block; }
-        .status-si { background: rgba(76, 175, 80, 0.2); color: #a2fca2; border: 1px solid var(--verde); }
-        .status-no { background: rgba(244, 67, 54, 0.2); color: #ff9999; border: 1px solid var(--rojo); }
+        /* Botones de Acción (Separados y más grandes) */
+        .btn-accion { 
+            padding: 10px 16px; font-size: 0.75rem; border-radius: 10px; color: white; 
+            border: none; cursor: pointer; font-weight: bold; 
+            margin: 0 6px; /* MÁS ESPACIO ENTRE ELLOS */
+            transition: 0.2s;
+            min-width: 45px;
+        }
+        .btn-accion:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
+        .badge { padding: 8px 14px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; }
+        .status-si { background: rgba(76, 175, 80, 0.15); color: #a2fca2; border: 1px solid var(--verde); }
+        .status-no { background: rgba(244, 67, 54, 0.15); color: #ff9999; border: 1px solid var(--rojo); }
         .status-staff { background: rgba(212, 175, 55, 0.1); color: var(--dorado); border: 1px solid var(--dorado); }
 
-        .btn-accion { padding: 8px 12px; font-size: 0.7rem; border-radius: 8px; color: white; border: none; cursor: pointer; font-weight: bold; margin: 2px; }
-        .search-bar { margin: 20px auto; max-width: 450px; }
+        .search-bar { margin: 30px auto; max-width: 480px; }
     </style>
 </head>
 <body>
 
 <div class="admin-card">
-    <center>
-        <h1>Control de Socios</h1>
-    </center>
-
+    <h1>Gestión de Socios</h1>
     <div class="panel-flex">
         <div class="cam-section">
             <video id="video" autoplay playsinline></video>
-            <div style="margin-top: 15px;">
+            <div style="margin-top: 20px;">
                 <button onclick="activarCamara()" class="btn-cam btn-on">Encender</button>
                 <button onclick="tomarFoto()" class="btn-cam btn-foto">Capturar</button>
             </div>
             <canvas id="canvas" style="display:none;" width="320" height="240"></canvas>
-            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; margin: 10px auto; border: 2px solid var(--verde); object-fit: cover;">
+            <img id="preview" style="display:none; width:70px; height:70px; border-radius:50%; margin: 15px auto; border: 2px solid var(--verde); object-fit: cover;">
         </div>
 
         <div class="form-section">
             <input type="text" id="nuevoNombre" placeholder="Nombre completo">
-            <input type="number" id="nuevoDni" placeholder="DNI">
-            <input type="number" id="nuevoTel" placeholder="WhatsApp (549...)">
+            <input type="number" id="nuevoDni" placeholder="DNI del socio">
+            <input type="number" id="nuevoTel" placeholder="WhatsApp (Ej: 549...)">
             <input type="date" id="nuevoCumple">
             <select id="nuevoRol">
                 <option value="Estudiante">Estudiante</option>
                 <option value="Barbero">Barbero (Staff)</option>
             </select>
             <input type="hidden" id="nuevaFoto">
-            <button class="btn-principal" id="btn-registrar" onclick="registrarUsuario()">Guardar Registro</button>
+            <button class="btn-principal" id="btn-registrar" onclick="registrarUsuario()">Guardar en Base de Datos</button>
         </div>
     </div>
 </div>
 
 <div class="search-bar">
-    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar socio o DNI..." style="text-align: center; border: 1px solid var(--dorado);">
+    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o número de DNI..." style="text-align: center; border: 1px solid var(--dorado);">
 </div>
 
-<div style="overflow-x: auto; max-width: 1100px; margin: 0 auto;">
-    <table id="miTabla">
+<div style="overflow-x: auto; max-width: 1100px; margin: 0 auto; padding-bottom: 50px;">
+    <table>
         <thead>
             <tr>
                 <th>Foto</th>
                 <th>DNI</th>
-                <th>Nombre</th>
+                <th>Socio</th>
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Vencimiento</th>
-                <th>Acciones</th>
+                <th style="min-width: 180px;">Acciones</th>
             </tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="7">Sincronizando...</td></tr>
+            <tr><td colspan="7">Sincronizando base de datos...</td></tr>
         </tbody>
     </table>
 </div>
@@ -220,13 +163,15 @@
         if (!fechaStr || fechaStr === "---") return "---";
         const d = new Date(fechaStr);
         if (isNaN(d.getTime())) return fechaStr;
-        return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        return d.toLocaleDateString('es-AR');
     }
 
     async function cargarTodo() {
-        const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
-        miembrosCache = await res.json();
-        renderizarTabla(miembrosCache);
+        try {
+            const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
+            miembrosCache = await res.json();
+            renderizarTabla(miembrosCache);
+        } catch(e) { console.log(e); }
     }
 
     function renderizarTabla(datos) {
@@ -245,10 +190,12 @@
                     <td><small>${m.rol}</small></td>
                     <td><span class="badge ${badgeClase}">${labelEstado}</span></td>
                     <td>${formatearFecha(m.vencimiento)}</td>
-                    <td>
-                        <button onclick="renovar('${m.dni}')" class="btn-accion" style="background:var(--verde)">PAGO</button>
-                        <a href="https://wa.me/${m.telefono}" target="_blank"><button class="btn-accion" style="background:var(--whatsapp)">WA</button></a>
-                        <button onclick="eliminar('${m.dni}')" class="btn-accion" style="background:var(--rojo)">X</button>
+                    <td style="display: flex; justify-content: center; align-items: center; border: none; padding-top: 25px;">
+                        <button onclick="renovar('${m.dni}')" class="btn-accion" style="background:var(--verde)" title="Pagar">PAGO</button>
+                        <a href="https://wa.me/${m.telefono}" target="_blank">
+                            <button class="btn-accion" style="background:var(--whatsapp)" title="WhatsApp">WA</button>
+                        </a>
+                        <button onclick="eliminar('${m.dni}')" class="btn-accion" style="background:var(--rojo)" title="Eliminar">X</button>
                     </td>
                 </tr>
             `;
@@ -265,15 +212,26 @@
             foto: document.getElementById('nuevaFoto').value,
             rol: document.getElementById('nuevoRol').value
         };
-        if(!datos.nombre || !datos.dni) return alert("Completa Nombre y DNI");
+        if(!datos.nombre || !datos.dni) return alert("Faltan datos obligatorios.");
         btn.innerText = "REGISTRANDO...";
         await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-        alert("Guardado");
+        alert("¡Registro Exitoso!");
         location.reload();
     }
 
-    async function renovar(dni) { await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); alert("Renovado"); cargarTodo(); }
-    async function eliminar(dni) { if(confirm("¿Eliminar?")) { await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); cargarTodo(); } }
+    async function renovar(dni) { 
+        if(confirm("¿Confirmar renovación de cuota?")) {
+            await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' });
+            cargarTodo();
+        }
+    }
+    
+    async function eliminar(dni) { 
+        if(confirm("¿Eliminar socio permanentemente?")) {
+            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' });
+            cargarTodo();
+        }
+    }
     
     function filtrarTabla() {
         const query = document.getElementById('buscador').value.toLowerCase();
