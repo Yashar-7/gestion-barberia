@@ -15,8 +15,9 @@
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
-                        url('black_school.jpg');
+            /* Cambio a tu nueva imagen Smartbarber.jpg */
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+                        url('Smartbarber.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -63,7 +64,7 @@
         }
 
         .logo-png {
-            width: 100px;
+            width: 120px; /* Un poco más grande para que destaque tu marca */
             height: auto;
             filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
         }
@@ -143,7 +144,7 @@
             <img src="logo.png" alt="Logo" class="logo-png" onerror="this.style.display='none'">
         </div>
         <h1>💈 SmartBarber</h1>
-        <p style="font-size: 0.8rem; letter-spacing: 1px; color: #aaa;">GESTIÓN ACADÉMICA Y STAFF</p>
+        <p style="font-size: 0.8rem; letter-spacing: 1px; color: #aaa;">SISTEMA INTEGRAL DE GESTIÓN</p>
         
         <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
         
@@ -209,7 +210,6 @@
                     }
 
                     if(tipo === "ENTRADA") {
-                        // Lógica de Cuota
                         if (data.cuota === "SI") {
                             msgCuota.innerText = "✅ CUOTA AL DÍA";
                             msgCuota.style.color = "#a2fca2";
@@ -218,7 +218,6 @@
                             msgCuota.style.color = "#ff9999";
                         }
 
-                        // Mensaje de voz y cumple
                         let saludo = `Hola ${data.nombre}, bienvenido.`;
                         if(data.esCumple) {
                             msgCumple.innerText = "🎂 ¡FELIZ CUMPLEAÑOS! 🎂";
