@@ -3,189 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SmartBarber</title>
+    <title>SmartBarber - Panel Administrativo</title>
     <style>
-        :root { 
-            --dorado: #d4af37; 
-            --oscuro: #0a0a0a; 
-            --gris-trans: rgba(20, 20, 20, 0.8); 
-            --rojo: #ff4444; 
-            --verde: #4caf50; 
-            --naranja: #ff9800; 
-            --whatsapp: #25d366; 
+        :root {
+            --dorado: #d4af37;
+            --oscuro: #121212;
+            --verde: #4caf50;
+            --rojo: #f44336;
+            --naranja: #ff9800;
         }
 
         body { 
-            font-family: 'Segoe UI', sans-serif; 
-            /* Esto asegura que el fondo siempre sea oscuro y use la imagen si existe */
-            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('Smartbarber.jpg'), #111;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+                        url('Smartbarber.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: white; 
-            padding: 20px; 
             margin: 0; 
+            padding: 20px;
             min-height: 100vh;
         }
 
-        .container { max-width: 1100px; margin: 0 auto; text-align: center; }
-
-        .admin-logo { 
-            width: 80px; 
-            filter: drop-shadow(0 0 10px var(--dorado)); 
-            margin-bottom: 10px;
+        /* Estilo de Tarjeta del Index aplicado al Panel */
+        .admin-card { 
+            background: rgba(25, 25, 25, 0.9); 
+            padding: 2rem; 
+            border-radius: 30px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            backdrop-filter: blur(20px);
+            max-width: 1000px;
+            margin: 0 auto 30px auto;
         }
 
-        h1 {
-            color: var(--dorado);
+        h1 { 
+            color: var(--dorado); 
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-            margin-top: 0;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            margin-bottom: 25px;
+            text-align: center;
         }
 
-        /* PANEL SUPERIOR (REGISTRO) */
-        .admin-panel { 
-            background: var(--gris-trans); 
-            border: 1px solid var(--dorado); 
-            padding: 25px; 
-            border-radius: 20px; 
-            margin-bottom: 30px; 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            gap: 30px; 
-            backdrop-filter: blur(15px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .panel-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
         }
 
-        .cam-box { display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        
-        #video { 
-            border: 2px solid var(--dorado); 
-            border-radius: 15px; 
-            background: #000; 
-            width: 240px; 
-            height: 180px; 
+        /* Cámara y Formulario */
+        .cam-section { text-align: center; }
+        #video {
+            width: 280px;
+            height: 210px;
+            border-radius: 20px;
+            border: 2px solid var(--dorado);
+            background: #000;
             object-fit: cover;
         }
 
-        .form-box { display: flex; flex-direction: column; gap: 10px; width: 320px; }
-
-        input, select { 
-            padding: 12px; 
-            border-radius: 8px; 
-            border: 1px solid #444; 
-            background: rgba(0, 0, 0, 0.6) !important; 
-            color: white !important; 
-            outline: none; 
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 320px;
         }
 
-        input:focus { border-color: var(--dorado); }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            background: rgba(0,0,0,0.7) !important;
+            color: var(--dorado) !important;
+            font-size: 1rem;
+            outline: none;
+        }
 
-        button { 
-            background: var(--dorado); 
-            color: black; 
-            border: none; 
-            padding: 12px 20px; 
-            border-radius: 8px; 
-            font-weight: 900; 
-            cursor: pointer; 
-            transition: 0.3s;
+        button {
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 900;
+            cursor: pointer;
             text-transform: uppercase;
+            transition: 0.3s;
+            border: none;
         }
 
-        button:hover { transform: scale(1.02); box-shadow: 0 0 15px var(--dorado); }
+        .btn-principal { background: var(--dorado); color: black; }
+        .btn-principal:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--dorado); }
 
-        /* BUSCADOR Y TABLA */
-        .search-container { 
-            margin-bottom: 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: var(--gris-trans); 
-            padding: 15px 25px; 
-            border-radius: 15px; 
-            border: 1px solid rgba(255,255,255,0.1);
+        /* Tabla Estilo Premium */
+        .table-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            overflow-x: auto;
         }
 
-        #buscador { width: 350px; border-color: var(--dorado); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        
+        th { color: var(--dorado); text-transform: uppercase; padding: 15px; font-size: 0.8rem; letter-spacing: 2px; }
 
-        table { 
-            width: 100%; 
-            border-collapse: separate; 
-            border-spacing: 0 10px;
-        }
-
-        th { color: var(--dorado); padding: 15px; text-transform: uppercase; font-size: 0.8rem; }
-
-        td { 
-            background: rgba(20, 20, 20, 0.8); 
+        tr td { 
+            background: rgba(30, 30, 30, 0.85); 
             padding: 15px; 
-            text-align: center; 
             backdrop-filter: blur(5px);
+            text-align: center;
         }
 
-        td:first-child { border-radius: 15px 0 0 15px; border-left: 3px solid var(--dorado); }
-        td:last-child { border-radius: 0 15px 15px 0; }
+        tr td:first-child { border-radius: 15px 0 0 15px; border-left: 3px solid var(--dorado); }
+        tr td:last-child { border-radius: 0 15px 15px 0; }
 
-        .img-tabla { 
-            width: 50px; height: 50px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid var(--dorado);
+        .img-perfil { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--dorado); object-fit: cover; }
+
+        .badge { padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; }
+        .status-si { background: rgba(76, 175, 80, 0.2); color: #a2fca2; border: 1px solid var(--verde); }
+        .status-no { background: rgba(244, 67, 54, 0.2); color: #ff9999; border: 1px solid var(--rojo); }
+        .status-staff { background: rgba(255, 255, 255, 0.1); color: #ddd; border: 1px solid #666; }
+
+        .btn-accion { padding: 6px 10px; font-size: 0.7rem; border-radius: 6px; color: white; margin: 0 2px; }
+
+        .search-bar {
+            margin: 20px auto;
+            max-width: 400px;
         }
-
-        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; }
-        .bg-si { background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid var(--verde); }
-        .bg-no { background: rgba(244, 67, 54, 0.2); color: #ff4444; border: 1px solid var(--rojo); }
-        .bg-aviso { background: rgba(255, 152, 0, 0.2); color: #ff9800; border: 1px solid var(--naranja); }
-        .bg-libre { background: rgba(255, 255, 255, 0.1); color: #ccc; border: 1px solid #666; }
-
-        .btn-wa { background: var(--whatsapp); color: white; text-decoration: none; padding: 8px; border-radius: 8px; display: inline-flex; }
     </style>
 </head>
 <body>
-<div class="container">
-    <img src="logo.png" class="admin-logo" onerror="this.style.display='none'">
-    <h1>Admin SmartBarber</h1>
-    
-    <div class="admin-panel">
-        <div class="cam-box">
+
+<div class="admin-card">
+    <center>
+        <img src="logo.png" style="width: 80px; filter: drop-shadow(0 0 10px var(--dorado)); margin-bottom: 10px;">
+        <h1>Control de Socios</h1>
+    </center>
+
+    <div class="panel-flex">
+        <div class="cam-section">
             <video id="video" autoplay playsinline></video>
-            <div style="display:flex; gap:10px;">
-                <button onclick="activarCamara()" style="background: #333; color: white;">📷 Encender</button>
-                <button onclick="tomarFoto()" style="background: var(--verde); color: white;">📸 Capturar</button>
+            <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
+                <button onclick="activarCamara()" style="background: #333; color: white; padding: 8px 15px;">📷 ON</button>
+                <button onclick="tomarFoto()" style="background: var(--verde); color: white; padding: 8px 15px;">📸 FOTO</button>
             </div>
-            <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
-            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; border:2px solid var(--verde); object-fit: cover; margin-top: 10px;">
+            <canvas id="canvas" style="display:none;" width="320" height="240"></canvas>
+            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; margin: 10px auto; border: 2px solid var(--verde); object-fit: cover;">
         </div>
 
-        <div class="form-box">
-            <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
+        <div class="form-section">
+            <input type="text" id="nuevoNombre" placeholder="NOMBRE COMPLETO">
             <input type="number" id="nuevoDni" placeholder="DNI">
-            <input type="number" id="nuevoTel" placeholder="WhatsApp (549...)">
+            <input type="number" id="nuevoTel" placeholder="WHATSAPP (549...)">
             <input type="date" id="nuevoCumple">
             <select id="nuevoRol">
-                <option value="Estudiante">Estudiante</option>
-                <option value="Barbero">Barbero</option>
+                <option value="Estudiante">ESTUDIANTE</option>
+                <option value="Barbero">BARBERO (STAFF)</option>
             </select>
             <input type="hidden" id="nuevaFoto">
-            <button id="btnGuardar" onclick="registrarUsuario()">Guardar Miembro</button>
+            <button class="btn-principal" onclick="registrarUsuario()">REGISTRAR EN BASE DE DATOS</button>
         </div>
     </div>
+</div>
 
-    <div class="search-container">
-        <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
-        <button onclick="cargarTodo()" style="background: rgba(255,255,255,0.1); color: white;">🔄 Actualizar</button>
-    </div>
-    
+<div class="search-bar">
+    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 BUSCAR SOCIO O BARBERO..." style="text-align: center;">
+</div>
+
+<div class="table-container">
     <table>
         <thead>
-            <tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Vence</th><th>WA</th><th>Acciones</th></tr>
+            <tr>
+                <th>FOTO</th>
+                <th>DNI</th>
+                <th>NOMBRE</th>
+                <th>ROL</th>
+                <th>ESTADO</th>
+                <th>VENCIMIENTO</th>
+                <th>ACCIONES</th>
+            </tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="8">Cargando base de datos...</td></tr>
+            <tr><td colspan="7">Sincronizando con Google Sheets...</td></tr>
         </tbody>
     </table>
 </div>
@@ -195,10 +196,8 @@
     let miembrosCache = [];
 
     async function activarCamara() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            document.getElementById('video').srcObject = stream;
-        } catch (err) { alert("Error de cámara"); }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('video').srcObject = stream;
     }
 
     function tomarFoto() {
@@ -212,54 +211,42 @@
     }
 
     async function cargarTodo() {
-        try {
-            const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
-            miembrosCache = await res.json();
-            renderizarTabla(miembrosCache);
-        } catch (e) { console.error(e); }
+        const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
+        miembrosCache = await res.json();
+        renderizarTabla(miembrosCache);
     }
 
     function renderizarTabla(datos) {
-        const tabla = document.getElementById('tabla-miembros');
-        tabla.innerHTML = "";
-        const hoy = new Date();
-        
+        const tbody = document.getElementById('tabla-miembros');
+        tbody.innerHTML = "";
         datos.forEach(m => {
-            let cuotaStatus = (m.cuota || "").toUpperCase();
-            let claseBadge = cuotaStatus === 'SI' ? 'bg-si' : 'bg-no';
-            
-            if (m.rol === "Barbero") {
-                claseBadge = 'bg-libre';
-                cuotaStatus = 'STAFF';
-            } else if (m.vencimiento && m.vencimiento !== "---") {
-                const partes = m.vencimiento.split('/');
-                const fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
-                const diffDias = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
-                if (diffDias <= 3 && diffDias >= 0) { claseBadge = 'bg-aviso'; cuotaStatus = 'POR VENCER'; }
-                else if (diffDias < 0) { claseBadge = 'bg-no'; cuotaStatus = 'VENCIDO'; }
+            let badgeClase = m.cuota === 'SI' ? 'status-si' : 'status-no';
+            let labelEstado = m.cuota === 'SI' ? 'AL DÍA' : 'PENDIENTE';
+
+            if (m.rol === 'Barbero') {
+                badgeClase = 'status-staff';
+                labelEstado = 'BARBERO';
             }
 
-            tabla.innerHTML += `
+            tbody.innerHTML += `
                 <tr>
-                    <td><img src="${m.foto || ''}" class="img-tabla" onerror="this.src='https://via.placeholder.com/50/000/d4af37?text=S'"></td>
-                    <td><b style="color:var(--dorado)">${m.dni}</b></td>
+                    <td><img src="${m.foto || ''}" class="img-perfil" onerror="this.src='https://via.placeholder.com/50/000/d4af37?text=S'"></td>
+                    <td style="color:var(--dorado)"><b>${m.dni}</b></td>
                     <td style="text-align:left">${m.nombre}</td>
                     <td><small>${m.rol}</small></td>
-                    <td><span class="badge ${claseBadge}">${cuotaStatus}</span></td>
+                    <td><span class="badge ${badgeClase}">${labelEstado}</span></td>
                     <td>${m.vencimiento || '---'}</td>
-                    <td><a href="https://wa.me/${m.telefono}" target="_blank" class="btn-wa">💬</a></td>
                     <td>
-                        <div style="display:flex; gap:5px; justify-content:center;">
-                            ${m.rol !== 'Barbero' ? `<button style="background:var(--verde); font-size:0.6rem; padding:5px;" onclick="renovarCuota('${m.dni}')">PAGO</button>` : ''}
-                            <button style="background:transparent; border:1px solid var(--rojo); color:var(--rojo); font-size:0.6rem; padding:5px;" onclick="eliminarMiembro('${m.dni}')">BORRAR</button>
-                        </div>
+                        <button onclick="renovarCuota('${m.dni}')" class="btn-accion" style="background:var(--verde)">PAGO</button>
+                        <button onclick="eliminarMiembro('${m.dni}')" class="btn-accion" style="background:var(--rojo)">BORRAR</button>
                     </td>
-                </tr>`;
+                </tr>
+            `;
         });
     }
 
     async function registrarUsuario() {
-        const btn = document.getElementById('btnGuardar');
+        const btn = document.querySelector('.btn-principal');
         const datos = {
             nombre: document.getElementById('nuevoNombre').value,
             dni: document.getElementById('nuevoDni').value,
@@ -268,19 +255,22 @@
             foto: document.getElementById('nuevaFoto').value,
             rol: document.getElementById('nuevoRol').value
         };
-        if(!datos.nombre || !datos.dni) return alert("Nombre y DNI obligatorios");
+        if(!datos.nombre || !datos.dni) return alert("Completa DNI y Nombre");
         btn.innerText = "REGISTRANDO...";
         await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-        setTimeout(() => { alert("Éxito"); cargarTodo(); btn.innerText = "Guardar Miembro"; }, 1000);
+        setTimeout(() => { alert("Guardado"); cargarTodo(); btn.innerText = "REGISTRAR EN BASE DE DATOS"; }, 1000);
     }
 
-    async function renovarCuota(dni) { await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); cargarTodo(); }
+    async function renovarCuota(dni) { await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); alert("Cuota renovada"); cargarTodo(); }
     async function eliminarMiembro(dni) { if(confirm("¿Eliminar?")) { await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); cargarTodo(); } }
+    
     function filtrarTabla() {
-        const b = document.getElementById('buscador').value.toLowerCase();
-        renderizarTabla(miembrosCache.filter(m => m.nombre.toLowerCase().includes(b) || m.dni.toString().includes(b)));
+        const query = document.getElementById('buscador').value.toLowerCase();
+        renderizarTabla(miembrosCache.filter(m => m.nombre.toLowerCase().includes(query) || m.dni.toString().includes(query)));
     }
+
     window.onload = cargarTodo;
 </script>
+
 </body>
 </html>
