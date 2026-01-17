@@ -15,7 +15,7 @@
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
                         url('Smartbarber.jpg');
             background-size: cover;
             background-position: center;
@@ -27,8 +27,8 @@
         }
 
         .admin-card { 
-            background: rgba(25, 25, 25, 0.9); 
-            padding: 2rem; 
+            background: rgba(25, 25, 25, 0.95); 
+            padding: 2.5rem; 
             border-radius: 30px; 
             box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
             border: 1px solid rgba(212, 175, 55, 0.3);
@@ -44,16 +44,18 @@
             text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
             margin-bottom: 25px;
             text-align: center;
+            font-size: 2rem;
         }
 
         .panel-flex {
             display: flex;
             flex-wrap: wrap;
-            gap: 30px;
+            gap: 40px;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
         }
 
+        /* Estilo Cámara */
         .cam-section { text-align: center; }
         #video {
             width: 280px;
@@ -62,7 +64,25 @@
             border: 2px solid var(--dorado);
             background: #000;
             object-fit: cover;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
+
+        /* Botones de Arriba (REDISEÑADOS) */
+        .btn-cam {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        .btn-on { background: #222; color: white; }
+        .btn-on:hover { background: #333; border-color: white; }
+        
+        .btn-foto { background: var(--dorado); color: black; }
+        .btn-foto:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--dorado); }
 
         .form-section {
             display: flex;
@@ -73,28 +93,31 @@
 
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border-radius: 12px;
             border: 1px solid #333;
-            background: rgba(0,0,0,0.7) !important;
+            background: rgba(0,0,0,0.8) !important;
             color: var(--dorado) !important;
             font-size: 1rem;
             outline: none;
+            box-sizing: border-box;
         }
 
-        button {
-            padding: 15px;
-            border-radius: 12px;
+        .btn-principal { 
+            background: var(--dorado); 
+            color: black; 
+            padding: 18px;
+            font-size: 1rem;
+            border-radius: 15px;
             font-weight: 900;
+            border: none;
             cursor: pointer;
             text-transform: uppercase;
-            transition: 0.3s;
-            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
         }
+        .btn-principal:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4); }
 
-        .btn-principal { background: var(--dorado); color: black; }
-        .btn-principal:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--dorado); }
-
+        /* Tabla Premium */
         .table-container {
             width: 100%;
             max-width: 1100px;
@@ -106,78 +129,79 @@
         th { color: var(--dorado); text-transform: uppercase; padding: 15px; font-size: 0.8rem; letter-spacing: 2px; }
 
         tr td { 
-            background: rgba(30, 30, 30, 0.85); 
+            background: rgba(30, 30, 30, 0.9); 
             padding: 15px; 
-            backdrop-filter: blur(5px);
             text-align: center;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
         }
 
-        tr td:first-child { border-radius: 15px 0 0 15px; border-left: 3px solid var(--dorado); }
-        tr td:last-child { border-radius: 0 15px 15px 0; }
+        tr td:first-child { border-radius: 15px 0 0 15px; border-left: 4px solid var(--dorado); }
+        tr td:last-child { border-radius: 0 15px 15px 0; border-right: 1px solid #333; }
 
-        .img-perfil { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--dorado); object-fit: cover; }
-        .badge { padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; }
+        .img-perfil { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--dorado); object-fit: cover; }
+        .badge { padding: 6px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
         .status-si { background: rgba(76, 175, 80, 0.2); color: #a2fca2; border: 1px solid var(--verde); }
         .status-no { background: rgba(244, 67, 54, 0.2); color: #ff9999; border: 1px solid var(--rojo); }
         .status-staff { background: rgba(212, 175, 55, 0.1); color: var(--dorado); border: 1px solid var(--dorado); }
 
-        .btn-accion { padding: 6px 10px; font-size: 0.7rem; border-radius: 6px; color: white; margin: 0 2px; }
-        .search-bar { margin: 20px auto; max-width: 400px; }
+        .btn-accion { padding: 8px 12px; font-size: 0.7rem; border-radius: 8px; color: white; margin: 0 3px; border: none; cursor: pointer; font-weight: bold; }
+        .search-bar { margin: 20px auto; max-width: 450px; }
     </style>
 </head>
 <body>
 
 <div class="admin-card">
     <center>
-        <img src="logo.png" style="width: 80px; filter: drop-shadow(0 0 10px var(--dorado)); margin-bottom: 10px;" onerror="this.style.display='none'">
-        <h1>Control de Socios</h1>
+        <img src="logo.png" style="width: 90px; filter: drop-shadow(0 0 10px var(--dorado)); margin-bottom: 10px;" onerror="this.style.display='none'">
+        <h1>Panel Administrativo</h1>
     </center>
 
     <div class="panel-flex">
         <div class="cam-section">
             <video id="video" autoplay playsinline></video>
-            <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
-                <button onclick="activarCamara()" style="background: #333; color: white; padding: 8px 15px;">📷 ON</button>
-                <button onclick="tomarFoto()" style="background: var(--verde); color: white; padding: 8px 15px;">📸 FOTO</button>
+            <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                <button onclick="activarCamara()" class="btn-cam btn-on">📷 Encender</button>
+                <button onclick="tomarFoto()" class="btn-cam btn-foto">📸 Capturar</button>
             </div>
             <canvas id="canvas" style="display:none;" width="320" height="240"></canvas>
-            <img id="preview" style="display:none; width:80px; height:80px; border-radius:50%; margin: 10px auto; border: 2px solid var(--verde); object-fit: cover;">
+            <img id="preview" style="display:none; width:80px; height:80px; border-radius:50%; margin: 15px auto; border: 3px solid var(--verde); object-fit: cover;">
         </div>
 
         <div class="form-section">
-            <input type="text" id="nuevoNombre" placeholder="NOMBRE COMPLETO">
-            <input type="number" id="nuevoDni" placeholder="DNI">
-            <input type="number" id="nuevoTel" placeholder="WHATSAPP (549...)">
+            <input type="text" id="nuevoNombre" placeholder="Nombre completo">
+            <input type="number" id="nuevoDni" placeholder="Número de DNI">
+            <input type="number" id="nuevoTel" placeholder="WhatsApp (Ej: 549...)">
             <input type="date" id="nuevoCumple">
             <select id="nuevoRol">
-                <option value="Estudiante">ESTUDIANTE</option>
-                <option value="Barbero">BARBERO (STAFF)</option>
+                <option value="Estudiante">Alumno / Estudiante</option>
+                <option value="Barbero">Barbero (Staff)</option>
             </select>
             <input type="hidden" id="nuevaFoto">
-            <button class="btn-principal" id="btn-registrar" onclick="registrarUsuario()">REGISTRAR EN BASE DE DATOS</button>
+            <button class="btn-principal" id="btn-registrar" onclick="registrarUsuario()">Guardar en Base de Datos</button>
         </div>
     </div>
 </div>
 
 <div class="search-bar">
-    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 BUSCAR SOCIO O BARBERO..." style="text-align: center;">
+    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI..." style="text-align: center; border-color: var(--dorado);">
 </div>
 
 <div class="table-container">
     <table>
         <thead>
             <tr>
-                <th>FOTO</th>
+                <th>Foto</th>
                 <th>DNI</th>
-                <th>NOMBRE</th>
-                <th>ROL</th>
-                <th>ESTADO</th>
-                <th>VENCIMIENTO</th>
-                <th>ACCIONES</th>
+                <th>Socio</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Vencimiento</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="7">Cargando datos...</td></tr>
+            <tr><td colspan="7" style="color: var(--dorado);">Sincronizando...</td></tr>
         </tbody>
     </table>
 </div>
@@ -186,38 +210,42 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
     let miembrosCache = [];
 
-    // Función para activar cámara (Reparada)
     async function activarCamara() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             document.getElementById('video').srcObject = stream;
-        } catch (err) {
-            alert("No se pudo acceder a la cámara. Asegúrate de usar HTTPS.");
-        }
+        } catch (err) { alert("Error: Cámara no disponible."); }
     }
 
-    // Función para tomar foto (Reparada)
     function tomarFoto() {
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, 320, 240);
+        canvas.getContext('2d').drawImage(video, 0, 0, 320, 240);
         const dataURL = canvas.toDataURL('image/jpeg', 0.6);
         document.getElementById('nuevaFoto').value = dataURL;
-        const preview = document.getElementById('preview');
-        preview.src = dataURL;
-        preview.style.display = 'block';
+        document.getElementById('preview').src = dataURL;
+        document.getElementById('preview').style.display = 'block';
     }
 
-    // Cargar lista desde Sheets
+    // Función para limpiar la fecha (Repara el error 2026-02-14T03...)
+    function formatearFecha(fechaStr) {
+        if (!fechaStr || fechaStr === "---") return "---";
+        try {
+            const d = new Date(fechaStr);
+            if (isNaN(d.getTime())) return fechaStr; // Si ya viene formateada, la deja igual
+            const dia = d.getDate().toString().padStart(2, '0');
+            const mes = (d.getMonth() + 1).toString().padStart(2, '0');
+            const año = d.getFullYear();
+            return `${dia}/${mes}/${año}`;
+        } catch (e) { return fechaStr; }
+    }
+
     async function cargarTodo() {
         try {
             const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
-        } catch (e) {
-            console.error("Error cargando lista", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     function renderizarTabla(datos) {
@@ -226,23 +254,19 @@
         datos.forEach(m => {
             let badgeClase = m.cuota === 'SI' ? 'status-si' : 'status-no';
             let labelEstado = m.cuota === 'SI' ? 'AL DÍA' : 'PENDIENTE';
-
-            if (m.rol === 'Barbero') {
-                badgeClase = 'status-staff';
-                labelEstado = 'STAFF';
-            }
+            if (m.rol === 'Barbero') { badgeClase = 'status-staff'; labelEstado = 'STAFF'; }
 
             tbody.innerHTML += `
                 <tr>
                     <td><img src="${m.foto || ''}" class="img-perfil" onerror="this.src='https://via.placeholder.com/50/000/d4af37?text=S'"></td>
                     <td style="color:var(--dorado)"><b>${m.dni}</b></td>
-                    <td style="text-align:left">${m.nombre}</td>
+                    <td style="text-align:left; font-weight: 500;">${m.nombre}</td>
                     <td><small>${m.rol}</small></td>
                     <td><span class="badge ${badgeClase}">${labelEstado}</span></td>
-                    <td>${m.vencimiento || '---'}</td>
+                    <td>${formatearFecha(m.vencimiento)}</td>
                     <td>
                         <button onclick="renovarCuota('${m.dni}')" class="btn-accion" style="background:var(--verde)">PAGO</button>
-                        <button onclick="eliminarMiembro('${m.dni}')" class="btn-accion" style="background:var(--rojo)">BORRAR</button>
+                        <button onclick="eliminarMiembro('${m.dni}')" class="btn-accion" style="background:var(--rojo)">X</button>
                     </td>
                 </tr>
             `;
@@ -259,46 +283,25 @@
             foto: document.getElementById('nuevaFoto').value,
             rol: document.getElementById('nuevoRol').value
         };
-        
-        if(!datos.nombre || !datos.dni) return alert("Por favor, ingresa al menos Nombre y DNI.");
-        
-        btn.innerText = "REGISTRANDO...";
+        if(!datos.nombre || !datos.dni) return alert("Ingresa Nombre y DNI");
+        btn.innerText = "PROCESANDO...";
         btn.disabled = true;
-
         try {
-            await fetch(WEB_APP_URL, { 
-                method: 'POST', 
-                mode: 'no-cors', 
-                body: JSON.stringify(datos) 
-            });
-            
-            // Limpiar formulario
-            document.getElementById('nuevoNombre').value = "";
-            document.getElementById('nuevoDni').value = "";
-            document.getElementById('nuevoTel').value = "";
-            document.getElementById('nuevaFoto').value = "";
-            document.getElementById('preview').style.display = 'none';
-            
-            alert("Usuario registrado con éxito");
-            cargarTodo();
-        } catch (e) {
-            alert("Error al registrar");
-        } finally {
-            btn.innerText = "REGISTRAR EN BASE DE DATOS";
-            btn.disabled = false;
-        }
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
+            alert("¡Socio guardado!");
+            location.reload(); 
+        } catch (e) { alert("Error al conectar"); btn.disabled = false; }
     }
 
     async function renovarCuota(dni) {
-        if(confirm("¿Confirmar renovación de cuota?")) {
+        if(confirm("¿Confirmar pago de cuota?")) {
             await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' });
-            alert("Cuota renovada.");
-            cargarTodo();
+            alert("Pago registrado."); cargarTodo();
         }
     }
 
     async function eliminarMiembro(dni) {
-        if(confirm("¿Estás seguro de eliminar a este miembro?")) {
+        if(confirm("¿Eliminar de la base de datos?")) {
             await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' });
             cargarTodo();
         }
@@ -306,14 +309,10 @@
     
     function filtrarTabla() {
         const query = document.getElementById('buscador').value.toLowerCase();
-        renderizarTabla(miembrosCache.filter(m => 
-            m.nombre.toLowerCase().includes(query) || 
-            m.dni.toString().includes(query)
-        ));
+        renderizarTabla(miembrosCache.filter(m => m.nombre.toLowerCase().includes(query) || m.dni.toString().includes(query)));
     }
 
     window.onload = cargarTodo;
 </script>
-
 </body>
 </html>
