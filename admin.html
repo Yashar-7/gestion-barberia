@@ -7,8 +7,8 @@
     <style>
         :root { 
             --dorado: #d4af37; 
-            --oscuro: #121212; 
-            --gris: rgba(30, 30, 30, 0.8); 
+            --oscuro: #0a0a0a; 
+            --gris-trans: rgba(20, 20, 20, 0.8); 
             --rojo: #ff4444; 
             --verde: #4caf50; 
             --naranja: #ff9800; 
@@ -17,13 +17,15 @@
 
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('Smartbarber.jpg');
+            /* Esto asegura que el fondo siempre sea oscuro y use la imagen si existe */
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('Smartbarber.jpg'), #111;
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: white; 
             padding: 20px; 
             margin: 0; 
+            min-height: 100vh;
         }
 
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
@@ -38,15 +40,16 @@
             color: var(--dorado);
             text-transform: uppercase;
             letter-spacing: 3px;
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            margin-top: 0;
         }
 
-        /* Panel Superior Estilo Glassmorphism */
+        /* PANEL SUPERIOR (REGISTRO) */
         .admin-panel { 
-            background: rgba(20, 20, 20, 0.7); 
-            border: 1px solid rgba(212, 175, 55, 0.3); 
+            background: var(--gris-trans); 
+            border: 1px solid var(--dorado); 
             padding: 25px; 
-            border-radius: 25px; 
+            border-radius: 20px; 
             margin-bottom: 30px; 
             display: flex; 
             flex-wrap: wrap; 
@@ -65,47 +68,44 @@
             width: 240px; 
             height: 180px; 
             object-fit: cover;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
 
         .form-box { display: flex; flex-direction: column; gap: 10px; width: 320px; }
 
         input, select { 
             padding: 12px; 
-            border-radius: 10px; 
+            border-radius: 8px; 
             border: 1px solid #444; 
-            background: rgba(0, 0, 0, 0.6); 
-            color: white; 
+            background: rgba(0, 0, 0, 0.6) !important; 
+            color: white !important; 
             outline: none; 
-            transition: 0.3s;
         }
 
-        input:focus { border-color: var(--dorado); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        input:focus { border-color: var(--dorado); }
 
         button { 
             background: var(--dorado); 
             color: black; 
             border: none; 
             padding: 12px 20px; 
-            border-radius: 10px; 
+            border-radius: 8px; 
             font-weight: 900; 
             cursor: pointer; 
             transition: 0.3s;
             text-transform: uppercase;
         }
 
-        button:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4); }
+        button:hover { transform: scale(1.02); box-shadow: 0 0 15px var(--dorado); }
 
-        /* Buscador y Tabla */
+        /* BUSCADOR Y TABLA */
         .search-container { 
             margin-bottom: 20px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            background: rgba(30, 30, 30, 0.7); 
+            background: var(--gris-trans); 
             padding: 15px 25px; 
             border-radius: 15px; 
-            backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
         }
 
@@ -114,50 +114,35 @@
         table { 
             width: 100%; 
             border-collapse: separate; 
-            border-spacing: 0 8px;
-            margin-bottom: 50px; 
+            border-spacing: 0 10px;
         }
 
-        th { background: transparent; color: var(--dorado); padding: 15px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        th { color: var(--dorado); padding: 15px; text-transform: uppercase; font-size: 0.8rem; }
 
         td { 
-            background: rgba(25, 25, 25, 0.8); 
+            background: rgba(20, 20, 20, 0.8); 
             padding: 15px; 
             text-align: center; 
             backdrop-filter: blur(5px);
         }
 
-        /* Redondear esquinas de las filas */
-        td:first-child { border-radius: 15px 0 0 15px; border-left: 2px solid rgba(212, 175, 55, 0.2); }
+        td:first-child { border-radius: 15px 0 0 15px; border-left: 3px solid var(--dorado); }
         td:last-child { border-radius: 0 15px 15px 0; }
 
         .img-tabla { 
-            width: 50px; 
-            height: 50px; 
+            width: 50px; height: 50px; 
             border-radius: 50%; 
             object-fit: cover; 
             border: 2px solid var(--dorado);
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
 
-        .badge { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-        .bg-si { background: rgba(76, 175, 80, 0.2); color: #a2fca2; border: 1px solid var(--verde); }
-        .bg-no { background: rgba(244, 67, 54, 0.2); color: #ff9999; border: 1px solid var(--rojo); }
-        .bg-aviso { background: rgba(255, 152, 0, 0.2); color: #ffcc80; border: 1px solid var(--naranja); }
-        .bg-libre { background: rgba(255, 255, 255, 0.1); color: #ddd; border: 1px solid #666; }
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; }
+        .bg-si { background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid var(--verde); }
+        .bg-no { background: rgba(244, 67, 54, 0.2); color: #ff4444; border: 1px solid var(--rojo); }
+        .bg-aviso { background: rgba(255, 152, 0, 0.2); color: #ff9800; border: 1px solid var(--naranja); }
+        .bg-libre { background: rgba(255, 255, 255, 0.1); color: #ccc; border: 1px solid #666; }
 
-        .btn-wa { background: var(--whatsapp); color: white; text-decoration: none; padding: 8px; border-radius: 10px; display: inline-flex; transition: 0.3s; }
-        .btn-wa:hover { transform: scale(1.1); background: #1ebe57; }
-        
-        #seccion-ausentes { 
-            display:none; 
-            background: rgba(244, 67, 54, 0.1); 
-            border: 1px dashed var(--rojo); 
-            padding: 20px; 
-            border-radius: 20px; 
-            margin-bottom: 25px; 
-            backdrop-filter: blur(10px);
-        }
+        .btn-wa { background: var(--whatsapp); color: white; text-decoration: none; padding: 8px; border-radius: 8px; display: inline-flex; }
     </style>
 </head>
 <body>
@@ -169,8 +154,8 @@
         <div class="cam-box">
             <video id="video" autoplay playsinline></video>
             <div style="display:flex; gap:10px;">
-                <button class="btn-cam" style="background: #333; color: white;" onclick="activarCamara()">📷 Encender</button>
-                <button class="btn-capture" style="background: var(--verde); color: white;" onclick="tomarFoto()">📸 Capturar</button>
+                <button onclick="activarCamara()" style="background: #333; color: white;">📷 Encender</button>
+                <button onclick="tomarFoto()" style="background: var(--verde); color: white;">📸 Capturar</button>
             </div>
             <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
             <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; border:2px solid var(--verde); object-fit: cover; margin-top: 10px;">
@@ -179,11 +164,8 @@
         <div class="form-box">
             <input type="text" id="nuevoNombre" placeholder="Nombre Completo">
             <input type="number" id="nuevoDni" placeholder="DNI">
-            <input type="number" id="nuevoTel" placeholder="WhatsApp (Ej: 54911...)">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label style="font-size: 0.7rem; color: var(--dorado); min-width: 80px;">Nacimiento:</label>
-                <input type="date" id="nuevoCumple" style="flex: 1;">
-            </div>
+            <input type="number" id="nuevoTel" placeholder="WhatsApp (549...)">
+            <input type="date" id="nuevoCumple">
             <select id="nuevoRol">
                 <option value="Estudiante">Estudiante</option>
                 <option value="Barbero">Barbero</option>
@@ -193,14 +175,9 @@
         </div>
     </div>
 
-    <div id="seccion-ausentes">
-        <h3 style="color: var(--rojo); margin-top: 0;">⚠️ Alerta de Ausencias</h3>
-        <div id="lista-ausentes" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
-    </div>
-
     <div class="search-container">
-        <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar barbero o alumno...">
-        <button onclick="cargarTodo()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid #555;">🔄 Sincronizar</button>
+        <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI...">
+        <button onclick="cargarTodo()" style="background: rgba(255,255,255,0.1); color: white;">🔄 Actualizar</button>
     </div>
     
     <table>
@@ -208,45 +185,38 @@
             <tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Vence</th><th>WA</th><th>Acciones</th></tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="8" style="background: transparent;">Cargando base de datos...</td></tr>
+            <tr><td colspan="8">Cargando base de datos...</td></tr>
         </tbody>
     </table>
 </div>
 
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
-    
     let miembrosCache = [];
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const preview = document.getElementById('preview');
 
     async function activarCamara() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            video.srcObject = stream;
-        } catch (err) { alert("Error de cámara."); }
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            document.getElementById('video').srcObject = stream;
+        } catch (err) { alert("Error de cámara"); }
     }
 
     function tomarFoto() {
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, 320, 240);
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        canvas.getContext('2d').drawImage(video, 0, 0, 320, 240);
         const dataURL = canvas.toDataURL('image/jpeg', 0.5);
         document.getElementById('nuevaFoto').value = dataURL;
-        preview.src = dataURL;
-        preview.style.display = 'block';
+        document.getElementById('preview').src = dataURL;
+        document.getElementById('preview').style.display = 'block';
     }
 
     async function cargarTodo() {
-        await cargarMiembros();
-    }
-
-    async function cargarMiembros() {
         try {
             const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
-        } catch (e) { console.error("Error", e); }
+        } catch (e) { console.error(e); }
     }
 
     function renderizarTabla(datos) {
@@ -255,43 +225,33 @@
         const hoy = new Date();
         
         datos.forEach(m => {
-            const fotoUrl = m.foto || "https://via.placeholder.com/100/000/d4af37?text=S";
             let cuotaStatus = (m.cuota || "").toUpperCase();
             let claseBadge = cuotaStatus === 'SI' ? 'bg-si' : 'bg-no';
             
-            if (m.rol === "Barbero" || m.vencimiento === "---") {
+            if (m.rol === "Barbero") {
                 claseBadge = 'bg-libre';
-                cuotaStatus = 'BARBERO';
-            } else if (m.vencimiento) {
+                cuotaStatus = 'STAFF';
+            } else if (m.vencimiento && m.vencimiento !== "---") {
                 const partes = m.vencimiento.split('/');
                 const fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
                 const diffDias = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
-                
-                if (diffDias <= 3 && diffDias >= 0) {
-                    claseBadge = 'bg-aviso';
-                    cuotaStatus = 'POR VENCER';
-                } else if (diffDias < 0) {
-                    claseBadge = 'bg-no';
-                    cuotaStatus = 'VENCIDO';
-                }
+                if (diffDias <= 3 && diffDias >= 0) { claseBadge = 'bg-aviso'; cuotaStatus = 'POR VENCER'; }
+                else if (diffDias < 0) { claseBadge = 'bg-no'; cuotaStatus = 'VENCIDO'; }
             }
-
-            const msgVenc = encodeURIComponent(`Hola ${m.nombre}, te saludamos de SmartBarber...`);
-            const waLink = `https://wa.me/${m.telefono}?text=${msgVenc}`;
 
             tabla.innerHTML += `
                 <tr>
-                    <td><img src="${fotoUrl}" class="img-tabla"></td>
-                    <td><span style="color:var(--dorado)">${m.dni}</span></td>
-                    <td style="text-align: left;"><b>${m.nombre}</b></td>
+                    <td><img src="${m.foto || ''}" class="img-tabla" onerror="this.src='https://via.placeholder.com/50/000/d4af37?text=S'"></td>
+                    <td><b style="color:var(--dorado)">${m.dni}</b></td>
+                    <td style="text-align:left">${m.nombre}</td>
                     <td><small>${m.rol}</small></td>
                     <td><span class="badge ${claseBadge}">${cuotaStatus}</span></td>
                     <td>${m.vencimiento || '---'}</td>
-                    <td><a href="${waLink}" target="_blank" class="btn-wa">💬</a></td>
+                    <td><a href="https://wa.me/${m.telefono}" target="_blank" class="btn-wa">💬</a></td>
                     <td>
-                        <div style="display:flex; gap:8px; justify-content:center;">
-                            ${m.rol !== 'Barbero' ? `<button style="background:var(--verde); font-size:0.65rem; padding: 6px 10px;" onclick="renovarCuota('${m.dni}')">PAGO</button>` : ''}
-                            <button style="background:transparent; border:1px solid var(--rojo); color:var(--rojo); font-size:0.65rem; padding: 6px 10px;" onclick="eliminarMiembro('${m.dni}')">BORRAR</button>
+                        <div style="display:flex; gap:5px; justify-content:center;">
+                            ${m.rol !== 'Barbero' ? `<button style="background:var(--verde); font-size:0.6rem; padding:5px;" onclick="renovarCuota('${m.dni}')">PAGO</button>` : ''}
+                            <button style="background:transparent; border:1px solid var(--rojo); color:var(--rojo); font-size:0.6rem; padding:5px;" onclick="eliminarMiembro('${m.dni}')">BORRAR</button>
                         </div>
                     </td>
                 </tr>`;
@@ -300,52 +260,23 @@
 
     async function registrarUsuario() {
         const btn = document.getElementById('btnGuardar');
-        const nombre = document.getElementById('nuevoNombre').value;
-        const dni = document.getElementById('nuevoDni').value;
-        if(!nombre || !dni) return alert("Completa los datos");
-        
-        btn.innerText = "REGISTRANDO...";
-        btn.disabled = true;
-
-        const datos = { 
-            nombre, 
-            dni, 
-            telefono: document.getElementById('nuevoTel').value, 
-            cumple: document.getElementById('nuevoCumple').value, 
-            foto: document.getElementById('nuevaFoto').value, 
-            rol: document.getElementById('nuevoRol').value 
+        const datos = {
+            nombre: document.getElementById('nuevoNombre').value,
+            dni: document.getElementById('nuevoDni').value,
+            telefono: document.getElementById('nuevoTel').value,
+            cumple: document.getElementById('nuevoCumple').value,
+            foto: document.getElementById('nuevaFoto').value,
+            rol: document.getElementById('nuevoRol').value
         };
-
-        try {
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-            setTimeout(() => {
-                alert("¡Guardado correctamente!");
-                cargarTodo();
-                btn.innerText = "Guardar Miembro";
-                btn.disabled = false;
-                document.getElementById('nuevoNombre').value = "";
-                document.getElementById('nuevoDni').value = "";
-            }, 1000);
-        } catch (err) {
-            alert("Error");
-            btn.disabled = false;
-        }
+        if(!datos.nombre || !datos.dni) return alert("Nombre y DNI obligatorios");
+        btn.innerText = "REGISTRANDO...";
+        await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
+        setTimeout(() => { alert("Éxito"); cargarTodo(); btn.innerText = "Guardar Miembro"; }, 1000);
     }
 
-    async function renovarCuota(dni) { 
-        await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); 
-        alert("Pago registrado.");
-        cargarTodo(); 
-    }
-    
-    async function eliminarMiembro(dni) { 
-        if(confirm("¿Eliminar este registro?")) { 
-            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
-            cargarTodo(); 
-        } 
-    }
-
-    function filtrarTabla() { 
+    async function renovarCuota(dni) { await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); cargarTodo(); }
+    async function eliminarMiembro(dni) { if(confirm("¿Eliminar?")) { await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); cargarTodo(); } }
+    function filtrarTabla() {
         const b = document.getElementById('buscador').value.toLowerCase();
         renderizarTabla(miembrosCache.filter(m => m.nombre.toLowerCase().includes(b) || m.dni.toString().includes(b)));
     }
