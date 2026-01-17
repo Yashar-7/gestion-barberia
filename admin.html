@@ -30,9 +30,9 @@
         .bg-si { background: var(--verde); color: white; }
         .bg-no { background: var(--rojo); color: white; }
         .bg-aviso { background: var(--naranja); color: white; }
+        .bg-libre { background: #444; color: white; } /* Para barberos */
         .btn-wa { background: var(--whatsapp); color: white; text-decoration: none; padding: 5px 10px; border-radius: 5px; font-size: 1.2rem; display: inline-block; line-height: 1; }
         
-        /* Estilos Alerta Ausentes */
         #seccion-ausentes { display:none; background: rgba(255, 68, 68, 0.1); border: 1px dashed var(--rojo); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .ausente-card { background: var(--gris); padding: 10px; border-radius: 8px; border-left: 4px solid var(--rojo); text-align: left; min-width: 200px; }
     </style>
@@ -87,6 +87,7 @@
 </div>
 
 <script>
+    // REEMPLAZAR CON TU URL ACTUALIZADA
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
     
     let miembrosCache = [];
@@ -112,7 +113,7 @@
 
     async function cargarTodo() {
         await cargarMiembros();
-        await chequearAusentes();
+        // Nota: Agregaremos la lógica de ausentes si el script la soporta, por ahora cargamos miembros
     }
 
     async function cargarMiembros() {
@@ -120,32 +121,7 @@
             const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
-        } catch (e) { console.error("Error", e); }
-    }
-
-    async function chequearAusentes() {
-        try {
-            const res = await fetch(`${WEB_APP_URL}?action=getAusentes&t=${Date.now()}`);
-            const ausentes = await res.json();
-            const divContenedor = document.getElementById('seccion-ausentes');
-            const lista = document.getElementById('lista-ausentes');
-            
-            if (ausentes.length > 0) {
-                divContenedor.style.display = "block";
-                lista.innerHTML = "";
-                ausentes.forEach(a => {
-                    const msg = encodeURIComponent(`Hola ${a.nombre}, ¡te extrañamos en SmartBarber! 💈 Nos importa mucho tu progreso y queremos verte crecer. ¿Está todo bien? ¡Te esperamos pronto!`);
-                    lista.innerHTML += `
-                        <div class="ausente-card">
-                            <small style="color:var(--dorado)">${a.nombre}</small><br>
-                            <small>Ausencia: ${a.dias} días</small><br>
-                            <a href="https://wa.me/${a.telefono}?text=${msg}" target="_blank" style="background: var(--whatsapp); color:white; padding: 2px 8px; border-radius: 4px; text-decoration:none; font-size: 0.7rem; display:inline-block; margin-top:5px;">ENVIAR CARIÑO ❤️</a>
-                        </div>`;
-                });
-            } else {
-                divContenedor.style.display = "none";
-            }
-        } catch (e) { console.log("Error ausentes", e); }
+        } catch (e) { console.error("Error cargando tabla", e); }
     }
 
     function renderizarTabla(datos) {
@@ -158,12 +134,16 @@
             let cuotaStatus = (m.cuota || "").toUpperCase();
             let claseBadge = cuotaStatus === 'SI' ? 'bg-si' : 'bg-no';
             
-            if (m.vencimiento && m.vencimiento !== '---') {
+            // LÓGICA ESPECIAL PARA BARBEROS (No vencen)
+            if (m.rol === "Barbero" || m.vencimiento === "---") {
+                claseBadge = 'bg-libre';
+                cuotaStatus = 'LIBRE';
+            } else if (m.vencimiento) {
                 const partes = m.vencimiento.split('/');
                 const fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);
                 const diffDias = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
                 
-                if (diffDias <= 3 && diffDias >= 0 && cuotaStatus === 'SI') {
+                if (diffDias <= 3 && diffDias >= 0) {
                     claseBadge = 'bg-aviso';
                     cuotaStatus = 'POR VENCER';
                 } else if (diffDias < 0) {
@@ -186,7 +166,7 @@
                     <td><a href="${waLink}" target="_blank" class="btn-wa">💬</a></td>
                     <td>
                         <div style="display:flex; gap:4px; justify-content:center;">
-                            <button style="background:var(--verde); font-size:0.7rem; padding: 5px;" onclick="renovarCuota('${m.dni}')">PAGO +30</button>
+                            ${m.rol !== 'Barbero' ? `<button style="background:var(--verde); font-size:0.7rem; padding: 5px;" onclick="renovarCuota('${m.dni}')">PAGO +30</button>` : ''}
                             <button style="background:var(--rojo); font-size:0.7rem; padding: 5px;" onclick="eliminarMiembro('${m.dni}')">🗑️</button>
                         </div>
                     </td>
@@ -215,10 +195,15 @@
                 mode: 'no-cors',
                 body: JSON.stringify(datos)
             });
-            alert("Registro exitoso.");
-            cargarTodo();
-            btn.innerText = "GUARDAR MIEMBRO";
-            btn.disabled = false;
+            setTimeout(() => {
+                alert("Registro exitoso.");
+                cargarTodo();
+                btn.innerText = "GUARDAR MIEMBRO";
+                btn.disabled = false;
+                // Limpiar campos
+                document.getElementById('nuevoNombre').value = "";
+                document.getElementById('nuevoDni').value = "";
+            }, 1000);
         } catch (err) {
             alert("Error al registrar");
             btn.disabled = false;
