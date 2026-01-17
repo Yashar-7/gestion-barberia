@@ -10,7 +10,7 @@
             --oscuro: #121212;
             --verde: #4caf50;
             --rojo: #f44336;
-            --naranja: #ff9800;
+            --whatsapp: #25d366;
         }
 
         body { 
@@ -44,7 +44,6 @@
             text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
             margin-bottom: 25px;
             text-align: center;
-            font-size: 2rem;
         }
 
         .panel-flex {
@@ -64,25 +63,21 @@
             border: 2px solid var(--dorado);
             background: #000;
             object-fit: cover;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
 
-        /* Botones de Arriba (REDISEÑADOS) */
         .btn-cam {
             padding: 10px 20px;
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            border: 1px solid rgba(212, 175, 55, 0.5);
+            border: 1px solid var(--dorado);
             transition: 0.3s;
             text-transform: uppercase;
             font-size: 0.8rem;
+            margin: 5px;
         }
-        .btn-on { background: #222; color: white; }
-        .btn-on:hover { background: #333; border-color: white; }
-        
+        .btn-on { background: transparent; color: var(--dorado); }
         .btn-foto { background: var(--dorado); color: black; }
-        .btn-foto:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--dorado); }
 
         .form-section {
             display: flex;
@@ -100,52 +95,49 @@
             color: var(--dorado) !important;
             font-size: 1rem;
             outline: none;
-            box-sizing: border-box;
         }
 
         .btn-principal { 
             background: var(--dorado); 
             color: black; 
             padding: 18px;
-            font-size: 1rem;
             border-radius: 15px;
             font-weight: 900;
             border: none;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-        }
-        .btn-principal:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4); }
-
-        /* Tabla Premium */
-        .table-container {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            overflow-x: auto;
         }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        th { color: var(--dorado); text-transform: uppercase; padding: 15px; font-size: 0.8rem; letter-spacing: 2px; }
+        /* Tabla Estilo Botón */
+        th { 
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--dorado); 
+            padding: 15px; 
+            font-size: 0.75rem; 
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
 
         tr td { 
             background: rgba(30, 30, 30, 0.9); 
             padding: 15px; 
             text-align: center;
-            border-top: 1px solid #333;
             border-bottom: 1px solid #333;
         }
 
         tr td:first-child { border-radius: 15px 0 0 15px; border-left: 4px solid var(--dorado); }
-        tr td:last-child { border-radius: 0 15px 15px 0; border-right: 1px solid #333; }
+        tr td:last-child { border-radius: 0 15px 15px 0; }
 
-        .img-perfil { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--dorado); object-fit: cover; }
-        .badge { padding: 6px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
+        .img-perfil { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--dorado); object-fit: cover; }
+        
+        /* Badges de Estado */
+        .badge { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; display: inline-block; }
         .status-si { background: rgba(76, 175, 80, 0.2); color: #a2fca2; border: 1px solid var(--verde); }
         .status-no { background: rgba(244, 67, 54, 0.2); color: #ff9999; border: 1px solid var(--rojo); }
         .status-staff { background: rgba(212, 175, 55, 0.1); color: var(--dorado); border: 1px solid var(--dorado); }
 
-        .btn-accion { padding: 8px 12px; font-size: 0.7rem; border-radius: 8px; color: white; margin: 0 3px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-accion { padding: 8px 12px; font-size: 0.7rem; border-radius: 8px; color: white; border: none; cursor: pointer; font-weight: bold; margin: 2px; }
         .search-bar { margin: 20px auto; max-width: 450px; }
     </style>
 </head>
@@ -153,47 +145,46 @@
 
 <div class="admin-card">
     <center>
-        <img src="logo.png" style="width: 90px; filter: drop-shadow(0 0 10px var(--dorado)); margin-bottom: 10px;" onerror="this.style.display='none'">
-        <h1>Panel Administrativo</h1>
+        <h1>Control de Socios</h1>
     </center>
 
     <div class="panel-flex">
         <div class="cam-section">
             <video id="video" autoplay playsinline></video>
-            <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
-                <button onclick="activarCamara()" class="btn-cam btn-on">📷 Encender</button>
-                <button onclick="tomarFoto()" class="btn-cam btn-foto">📸 Capturar</button>
+            <div style="margin-top: 15px;">
+                <button onclick="activarCamara()" class="btn-cam btn-on">Encender</button>
+                <button onclick="tomarFoto()" class="btn-cam btn-foto">Capturar</button>
             </div>
             <canvas id="canvas" style="display:none;" width="320" height="240"></canvas>
-            <img id="preview" style="display:none; width:80px; height:80px; border-radius:50%; margin: 15px auto; border: 3px solid var(--verde); object-fit: cover;">
+            <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; margin: 10px auto; border: 2px solid var(--verde); object-fit: cover;">
         </div>
 
         <div class="form-section">
             <input type="text" id="nuevoNombre" placeholder="Nombre completo">
-            <input type="number" id="nuevoDni" placeholder="Número de DNI">
-            <input type="number" id="nuevoTel" placeholder="WhatsApp (Ej: 549...)">
+            <input type="number" id="nuevoDni" placeholder="DNI">
+            <input type="number" id="nuevoTel" placeholder="WhatsApp (549...)">
             <input type="date" id="nuevoCumple">
             <select id="nuevoRol">
-                <option value="Estudiante">Alumno / Estudiante</option>
+                <option value="Estudiante">Estudiante</option>
                 <option value="Barbero">Barbero (Staff)</option>
             </select>
             <input type="hidden" id="nuevaFoto">
-            <button class="btn-principal" id="btn-registrar" onclick="registrarUsuario()">Guardar en Base de Datos</button>
+            <button class="btn-principal" id="btn-registrar" onclick="registrarUsuario()">Guardar Registro</button>
         </div>
     </div>
 </div>
 
 <div class="search-bar">
-    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar por nombre o DNI..." style="text-align: center; border-color: var(--dorado);">
+    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 Buscar socio o DNI..." style="text-align: center; border: 1px solid var(--dorado);">
 </div>
 
-<div class="table-container">
-    <table>
+<div style="overflow-x: auto; max-width: 1100px; margin: 0 auto;">
+    <table id="miTabla">
         <thead>
             <tr>
                 <th>Foto</th>
                 <th>DNI</th>
-                <th>Socio</th>
+                <th>Nombre</th>
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Vencimiento</th>
@@ -201,7 +192,7 @@
             </tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="7" style="color: var(--dorado);">Sincronizando...</td></tr>
+            <tr><td colspan="7">Sincronizando...</td></tr>
         </tbody>
     </table>
 </div>
@@ -211,10 +202,8 @@
     let miembrosCache = [];
 
     async function activarCamara() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            document.getElementById('video').srcObject = stream;
-        } catch (err) { alert("Error: Cámara no disponible."); }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('video').srcObject = stream;
     }
 
     function tomarFoto() {
@@ -227,25 +216,17 @@
         document.getElementById('preview').style.display = 'block';
     }
 
-    // Función para limpiar la fecha (Repara el error 2026-02-14T03...)
     function formatearFecha(fechaStr) {
         if (!fechaStr || fechaStr === "---") return "---";
-        try {
-            const d = new Date(fechaStr);
-            if (isNaN(d.getTime())) return fechaStr; // Si ya viene formateada, la deja igual
-            const dia = d.getDate().toString().padStart(2, '0');
-            const mes = (d.getMonth() + 1).toString().padStart(2, '0');
-            const año = d.getFullYear();
-            return `${dia}/${mes}/${año}`;
-        } catch (e) { return fechaStr; }
+        const d = new Date(fechaStr);
+        if (isNaN(d.getTime())) return fechaStr;
+        return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
     }
 
     async function cargarTodo() {
-        try {
-            const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
-            miembrosCache = await res.json();
-            renderizarTabla(miembrosCache);
-        } catch (e) { console.error(e); }
+        const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
+        miembrosCache = await res.json();
+        renderizarTabla(miembrosCache);
     }
 
     function renderizarTabla(datos) {
@@ -260,13 +241,14 @@
                 <tr>
                     <td><img src="${m.foto || ''}" class="img-perfil" onerror="this.src='https://via.placeholder.com/50/000/d4af37?text=S'"></td>
                     <td style="color:var(--dorado)"><b>${m.dni}</b></td>
-                    <td style="text-align:left; font-weight: 500;">${m.nombre}</td>
+                    <td style="text-align:left">${m.nombre}</td>
                     <td><small>${m.rol}</small></td>
                     <td><span class="badge ${badgeClase}">${labelEstado}</span></td>
                     <td>${formatearFecha(m.vencimiento)}</td>
                     <td>
-                        <button onclick="renovarCuota('${m.dni}')" class="btn-accion" style="background:var(--verde)">PAGO</button>
-                        <button onclick="eliminarMiembro('${m.dni}')" class="btn-accion" style="background:var(--rojo)">X</button>
+                        <button onclick="renovar('${m.dni}')" class="btn-accion" style="background:var(--verde)">PAGO</button>
+                        <a href="https://wa.me/${m.telefono}" target="_blank"><button class="btn-accion" style="background:var(--whatsapp)">WA</button></a>
+                        <button onclick="eliminar('${m.dni}')" class="btn-accion" style="background:var(--rojo)">X</button>
                     </td>
                 </tr>
             `;
@@ -283,29 +265,15 @@
             foto: document.getElementById('nuevaFoto').value,
             rol: document.getElementById('nuevoRol').value
         };
-        if(!datos.nombre || !datos.dni) return alert("Ingresa Nombre y DNI");
-        btn.innerText = "PROCESANDO...";
-        btn.disabled = true;
-        try {
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-            alert("¡Socio guardado!");
-            location.reload(); 
-        } catch (e) { alert("Error al conectar"); btn.disabled = false; }
+        if(!datos.nombre || !datos.dni) return alert("Completa Nombre y DNI");
+        btn.innerText = "REGISTRANDO...";
+        await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
+        alert("Guardado");
+        location.reload();
     }
 
-    async function renovarCuota(dni) {
-        if(confirm("¿Confirmar pago de cuota?")) {
-            await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' });
-            alert("Pago registrado."); cargarTodo();
-        }
-    }
-
-    async function eliminarMiembro(dni) {
-        if(confirm("¿Eliminar de la base de datos?")) {
-            await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' });
-            cargarTodo();
-        }
-    }
+    async function renovar(dni) { await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); alert("Renovado"); cargarTodo(); }
+    async function eliminar(dni) { if(confirm("¿Eliminar?")) { await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); cargarTodo(); } }
     
     function filtrarTabla() {
         const query = document.getElementById('buscador').value.toLowerCase();
