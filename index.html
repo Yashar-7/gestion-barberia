@@ -26,44 +26,46 @@
             flex-direction: column;
             justify-content: center; 
             align-items: center; 
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh; /* Cambiado a min-height para mejor soporte móvil */
+            overflow-x: hidden;
         }
 
         #reloj {
-            font-size: clamp(2rem, 7vw, 3.5rem);
+            font-size: clamp(1.8rem, 8vw, 3.5rem);
             font-weight: bold;
             color: var(--dorado);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
             background: rgba(0,0,0,0.5);
-            padding: 10px 40px;
+            padding: 10px 30px;
             border-radius: 50px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(212, 175, 55, 0.2);
+            text-align: center;
         }
 
         .card { 
             background: rgba(25, 25, 25, 0.9); 
-            padding: 2.5rem; 
+            padding: 1.5rem; /* Ajustado para móviles */
             border-radius: 30px; 
             box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
             text-align: center; 
-            width: 85%;
+            width: 90%; /* Más ancho en móviles */
             max-width: 420px; 
             border: 1px solid rgba(212, 175, 55, 0.3);
             backdrop-filter: blur(20px);
+            box-sizing: border-box;
         }
 
         .logo-container {
             width: 100%;
             display: flex;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .logo-png {
-            width: 120px;
+            width: clamp(80px, 20vw, 120px); /* Tamaño responsivo */
             height: auto;
             filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
         }
@@ -71,14 +73,14 @@
         h1 { 
             color: var(--dorado); 
             margin: 5px 0; 
-            font-size: 1.6rem;
+            font-size: clamp(1.2rem, 5vw, 1.6rem); /* Texto responsivo */
             text-transform: uppercase;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
         }
 
         #user-foto {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             border: 3px solid var(--dorado);
             margin: 0 auto 15px;
@@ -89,13 +91,13 @@
 
         input { 
             width: 100%; 
-            padding: 15px; 
-            margin-bottom: 20px; 
+            padding: 12px; 
+            margin-bottom: 15px; 
             border-radius: 12px; 
             border: 2px solid #333; 
             background: rgba(0,0,0,0.7);
             color: var(--dorado);
-            font-size: 1.8rem; 
+            font-size: 1.5rem; /* Ajustado para que no sea excesivo en móvil */
             text-align: center; 
             box-sizing: border-box;
             outline: none;
@@ -110,11 +112,11 @@
         button { 
             color: black; 
             border: none; 
-            padding: 18px; 
+            padding: 15px; 
             border-radius: 12px; 
             font-weight: 900; 
             cursor: pointer; 
-            font-size: 1rem; 
+            font-size: 0.9rem; 
             width: 100%; 
             text-transform: uppercase;
             transition: 0.3s;
@@ -124,16 +126,21 @@
         .btn-salida { background: #333; color: white; border: 1px solid #444; }
 
         #mensaje { 
-            margin-top: 20px; 
+            margin-top: 15px; 
             border-radius: 15px;
             display: none;
-            padding: 20px;
+            padding: 15px;
+            word-wrap: break-word; /* Evita que el texto largo rompa el diseño */
         }
 
         .exito { background: rgba(76, 175, 80, 0.25) !important; color: #a2fca2 !important; border: 1px solid var(--verde) !important; display: block !important; }
         .salida-msg { background: rgba(255, 152, 0, 0.25) !important; color: #ffcc80 !important; border: 1px solid var(--naranja) !important; display: block !important; }
         .error { background: rgba(244, 67, 54, 0.25) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
         .espera { background: rgba(212, 175, 55, 0.15) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
+        
+        #msg-texto { font-weight: 900; font-size: clamp(1rem, 4vw, 1.4rem); }
+        #msg-cuota { font-weight: bold; font-size: 1rem; margin: 8px 0; }
+        #msg-cumple { color: #ffeb3b; font-weight: bold; margin-top: 8px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -143,7 +150,7 @@
             <img src="logo.png" alt="Logo" class="logo-png" onerror="this.style.display='none'">
         </div>
         <h1>💈 SmartBarber</h1>
-        <p style="font-size: 0.8rem; letter-spacing: 1px; color: #aaa;">SISTEMA INTEGRAL DE GESTIÓN</p>
+        <p style="font-size: 0.7rem; letter-spacing: 1px; color: #aaa; margin-bottom: 15px;">SISTEMA INTEGRAL DE GESTIÓN</p>
         
         <input type="number" id="dni" placeholder="INGRESE DNI" autofocus>
         
@@ -154,9 +161,9 @@
         
         <div id="mensaje">
             <img id="user-foto" src="" alt="Perfil">
-            <div id="msg-texto" style="font-weight: 900; font-size: 1.4rem;"></div>
-            <div id="msg-cuota" style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;"></div>
-            <div id="msg-cumple" style="color: #ffeb3b; font-weight: bold; margin-top: 10px; font-size: 1.3rem;"></div>
+            <div id="msg-texto"></div>
+            <div id="msg-cuota"></div>
+            <div id="msg-cumple"></div>
         </div>
     </div>
 
