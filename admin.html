@@ -10,7 +10,7 @@
             --oscuro: #0a0a0a;
             --verde: #4caf50;
             --rojo: #f44336;
-            --naranja: #ff9800; /* Color añadido para el seguimiento */
+            --naranja: #ff9800;
             --whatsapp: #25d366;
             --azul: #4d79ff;
         }
@@ -32,7 +32,6 @@
             box-sizing: border-box;
         }
 
-        /* ESTILO PARA EL NUEVO PANEL CON BORDE BARBER POLE */
         .retencion-card { 
             background: rgba(20, 20, 20, 0.95); padding: 1.5rem; border-radius: 25px; 
             box-shadow: 0 0 40px rgba(0,0,0,1); 
@@ -43,16 +42,9 @@
             display: none;
         }
 
-        .header-logo { text-align: center; margin-bottom: 15px; }
-        .header-logo img { width: 80px; filter: drop-shadow(0 0 15px var(--dorado)); }
-        
-        h1 { 
-            color: var(--dorado); text-transform: uppercase; letter-spacing: 2px; 
-            text-align: center; margin: 5px 0; font-size: clamp(1.2rem, 5vw, 2.2rem);
-        }
+        h1 { color: var(--dorado); text-transform: uppercase; letter-spacing: 2px; text-align: center; margin: 5px 0; font-size: clamp(1.2rem, 5vw, 2.2rem); }
 
         .panel-flex { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
-
         #video { width: 100%; max-width: 280px; height: auto; border-radius: 20px; border: 3px solid var(--dorado); background: #000; }
         
         .btn-cam { padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; border: 1px solid var(--dorado); font-size: 0.8rem; }
@@ -60,15 +52,9 @@
         .btn-foto { background: var(--dorado); color: black; }
 
         .form-section { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; }
-        input, select { 
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333;
-            background: rgba(0,0,0,0.85) !important; color: var(--dorado) !important; font-weight: bold;
-        }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: rgba(0,0,0,0.85) !important; color: var(--dorado) !important; font-weight: bold; }
 
-        .btn-principal { 
-            background: var(--dorado); color: black; padding: 16px; border-radius: 15px;
-            font-weight: 900; border: none; cursor: pointer; text-transform: uppercase;
-        }
+        .btn-principal { background: var(--dorado); color: black; padding: 16px; border-radius: 15px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; }
 
         .tabla-contenedor { overflow-x: auto; width: 100%; border-radius: 15px; margin-top: 20px; }
         table { width: 100%; min-width: 850px; border-collapse: separate; border-spacing: 0 8px; }
@@ -84,8 +70,13 @@
 
         .btn-accion { padding: 8px; border-radius: 8px; border: none; cursor: pointer; color: white; font-weight: bold; margin: 2px; }
         .btn-wa-pago { background: var(--whatsapp); }
-        .btn-wa-retencion { background: var(--naranja); } /* Naranja como pediste */
+        .btn-wa-retencion { background: var(--naranja); }
         .btn-del { background: #333; }
+        .btn-reloj { background: var(--azul); }
+
+        /* Animación para el cumpleaños */
+        @keyframes fiesta { 0% { opacity: 1; } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; } }
+        .es-cumple { color: #ffeb3b; font-weight: bold; animation: fiesta 1.5s infinite; }
 
         .retencion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
         .card-ausente { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 10px; border-left: 4px solid var(--naranja); }
@@ -97,8 +88,8 @@
 <body>
 
 <div class="admin-card">
-    <div class="header-logo">
-        <img src="logo.png" alt="Logo">
+    <div class="header-logo" style="text-align: center; margin-bottom: 15px;">
+        <img src="logo.png" alt="Logo" style="width: 80px; filter: drop-shadow(0 0 15px var(--dorado));">
         <h1>SmartBarber Admin</h1>
     </div>
 
@@ -161,7 +152,6 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
     let miembrosCache = [];
 
-    // FUNCIÓN PARA LIMPIAR FECHA (QUITAR LA "Z")
     function formatearFecha(fechaStr) {
         if (!fechaStr || fechaStr === "---") return "---";
         if (fechaStr.includes('T')) {
@@ -169,6 +159,14 @@
             return `${partes[2]}/${partes[1]}/${partes[0]}`;
         }
         return fechaStr;
+    }
+
+    // Función para detectar si hoy es el cumpleaños
+    function esCumpleañosHoy(fechaNac) {
+        if (!fechaNac) return false;
+        const hoy = new Date();
+        const cumple = new Date(fechaNac);
+        return hoy.getDate() === cumple.getDate() + 1 && hoy.getMonth() === cumple.getMonth();
     }
 
     async function activarCamara() {
@@ -201,31 +199,28 @@
             const cuotaVal = m.Cuota || "NO";
             const rolVal = m.Rol || "Estudiante";
             const venceVal = formatearFecha(m["Fecha Vencimiento"]);
+            const cumpleIcono = esCumpleañosHoy(m["Fecha Nacimiento"]) ? '<span class="es-cumple">🎂</span>' : '';
 
             let badgeClase = cuotaVal === 'SI' ? 'status-si' : 'status-no';
             let labelEstado = cuotaVal === 'SI' ? 'ACTIVO' : 'VENCIDO';
             
-            // Lógica de botones condicionada al ROL
             let botonesHtml = "";
 
             if (rolVal === 'Barbero') { 
                 badgeClase = 'status-staff'; 
                 labelEstado = 'STAFF'; 
-                // Solo botón eliminar para barberos
-                botonesHtml = `<button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>`;
+                botonesHtml = `
+                    <button onclick="registrarAsistencia('${m.DNI}')" class="btn-accion btn-reloj" title="Marcar Entrada/Salida">⏱️ TURNO</button>
+                    <button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>
+                `;
             } else {
-                // Botones completos para Estudiantes
-                const msjPago = encodeURIComponent(`¡Hola ${m.Nombre}! 👋 Te saludamos de SmartBarber. Te recordamos que tu cuota vence el ${venceVal}. ¡Te esperamos para seguir metiéndole duro a las tijeras! 💈✂️`);
-                const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Notamos que hace unos días no vienes a SmartBarber. ¡No bajes los brazos! El camino del barbero es pura práctica. ¿Te vemos esta semana? 👊🔥`);
+                const msjPago = encodeURIComponent(`¡Hola ${m.Nombre}! 👋 Te recordamos que tu cuota vence el ${venceVal}. ¡Te esperamos! 💈✂️`);
+                const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Notamos que hace unos días no vienes. ¿Te vemos esta semana? 👊🔥`);
 
                 botonesHtml = `
                     <button onclick="renovar('${m.DNI}')" style="background:var(--dorado); color:black;" class="btn-accion">RENOVAR</button>
-                    <a href="https://wa.me/${m.Telefono}?text=${msjPago}" target="_blank">
-                        <button class="btn-accion btn-wa-pago" title="Recordatorio de Pago">💰</button>
-                    </a>
-                    <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank">
-                        <button class="btn-accion btn-wa-retencion" title="Seguimiento">🚀</button>
-                    </a>
+                    <a href="https://wa.me/${m.Telefono}?text=${msjPago}" target="_blank"><button class="btn-accion btn-wa-pago">💰</button></a>
+                    <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank"><button class="btn-accion btn-wa-retencion">🚀</button></a>
                     <button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>
                 `;
             }
@@ -234,7 +229,7 @@
                 <tr>
                     <td><img src="${m.Foto || ''}" class="img-perfil" onerror="this.src='https://via.placeholder.com/50/000/d4af37?text=S'"></td>
                     <td style="color:var(--dorado)"><b>${m.DNI}</b></td>
-                    <td style="text-align:left">${m.Nombre}</td>
+                    <td style="text-align:left">${cumpleIcono} ${m.Nombre}</td>
                     <td><small>${rolVal}</small></td>
                     <td><span class="badge ${badgeClase}">${labelEstado}</span></td>
                     <td>${venceVal}</td>
@@ -242,6 +237,15 @@
                 </tr>
             `;
         });
+    }
+
+    async function registrarAsistencia(dni) {
+        // Esta función envía el DNI para que el Apps Script registre la hora de entrada o salida
+        if(confirm("¿Registrar marca de tiempo para este barbero?")) {
+            await fetch(`${WEB_APP_URL}?action=check&dni=${dni}`, { mode: 'no-cors' }); 
+            alert("Asistencia registrada con éxito.");
+            cargarTodo();
+        }
     }
 
     function actualizarRetencion(datos) {
@@ -253,18 +257,12 @@
         datos.forEach(m => {
             if(m.Rol === "Estudiante" && m.Cuota === "SI") {
                 hayInactivos = true;
-                const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Te escribimos para motivarte a seguir con tus prácticas en SmartBarber. ¡El éxito es constancia! ¿Nos vemos pronto? 👊🔥`);
-                
+                const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Te escribimos para motivarte a seguir con tus prácticas. ¡Nos vemos pronto! 👊🔥`);
                 lista.innerHTML += `
                     <div class="card-ausente">
                         <img src="${m.Foto}" class="img-perfil" style="width:40px;height:40px;">
-                        <div style="flex-grow:1">
-                            <small><b>${m.Nombre}</b></small><br>
-                            <small style="color:var(--naranja)">Seguimiento Activo</small>
-                        </div>
-                        <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank">
-                            <button class="btn-accion btn-wa-retencion">🚀</button>
-                        </a>
+                        <div style="flex-grow:1"><small><b>${m.Nombre}</b></small><br><small style="color:var(--naranja)">Seguimiento Activo</small></div>
+                        <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank"><button class="btn-accion btn-wa-retencion">🚀</button></a>
                     </div>
                 `;
             }
@@ -285,12 +283,12 @@
         if(!datos.Nombre || !datos.DNI) return alert("Faltan datos.");
         btn.innerText = "REGISTRANDO...";
         await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-        alert("Socio registrado con éxito.");
+        alert("Socio registrado.");
         location.reload();
     }
 
     async function renovar(dni) { 
-        if(confirm("¿Confirmar renovación para el DNI " + dni + "?")) {
+        if(confirm("¿Confirmar renovación?")) {
             await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); 
             alert("Pago registrado.");
             cargarTodo(); 
@@ -298,7 +296,7 @@
     }
     
     async function eliminar(dni) { 
-        if(confirm("¿Seguro que deseas eliminar al socio " + dni + "?")) { 
+        if(confirm("¿Eliminar socio?")) { 
             await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
             cargarTodo(); 
         } 
