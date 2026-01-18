@@ -10,6 +10,7 @@
             --oscuro: #0a0a0a;
             --verde: #4caf50;
             --rojo: #f44336;
+            --naranja: #ff9800; /* Color añadido para el seguimiento */
             --whatsapp: #25d366;
             --azul: #4d79ff;
         }
@@ -29,6 +30,17 @@
             max-width: 1000px; margin: 0 auto 20px;
             backdrop-filter: blur(15px);
             box-sizing: border-box;
+        }
+
+        /* ESTILO PARA EL NUEVO PANEL CON BORDE BARBER POLE */
+        .retencion-card { 
+            background: rgba(20, 20, 20, 0.95); padding: 1.5rem; border-radius: 25px; 
+            box-shadow: 0 0 40px rgba(0,0,0,1); 
+            border: 3px solid transparent;
+            border-image: repeating-linear-gradient(45deg, #ff4d4d, #ff4d4d 10px, #fff 10px, #fff 20px, #4d79ff 20px, #4d79ff 30px) 1;
+            max-width: 1000px; margin: 30px auto 20px;
+            box-sizing: border-box;
+            display: none;
         }
 
         .header-logo { text-align: center; margin-bottom: 15px; }
@@ -72,19 +84,11 @@
 
         .btn-accion { padding: 8px; border-radius: 8px; border: none; cursor: pointer; color: white; font-weight: bold; margin: 2px; }
         .btn-wa-pago { background: var(--whatsapp); }
-        .btn-wa-retencion { background: var(--rojo); }
+        .btn-wa-retencion { background: var(--naranja); } /* Naranja como pediste */
         .btn-del { background: #333; }
 
-        /* --- NUEVO ESTILO PANEL RETENCIÓN --- */
-        #panel-retencion {
-            margin: 30px auto; max-width: 1000px;
-            background: rgba(244, 67, 54, 0.1);
-            border: 2px dashed var(--rojo);
-            padding: 20px; border-radius: 20px;
-            display: none;
-        }
         .retencion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
-        .card-ausente { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 10px; border-left: 4px solid var(--rojo); }
+        .card-ausente { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 10px; border-left: 4px solid var(--naranja); }
 
         .search-bar { margin: 20px auto; width: 90%; max-width: 480px; text-align: center; }
         .search-bar input { text-align: center; width: 100%; border: 1px solid var(--dorado); }
@@ -147,9 +151,9 @@
     </table>
 </div>
 
-<div id="panel-retencion">
-    <h2 style="color:var(--rojo); text-align:center; margin:0;">⚠️ ALUMNOS POR PERDER</h2>
-    <p style="text-align:center; margin:5px 0; font-size:0.8rem;">No han venido en los últimos días</p>
+<div id="panel-retencion" class="retencion-card">
+    <h2 style="color:var(--dorado); text-align:center; margin:0;">📈 SEGUIMIENTO ACADÉMICO</h2>
+    <p style="text-align:center; margin:5px 0; font-size:0.8rem; color:#aaa;">GESTIÓN DE CONTINUIDAD Y ASISTENCIA</p>
     <div id="lista-retencion" class="retencion-grid"></div>
 </div>
 
@@ -157,12 +161,12 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
     let miembrosCache = [];
 
-    // --- FUNCIÓN PARA LIMPIAR FECHAS DE GOOGLE ---
+    // FUNCIÓN PARA LIMPIAR FECHA (QUITAR LA "Z")
     function formatearFecha(fechaStr) {
         if (!fechaStr || fechaStr === "---") return "---";
         if (fechaStr.includes('T')) {
-            let fecha = new Date(fechaStr);
-            return fecha.toLocaleDateString('es-AR');
+            let partes = fechaStr.split('T')[0].split('-');
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
         }
         return fechaStr;
     }
@@ -196,7 +200,7 @@
         datos.forEach(m => {
             const cuotaVal = m.Cuota || "NO";
             const rolVal = m.Rol || "Estudiante";
-            const venceVal = formatearFecha(m["Fecha Vencimiento"]);
+            const venceVal = formatearFecha(m["Fecha Vencimiento"]); // Mejorado
 
             let badgeClase = cuotaVal === 'SI' ? 'status-si' : 'status-no';
             let labelEstado = cuotaVal === 'SI' ? 'ACTIVO' : 'VENCIDO';
@@ -224,7 +228,7 @@
                             <button class="btn-accion btn-wa-pago" title="Recordatorio de Pago">💰</button>
                         </a>
                         <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank">
-                            <button class="btn-accion btn-wa-retencion" title="Retención de Alumno">🚀</button>
+                            <button class="btn-accion btn-wa-retencion" title="Seguimiento">🚀</button>
                         </a>
                         <button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>
                     </td>
@@ -233,7 +237,6 @@
         });
     }
 
-    // --- LÓGICA DE PANEL DE RETENCIÓN ---
     function actualizarRetencion(datos) {
         const lista = document.getElementById('lista-retencion');
         const panel = document.getElementById('panel-retencion');
@@ -241,19 +244,17 @@
         let hayInactivos = false;
 
         datos.forEach(m => {
-            // Un ejemplo: si es estudiante y tiene cuota paga, pero el botón rojo de retención es útil
-            // Aquí podrías poner lógica de fechas de última asistencia si la tuviéramos.
-            // Por ahora, mostraremos aquí a los Estudiantes Activos para tenerlos a mano.
+            // Lógica para mostrar estudiantes activos en el panel de seguimiento
             if(m.Rol === "Estudiante" && m.Cuota === "SI") {
                 hayInactivos = true;
-                const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Notamos que hace unos días no vienes. ¡Te extrañamos en el curso! ¿Venís esta semana? 👊🔥`);
+                const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Te escribimos para motivarte a seguir con tus prácticas en SmartBarber. ¡El éxito es constancia! ¿Nos vemos pronto? 👊🔥`);
                 
                 lista.innerHTML += `
                     <div class="card-ausente">
                         <img src="${m.Foto}" class="img-perfil" style="width:40px;height:40px;">
                         <div style="flex-grow:1">
                             <small><b>${m.Nombre}</b></small><br>
-                            <small style="color:var(--rojo)">Recuperar</small>
+                            <small style="color:var(--naranja)">Seguimiento Activo</small>
                         </div>
                         <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank">
                             <button class="btn-accion btn-wa-retencion">🚀</button>
@@ -283,15 +284,15 @@
     }
 
     async function renovar(dni) { 
-        if(confirm("¿Confirmar renovación de cuota para el DNI " + dni + "?")) {
+        if(confirm("¿Confirmar renovación para el DNI " + dni + "?")) {
             await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); 
-            alert("Pago registrado correctamente.");
+            alert("Pago registrado.");
             cargarTodo(); 
         }
     }
     
     async function eliminar(dni) { 
-        if(confirm("¿Seguro que deseas eliminar permanentemente al socio " + dni + "?")) { 
+        if(confirm("¿Seguro que deseas eliminar al socio " + dni + "?")) { 
             await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
             cargarTodo(); 
         } 
@@ -299,10 +300,9 @@
 
     function filtrarTabla() {
         const query = document.getElementById('buscador').value.toLowerCase();
-        const filtrados = miembrosCache.filter(m => 
+        renderizarTabla(miembrosCache.filter(m => 
             (m.Nombre && m.Nombre.toLowerCase().includes(query)) || (m.DNI && m.DNI.toString().includes(query))
-        );
-        renderizarTabla(filtrados);
+        ));
     }
 
     window.onload = cargarTodo;
