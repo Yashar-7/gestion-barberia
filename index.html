@@ -26,7 +26,7 @@
             flex-direction: column;
             justify-content: center; 
             align-items: center; 
-            min-height: 100vh; /* Cambiado a min-height para mejor soporte móvil */
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
@@ -46,41 +46,35 @@
 
         .card { 
             background: rgba(25, 25, 25, 0.9); 
-            padding: 1.5rem; /* Ajustado para móviles */
+            padding: 1.5rem; 
             border-radius: 30px; 
             box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
             text-align: center; 
-            width: 90%; /* Más ancho en móviles */
+            width: 90%; 
             max-width: 420px; 
             border: 1px solid rgba(212, 175, 55, 0.3);
             backdrop-filter: blur(20px);
             box-sizing: border-box;
         }
 
-        .logo-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-
         .logo-png {
-            width: clamp(80px, 20vw, 120px); /* Tamaño responsivo */
+            width: clamp(80px, 20vw, 120px);
             height: auto;
             filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+            margin-bottom: 10px;
         }
 
         h1 { 
             color: var(--dorado); 
             margin: 5px 0; 
-            font-size: clamp(1.2rem, 5vw, 1.6rem); /* Texto responsivo */
+            font-size: clamp(1.2rem, 5vw, 1.6rem);
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
         #user-foto {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             border: 3px solid var(--dorado);
             margin: 0 auto 15px;
@@ -97,7 +91,7 @@
             border: 2px solid #333; 
             background: rgba(0,0,0,0.7);
             color: var(--dorado);
-            font-size: 1.5rem; /* Ajustado para que no sea excesivo en móvil */
+            font-size: 1.5rem; 
             text-align: center; 
             box-sizing: border-box;
             outline: none;
@@ -130,16 +124,18 @@
             border-radius: 15px;
             display: none;
             padding: 15px;
-            word-wrap: break-word; /* Evita que el texto largo rompa el diseño */
+            animation: fadeIn 0.3s ease;
         }
 
-        .exito { background: rgba(76, 175, 80, 0.25) !important; color: #a2fca2 !important; border: 1px solid var(--verde) !important; display: block !important; }
-        .salida-msg { background: rgba(255, 152, 0, 0.25) !important; color: #ffcc80 !important; border: 1px solid var(--naranja) !important; display: block !important; }
-        .error { background: rgba(244, 67, 54, 0.25) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
-        .espera { background: rgba(212, 175, 55, 0.15) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .exito { background: rgba(76, 175, 80, 0.2) !important; color: #a2fca2 !important; border: 1px solid var(--verde) !important; display: block !important; }
+        .salida-msg { background: rgba(255, 152, 0, 0.2) !important; color: #ffcc80 !important; border: 1px solid var(--naranja) !important; display: block !important; }
+        .error { background: rgba(244, 67, 54, 0.2) !important; color: #ff9999 !important; border: 1px solid var(--rojo) !important; display: block !important; }
+        .espera { background: rgba(212, 175, 55, 0.1) !important; color: var(--dorado) !important; border: 1px solid var(--dorado) !important; display: block !important; }
         
-        #msg-texto { font-weight: 900; font-size: clamp(1rem, 4vw, 1.4rem); }
-        #msg-cuota { font-weight: bold; font-size: 1rem; margin: 8px 0; }
+        #msg-texto { font-weight: 900; font-size: clamp(1.1rem, 4vw, 1.5rem); margin-bottom: 5px; }
+        #msg-cuota { font-weight: bold; font-size: 1rem; margin: 5px 0; }
         #msg-cumple { color: #ffeb3b; font-weight: bold; margin-top: 8px; font-size: 1.1rem; }
     </style>
 </head>
@@ -170,11 +166,27 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
+        // Sistema de sonidos sutiles
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(freq, type, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
         function hablar(texto) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const mensaje = new SpeechSynthesisUtterance(texto);
                 mensaje.lang = 'es-ES';
+                mensaje.rate = 1;
                 window.speechSynthesis.speak(mensaje);
             }
         }
@@ -189,6 +201,7 @@
             const dni = dniInput.value.trim();
             if(!dni) return;
 
+            // Bloquear UI
             document.getElementById('btn-entrada').disabled = true;
             document.getElementById('btn-salida').disabled = true;
 
@@ -210,6 +223,7 @@
                 const data = await response.json();
                 
                 if(data.success) {
+                    playSound(880, 'sine', 0.2); // Sonido de éxito
                     div.className = (tipo === "SALIDA") ? 'salida-msg' : 'exito';
                     msgTexto.innerText = data.nombre;
                     
@@ -219,22 +233,32 @@
                     }
 
                     if(tipo === "ENTRADA") {
-                        msgCuota.innerText = (data.cuota === "SI") ? "✅ CUOTA AL DÍA" : "❌ CUOTA VENCIDA";
-                        msgCuota.style.color = (data.cuota === "SI") ? "#a2fca2" : "#ff9999";
+                        // Lógica por ROL
+                        if(data.rol === "Barbero") {
+                            msgCuota.innerText = "⭐ STAFF AUTORIZADO";
+                            msgCuota.style.color = "var(--dorado)";
+                        } else {
+                            msgCuota.innerText = (data.cuota === "SI") ? "✅ CUOTA AL DÍA" : "❌ CUOTA VENCIDA";
+                            msgCuota.style.color = (data.cuota === "SI") ? "#a2fca2" : "#ff9999";
+                        }
+
                         let saludo = `Hola ${data.nombre}, bienvenido.`;
                         if(data.esCumple) {
                             msgCumple.innerText = "🎂 ¡FELIZ CUMPLEAÑOS! 🎂";
-                            saludo = `¡Feliz cumpleaños ${data.nombre}! Bienvenido.`;
+                            saludo = `¡Feliz cumpleaños ${data.nombre}! Qué tengas un gran día.`;
                         }
                         hablar(saludo);
                     } else {
-                        let tiempoTxt = data.tiempo || "0h 0m";
-                        msgCuota.innerText = "TIEMPO HOY: " + tiempoTxt;
-                        hablar(`Hasta luego ${data.nombre}. Buen descanso.`);
+                        // SALIDA
+                        let tiempoTxt = data.tiempo || "0 min";
+                        msgCuota.innerText = "SESIÓN HOY: " + tiempoTxt;
+                        msgCuota.style.color = "white";
+                        hablar(`Hasta luego ${data.nombre}.`);
                     }
                 } else {
+                    playSound(200, 'square', 0.3); // Sonido de error
                     div.className = 'error';
-                    msgTexto.innerText = "NO ENCONTRADO";
+                    msgTexto.innerText = "DNI NO ENCONTRADO";
                     hablar("DNI no registrado.");
                 }
             } catch (err) {
@@ -245,9 +269,11 @@
                 dniInput.focus();
                 document.getElementById('btn-entrada').disabled = false;
                 document.getElementById('btn-salida').disabled = false;
-                setTimeout(() => { div.style.display = "none"; }, 7000);
+                // Ocultar mensaje después de 7 segundos
+                setTimeout(() => { if(div.className !== "espera") div.style.display = "none"; }, 7000);
             }
         }
+
         document.getElementById('dni').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') marcar('ENTRADA'); 
         });
