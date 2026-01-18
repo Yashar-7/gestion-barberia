@@ -11,13 +11,14 @@
             --verde: #4caf50;
             --rojo: #f44336;
             --whatsapp: #25d366;
+            --azul: #4d79ff;
         }
 
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('Smartbarber.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
-            color: white; margin: 0; padding: 10px; /* Reducido para móvil */
+            color: white; margin: 0; padding: 10px;
         }
 
         .admin-card { 
@@ -36,21 +37,20 @@
         h1 { 
             color: var(--dorado); text-transform: uppercase; letter-spacing: 2px; 
             text-align: center; margin: 5px 0; font-size: clamp(1.2rem, 5vw, 2.2rem);
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
         }
 
         .panel-flex { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
 
-        #video { width: 100%; max-width: 280px; height: auto; border-radius: 20px; border: 3px solid var(--dorado); background: #000; object-fit: cover; }
+        #video { width: 100%; max-width: 280px; height: auto; border-radius: 20px; border: 3px solid var(--dorado); background: #000; }
         
         .btn-cam { padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; border: 1px solid var(--dorado); font-size: 0.8rem; }
-        .btn-on { background: transparent; color: var(--dorado); margin-right: 5px; }
+        .btn-on { background: transparent; color: var(--dorado); }
         .btn-foto { background: var(--dorado); color: black; }
 
         .form-section { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; }
         input, select { 
             width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333;
-            background: rgba(0,0,0,0.85) !important; color: var(--dorado) !important; font-weight: bold; box-sizing: border-box;
+            background: rgba(0,0,0,0.85) !important; color: var(--dorado) !important; font-weight: bold;
         }
 
         .btn-principal { 
@@ -58,17 +58,23 @@
             font-weight: 900; border: none; cursor: pointer; text-transform: uppercase;
         }
 
-        /* Tabla Responsiva */
+        /* Tabla y Botones Acciones */
         .tabla-contenedor { overflow-x: auto; width: 100%; border-radius: 15px; margin-top: 20px; }
-        table { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 0 8px; }
-        th { background: #111; color: var(--dorado); padding: 12px; font-size: 0.7rem; letter-spacing: 1px; }
+        table { width: 100%; min-width: 850px; border-collapse: separate; border-spacing: 0 8px; }
+        th { background: #111; color: var(--dorado); padding: 12px; font-size: 0.75rem; }
         tr td { background: rgba(30, 30, 30, 0.9); padding: 10px; text-align: center; }
 
         .img-perfil { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--dorado); object-fit: cover; }
-        .badge { padding: 6px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; }
+        
+        .badge { padding: 6px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; display: inline-block;}
         .status-si { background: rgba(76, 175, 80, 0.2); color: #a2fca2; border: 1px solid var(--verde); }
         .status-no { background: rgba(244, 67, 54, 0.2); color: #ff9999; border: 1px solid var(--rojo); }
         .status-staff { background: rgba(212, 175, 55, 0.1); color: var(--dorado); border: 1px solid var(--dorado); }
+
+        .btn-accion { padding: 8px; border-radius: 8px; border: none; cursor: pointer; color: white; font-weight: bold; margin: 2px; }
+        .btn-wa-pago { background: var(--whatsapp); }
+        .btn-wa-retencion { background: var(--rojo); }
+        .btn-del { background: #333; }
 
         .search-bar { margin: 20px auto; width: 90%; max-width: 480px; text-align: center; }
         .search-bar input { text-align: center; width: 100%; border: 1px solid var(--dorado); }
@@ -78,7 +84,7 @@
 
 <div class="admin-card">
     <div class="header-logo">
-        <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/100/000/d4af37?text=SB'">
+        <img src="logo.png" alt="Logo">
         <h1>SmartBarber Admin</h1>
     </div>
 
@@ -86,8 +92,8 @@
         <div class="cam-section" style="text-align:center;">
             <video id="video" autoplay playsinline></video>
             <div style="margin-top: 10px;">
-                <button onclick="activarCamara()" class="btn-cam btn-on">Encender</button>
-                <button onclick="tomarFoto()" class="btn-cam btn-foto">Capturar</button>
+                <button onclick="activarCamara()" class="btn-cam btn-on">Encender Cámara</button>
+                <button onclick="tomarFoto()" class="btn-cam btn-foto">Capturar Foto</button>
             </div>
             <canvas id="canvas" style="display:none;" width="320" height="240"></canvas>
             <img id="preview" style="display:none; width:60px; height:60px; border-radius:50%; margin: 10px auto; border: 2px solid var(--verde); object-fit: cover;">
@@ -95,57 +101,54 @@
 
         <div class="form-section">
             <input type="text" id="nuevoNombre" placeholder="Nombre completo">
-            <input type="number" id="nuevoDni" placeholder="DNI">
-            <input type="number" id="nuevoTel" placeholder="WhatsApp (549...)">
+            <input type="number" id="nuevoDni" placeholder="DNI (Sin puntos)">
+            <input type="number" id="nuevoTel" placeholder="WhatsApp (Ej: 549223...)">
             <input type="date" id="nuevoCumple">
             <select id="nuevoRol">
                 <option value="Estudiante">Alumno / Estudiante</option>
-                <option value="Barbero">Barbero (Personal)</option>
+                <option value="Barbero">Barbero (Staff)</option>
             </select>
             <input type="hidden" id="nuevaFoto">
-            <button class="btn-principal" id="btn-registrar" onclick="registrarUsuario()">Registrar en Sistema</button>
+            <button class="btn-principal" id="btn-registrar" onclick="registrarUsuario()">Dar de Alta</button>
         </div>
     </div>
 </div>
 
 <div class="search-bar">
-    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 BUSCAR POR NOMBRE O DNI...">
+    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="🔍 BUSCAR SOCIO O DNI...">
 </div>
 
 <div class="tabla-contenedor">
     <table>
         <thead>
             <tr>
-                <th>FOTO</th>
+                <th>PERFIL</th>
                 <th>DNI</th>
-                <th>SOCIO</th>
+                <th>NOMBRE</th>
                 <th>ROL</th>
                 <th>ESTADO</th>
-                <th>VENCIMIENTO</th>
+                <th>VENCE</th>
                 <th>ACCIONES</th>
             </tr>
         </thead>
         <tbody id="tabla-miembros">
-            <tr><td colspan="7">Sincronizando con Google Sheets...</td></tr>
+            <tr><td colspan="7">Cargando base de datos...</td></tr>
         </tbody>
     </table>
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/TU_NUEVA_URL_AQUI/exec"; // REEMPLAZA ESTO
     let miembrosCache = [];
 
     async function activarCamara() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            document.getElementById('video').srcObject = stream;
-        } catch(e) { alert("Acceso a cámara denegado."); }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('video').srcObject = stream;
     }
 
     function tomarFoto() {
-        const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        canvas.getContext('2d').drawImage(video, 0, 0, 320, 240);
+        canvas.getContext('2d').drawImage(document.getElementById('video'), 0, 0, 320, 240);
         const dataURL = canvas.toDataURL('image/jpeg', 0.6);
         document.getElementById('nuevaFoto').value = dataURL;
         document.getElementById('preview').src = dataURL;
@@ -157,28 +160,28 @@
             const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
             miembrosCache = await res.json();
             renderizarTabla(miembrosCache);
-        } catch(e) { 
-            document.getElementById('tabla-miembros').innerHTML = "<tr><td colspan='7'>Error de sincronización</td></tr>";
-        }
+        } catch(e) { console.error(e); }
     }
 
     function renderizarTabla(datos) {
         const tbody = document.getElementById('tabla-miembros');
         tbody.innerHTML = "";
         datos.forEach(m => {
-            // MAPEO DE TUS COLUMNAS REALES
-            const cuotaVal = m["Cuota (SI/NO)"] || "NO";
-            const rolVal = m["Rol (Barbero o Estudiante)"] || "Estudiante";
+            const cuotaVal = m.Cuota || "NO";
+            const rolVal = m.Rol || "Estudiante";
             const venceVal = m["Fecha Vencimiento"] || "---";
 
             let badgeClase = cuotaVal === 'SI' ? 'status-si' : 'status-no';
-            let labelEstado = cuotaVal === 'SI' ? 'AL DÍA' : 'PENDIENTE';
-            let btnPago = `<button onclick="renovar('${m.DNI}')" style="background:var(--verde); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-size:0.7rem; font-weight:bold;">PAGO</button>`;
+            let labelEstado = cuotaVal === 'SI' ? 'ACTIVO' : 'VENCIDO';
+            
+            // Botones de WhatsApp con tus mensajes especiales
+            const msjPago = encodeURIComponent(`¡Hola ${m.Nombre}! 👋 Te saludamos de SmartBarber. Te recordamos que tu cuota vence el ${venceVal}. ¡Te esperamos para seguir metiéndole duro a las tijeras! 💈✂️`);
+            const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Notamos que hace unos días no vienes a SmartBarber. ¡No bajes los brazos! El camino del barbero es pura práctica. ¿Te vemos esta semana? 👊🔥`);
 
+            let btnPago = `<button onclick="renovar('${m.DNI}')" style="background:var(--dorado); color:black;" class="btn-accion">RENOVAR</button>`;
+            
             if (rolVal === 'Barbero') { 
-                badgeClase = 'status-staff'; 
-                labelEstado = 'STAFF'; 
-                btnPago = ""; 
+                badgeClase = 'status-staff'; labelEstado = 'STAFF'; btnPago = ""; 
             }
 
             tbody.innerHTML += `
@@ -191,10 +194,13 @@
                     <td>${venceVal}</td>
                     <td>
                         ${btnPago}
-                        <a href="https://wa.me/${m.Telefono}" target="_blank">
-                            <button style="background:var(--whatsapp); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; margin-left:4px;">WA</button>
+                        <a href="https://wa.me/${m.Telefono}?text=${msjPago}" target="_blank">
+                            <button class="btn-accion btn-wa-pago" title="Recordatorio de Pago">💰</button>
                         </a>
-                        <button onclick="eliminar('${m.DNI}')" style="background:var(--rojo); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; margin-left:4px;">X</button>
+                        <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank">
+                            <button class="btn-accion btn-wa-retencion" title="Retención de Alumno">🚀</button>
+                        </a>
+                        <button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>
                     </td>
                 </tr>
             `;
@@ -214,20 +220,20 @@
         if(!datos.Nombre || !datos.DNI) return alert("Faltan datos.");
         btn.innerText = "REGISTRANDO...";
         await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-        alert("Socio Guardado");
+        alert("Socio registrado con éxito.");
         location.reload();
     }
 
     async function renovar(dni) { 
-        if(confirm("¿Marcar pago para " + dni + "?")) {
+        if(confirm("¿Confirmar renovación de cuota para el DNI " + dni + "?")) {
             await fetch(`${WEB_APP_URL}?action=renew&dni=${dni}`, { mode: 'no-cors' }); 
-            alert("Pago registrado. Actualizando...");
+            alert("Pago registrado correctamente.");
             cargarTodo(); 
         }
     }
     
     async function eliminar(dni) { 
-        if(confirm("¿Eliminar socio " + dni + "?")) { 
+        if(confirm("¿Seguro que deseas eliminar permanentemente al socio " + dni + "?")) { 
             await fetch(`${WEB_APP_URL}?action=delete&dni=${dni}`, { mode: 'no-cors' }); 
             cargarTodo(); 
         } 
@@ -236,8 +242,7 @@
     function filtrarTabla() {
         const query = document.getElementById('buscador').value.toLowerCase();
         renderizarTabla(miembrosCache.filter(m => 
-            (m.Nombre && m.Nombre.toLowerCase().includes(query)) || 
-            (m.DNI && m.DNI.toString().includes(query))
+            (m.Nombre && m.Nombre.toLowerCase().includes(query)) || (m.DNI && m.DNI.toString().includes(query))
         ));
     }
 
