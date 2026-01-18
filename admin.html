@@ -200,18 +200,34 @@
         datos.forEach(m => {
             const cuotaVal = m.Cuota || "NO";
             const rolVal = m.Rol || "Estudiante";
-            const venceVal = formatearFecha(m["Fecha Vencimiento"]); // Mejorado
+            const venceVal = formatearFecha(m["Fecha Vencimiento"]);
 
             let badgeClase = cuotaVal === 'SI' ? 'status-si' : 'status-no';
             let labelEstado = cuotaVal === 'SI' ? 'ACTIVO' : 'VENCIDO';
             
-            const msjPago = encodeURIComponent(`¡Hola ${m.Nombre}! 👋 Te saludamos de SmartBarber. Te recordamos que tu cuota vence el ${venceVal}. ¡Te esperamos para seguir metiéndole duro a las tijeras! 💈✂️`);
-            const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Notamos que hace unos días no vienes a SmartBarber. ¡No bajes los brazos! El camino del barbero es pura práctica. ¿Te vemos esta semana? 👊🔥`);
+            // Lógica de botones condicionada al ROL
+            let botonesHtml = "";
 
-            let btnPago = `<button onclick="renovar('${m.DNI}')" style="background:var(--dorado); color:black;" class="btn-accion">RENOVAR</button>`;
-            
             if (rolVal === 'Barbero') { 
-                badgeClase = 'status-staff'; labelEstado = 'STAFF'; btnPago = ""; 
+                badgeClase = 'status-staff'; 
+                labelEstado = 'STAFF'; 
+                // Solo botón eliminar para barberos
+                botonesHtml = `<button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>`;
+            } else {
+                // Botones completos para Estudiantes
+                const msjPago = encodeURIComponent(`¡Hola ${m.Nombre}! 👋 Te saludamos de SmartBarber. Te recordamos que tu cuota vence el ${venceVal}. ¡Te esperamos para seguir metiéndole duro a las tijeras! 💈✂️`);
+                const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Notamos que hace unos días no vienes a SmartBarber. ¡No bajes los brazos! El camino del barbero es pura práctica. ¿Te vemos esta semana? 👊🔥`);
+
+                botonesHtml = `
+                    <button onclick="renovar('${m.DNI}')" style="background:var(--dorado); color:black;" class="btn-accion">RENOVAR</button>
+                    <a href="https://wa.me/${m.Telefono}?text=${msjPago}" target="_blank">
+                        <button class="btn-accion btn-wa-pago" title="Recordatorio de Pago">💰</button>
+                    </a>
+                    <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank">
+                        <button class="btn-accion btn-wa-retencion" title="Seguimiento">🚀</button>
+                    </a>
+                    <button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>
+                `;
             }
 
             tbody.innerHTML += `
@@ -222,16 +238,7 @@
                     <td><small>${rolVal}</small></td>
                     <td><span class="badge ${badgeClase}">${labelEstado}</span></td>
                     <td>${venceVal}</td>
-                    <td>
-                        ${btnPago}
-                        <a href="https://wa.me/${m.Telefono}?text=${msjPago}" target="_blank">
-                            <button class="btn-accion btn-wa-pago" title="Recordatorio de Pago">💰</button>
-                        </a>
-                        <a href="https://wa.me/${m.Telefono}?text=${msjRetencion}" target="_blank">
-                            <button class="btn-accion btn-wa-retencion" title="Seguimiento">🚀</button>
-                        </a>
-                        <button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>
-                    </td>
+                    <td>${botonesHtml}</td>
                 </tr>
             `;
         });
@@ -244,7 +251,6 @@
         let hayInactivos = false;
 
         datos.forEach(m => {
-            // Lógica para mostrar estudiantes activos en el panel de seguimiento
             if(m.Rol === "Estudiante" && m.Cuota === "SI") {
                 hayInactivos = true;
                 const msjRetencion = encodeURIComponent(`¡Hola ${m.Nombre}! 💈 Te escribimos para motivarte a seguir con tus prácticas en SmartBarber. ¡El éxito es constancia! ¿Nos vemos pronto? 👊🔥`);
