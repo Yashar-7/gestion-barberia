@@ -74,7 +74,6 @@
         .btn-del { background: #333; }
         .btn-reloj { background: var(--azul); }
 
-        /* Animación para el cumpleaños */
         @keyframes fiesta { 0% { opacity: 1; } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; } }
         .es-cumple { color: #ffeb3b; font-weight: bold; animation: fiesta 1.5s infinite; }
 
@@ -161,7 +160,6 @@
         return fechaStr;
     }
 
-    // Función para detectar si hoy es el cumpleaños
     function esCumpleañosHoy(fechaNac) {
         if (!fechaNac) return false;
         const hoy = new Date();
@@ -203,14 +201,23 @@
 
             let badgeClase = cuotaVal === 'SI' ? 'status-si' : 'status-no';
             let labelEstado = cuotaVal === 'SI' ? 'ACTIVO' : 'VENCIDO';
-            
             let botonesHtml = "";
 
             if (rolVal === 'Barbero') { 
                 badgeClase = 'status-staff'; 
                 labelEstado = 'STAFF'; 
+                
+                // --- MEJORA SEMÁFORO MANTENIENDO TU ESTILO ---
+                const enTurno = m.EstadoTurno === "ENTRADA";
+                const colorBtn = enTurno ? "var(--verde)" : "var(--rojo)";
+                const textoBtn = enTurno ? "🟢 EN TURNO" : "🔴 DE BAJA";
+
                 botonesHtml = `
-                    <button onclick="registrarAsistencia('${m.DNI}')" class="btn-accion btn-reloj" title="Marcar Entrada/Salida">⏱️ TURNO</button>
+                    <button onclick="registrarAsistencia('${m.DNI}')" 
+                            style="background: ${colorBtn}; min-width:120px;" 
+                            class="btn-accion btn-reloj" title="Marcar Entrada/Salida">
+                            ${textoBtn}
+                    </button>
                     <button onclick="eliminar('${m.DNI}')" class="btn-accion btn-del">❌</button>
                 `;
             } else {
@@ -240,10 +247,11 @@
     }
 
     async function registrarAsistencia(dni) {
-        // Esta función envía el DNI para que el Apps Script registre la hora de entrada o salida
-        if(confirm("¿Registrar marca de tiempo para este barbero?")) {
-            await fetch(`${WEB_APP_URL}?action=check&dni=${dni}`, { mode: 'no-cors' }); 
-            alert("Asistencia registrada con éxito.");
+        if(confirm("¿Cambiar estado de turno para este barbero?")) {
+            // Llamamos a action=check que ya decide si es entrada o salida
+            const res = await fetch(`${WEB_APP_URL}?action=check&dni=${dni}`);
+            const msg = await res.text();
+            alert(msg);
             cargarTodo();
         }
     }
