@@ -151,6 +151,14 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
     let miembrosCache = [];
 
+    // --- MEJORA: AUTO-ACTUALIZACIÓN CADA 30 SEGUNDOS ---
+    window.onload = () => {
+        cargarTodo();
+        setInterval(() => {
+            actualizarSilenciosamente();
+        }, 30000); 
+    };
+
     function formatearFecha(fechaStr) {
         if (!fechaStr || fechaStr === "---") return "---";
         if (fechaStr.includes('T')) {
@@ -190,6 +198,21 @@
         } catch(e) { console.error(e); }
     }
 
+    // --- NUEVA FUNCIÓN PARA ACTUALIZAR SIN MOLESTAR AL USUARIO ---
+    async function actualizarSilenciosamente() {
+        try {
+            const res = await fetch(`${WEB_APP_URL}?action=getList&t=${Date.now()}`);
+            const nuevosDatos = await res.json();
+            // Solo renderizamos si los datos han cambiado para evitar parpadeos
+            if (JSON.stringify(miembrosCache) !== JSON.stringify(nuevosDatos)) {
+                miembrosCache = nuevosDatos;
+                renderizarTabla(miembrosCache);
+                actualizarRetencion(miembrosCache);
+                console.log("Tabla actualizada automáticamente.");
+            }
+        } catch(e) { console.error("Error en auto-actualización", e); }
+    }
+
     function renderizarTabla(datos) {
         const tbody = document.getElementById('tabla-miembros');
         tbody.innerHTML = "";
@@ -207,7 +230,6 @@
                 badgeClase = 'status-staff'; 
                 labelEstado = 'STAFF'; 
                 
-                // --- MEJORA SEMÁFORO MANTENIENDO TU ESTILO ---
                 const enTurno = m.EstadoTurno === "ENTRADA";
                 const colorBtn = enTurno ? "var(--verde)" : "var(--rojo)";
                 const textoBtn = enTurno ? "🟢 EN TURNO" : "🔴 DE BAJA";
@@ -248,7 +270,6 @@
 
     async function registrarAsistencia(dni) {
         if(confirm("¿Cambiar estado de turno para este barbero?")) {
-            // Llamamos a action=check que ya decide si es entrada o salida
             const res = await fetch(`${WEB_APP_URL}?action=check&dni=${dni}`);
             const msg = await res.text();
             alert(msg);
@@ -316,8 +337,6 @@
             (m.Nombre && m.Nombre.toLowerCase().includes(query)) || (m.DNI && m.DNI.toString().includes(query))
         ));
     }
-
-    window.onload = cargarTodo;
 </script>
 </body>
 </html>
