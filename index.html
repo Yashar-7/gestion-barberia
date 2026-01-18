@@ -166,7 +166,6 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdIQm3sITKDmYmMqabIV5D4TMkruS1Qrbj3XIo_Amx6iGfgWWdfwoZ-pc6BodKUvd8Vg/exec"; 
 
-        // Sistema de sonidos sutiles
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(freq, type, duration) {
             const osc = audioCtx.createOscillator();
@@ -201,7 +200,6 @@
             const dni = dniInput.value.trim();
             if(!dni) return;
 
-            // Bloquear UI
             document.getElementById('btn-entrada').disabled = true;
             document.getElementById('btn-salida').disabled = true;
 
@@ -223,7 +221,7 @@
                 const data = await response.json();
                 
                 if(data.success) {
-                    playSound(880, 'sine', 0.2); // Sonido de éxito
+                    playSound(880, 'sine', 0.2); 
                     div.className = (tipo === "SALIDA") ? 'salida-msg' : 'exito';
                     msgTexto.innerText = data.nombre;
                     
@@ -233,30 +231,36 @@
                     }
 
                     if(tipo === "ENTRADA") {
-                        // Lógica por ROL
                         if(data.rol === "Barbero") {
                             msgCuota.innerText = "⭐ STAFF AUTORIZADO";
                             msgCuota.style.color = "var(--dorado)";
+                            hablar(`Hola ${data.nombre}, que tengas una excelente jornada.`);
                         } else {
                             msgCuota.innerText = (data.cuota === "SI") ? "✅ CUOTA AL DÍA" : "❌ CUOTA VENCIDA";
                             msgCuota.style.color = (data.cuota === "SI") ? "#a2fca2" : "#ff9999";
+                            hablar(`Hola ${data.nombre}, bienvenido a clase.`);
                         }
 
-                        let saludo = `Hola ${data.nombre}, bienvenido.`;
                         if(data.esCumple) {
                             msgCumple.innerText = "🎂 ¡FELIZ CUMPLEAÑOS! 🎂";
-                            saludo = `¡Feliz cumpleaños ${data.nombre}! Qué tengas un gran día.`;
+                            hablar(`¡Y muy feliz cumpleaños ${data.nombre}!`);
                         }
-                        hablar(saludo);
                     } else {
-                        // SALIDA
-                        let tiempoTxt = data.tiempo || "0 min";
-                        msgCuota.innerText = "SESIÓN HOY: " + tiempoTxt;
-                        msgCuota.style.color = "white";
-                        hablar(`Hasta luego ${data.nombre}.`);
+                        // LÓGICA DE SALIDA DIFERENCIADA
+                        if(data.rol === "Barbero") {
+                            let tiempoTxt = data.tiempo || "0 min";
+                            msgCuota.innerText = "SESIÓN HOY: " + tiempoTxt;
+                            msgCuota.style.color = "white";
+                            hablar(`Buen descanso ${data.nombre}. Sesión terminada.`);
+                        } else {
+                            // Estudiantes solo ven despedida
+                            msgCuota.innerText = "¡GRACIAS POR VENIR!";
+                            msgCuota.style.color = "var(--dorado)";
+                            hablar(`Chau ${data.nombre}, nos vemos la próxima clase.`);
+                        }
                     }
                 } else {
-                    playSound(200, 'square', 0.3); // Sonido de error
+                    playSound(200, 'square', 0.3);
                     div.className = 'error';
                     msgTexto.innerText = "DNI NO ENCONTRADO";
                     hablar("DNI no registrado.");
@@ -269,7 +273,6 @@
                 dniInput.focus();
                 document.getElementById('btn-entrada').disabled = false;
                 document.getElementById('btn-salida').disabled = false;
-                // Ocultar mensaje después de 7 segundos
                 setTimeout(() => { if(div.className !== "espera") div.style.display = "none"; }, 7000);
             }
         }
