@@ -65,11 +65,15 @@
 
         <div class="form-gestion">
             <div>
-                <p class="stat-label" style="color: var(--dorado);">Cargar Servicio</p>
+                <p class="stat-label" style="color: var(--dorado);">Cargar Venta</p>
                 <select id="sel-b">
                     <option value="">-- Seleccione Barbero --</option>
                 </select>
-                <input type="number" id="m-v" placeholder="Monto del servicio $">
+                <select id="tipo-v">
+                    <option value="SERVICIO">SERVICIO (50%)</option>
+                    <option value="PRODUCTO">PRODUCTO (10%)</option>
+                </select>
+                <input type="number" id="m-v" placeholder="Monto $">
                 <select id="m-m">
                     <option value="EF">EFECTIVO</option>
                     <option value="TR">TARJETA / TRANSF.</option>
@@ -97,18 +101,32 @@
 
     <script>
         let fin = { e: 0, t: 0, g: 0, cT: 0, b: {}, h: [] };
-        const FRASES = ["En teoría, todo está en la práctica.", "¡Hoy se corta fuerte!", "La disciplina es la clave."];
+        const FRASES = ["¡Hoy se corta fuerte!", "La disciplina es la clave.", "Excelencia en cada detalle."];
 
         function reg(tp) {
             if(tp==='IN') {
                 let m = parseFloat(document.getElementById('m-v').value);
                 let met = document.getElementById('m-m').value;
                 let ba = document.getElementById('sel-b').value;
+                let tipoV = document.getElementById('tipo-v').value;
+                
                 if(!m || !ba) return alert("Seleccione barbero y monto");
+                
                 met === 'EF' ? fin.e += m : fin.t += m;
-                let com = m * 0.5;
-                fin.cT += com; fin.b[ba] = (fin.b[ba] || 0) + com;
-                fin.h.unshift({ ba, m, h: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
+                
+                // Lógica de comisión diferenciada
+                let porc = (tipoV === 'PRODUCTO') ? 0.10 : 0.50;
+                let com = m * porc;
+                
+                fin.cT += com; 
+                fin.b[ba] = (fin.b[ba] || 0) + com;
+                
+                fin.h.unshift({ 
+                    ba: `${ba} [${tipoV[0]}]`, // Pone [S] o [P] para ahorrar espacio
+                    m, 
+                    h: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) 
+                });
+                
                 if(fin.h.length > 5) fin.h.pop();
                 document.getElementById('m-v').value = "";
             } else {
@@ -141,7 +159,6 @@
             mt.innerText = "BUSCANDO..."; mc.innerText = ""; mf.innerText = "";
 
             try {
-                // RUTA RELATIVA (FUNCIONA EN LOCALHOST Y EN RENDER)
                 let r = await fetch('/asistencia', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -164,7 +181,7 @@
                             upd();
                         }
                     } else if(j.tipo === 'SALIDA' && fin.b[nombre] !== undefined) {
-                        mc.innerText = `A COBRAR: $${fin.b[nombre].toLocaleString()}`;
+                        mc.innerText = `A COBRAR HOY: $${fin.b[nombre].toLocaleString()}`;
                     }
                 } else {
                     div.className = "error"; mt.innerText = j.message;
@@ -173,7 +190,7 @@
                 div.className = "error"; mt.innerText = "ERROR DE CONEXIÓN"; 
             }
             document.getElementById('dni').value = "";
-            setTimeout(() => div.style.display = "none", 8000);
+            setTimeout(() => div.style.display = "none", 10000);
         }
 
         async function cierreCaja() {
@@ -193,7 +210,7 @@
             } catch (e) { alert("Error en el servidor"); }
         }
 
-        setInterval(() => { document.getElementById('reloj').innerText = new Date().toLocaleTimeString('es-AR'); }, 1000);
+            setInterval(() => { document.getElementById('reloj').innerText = new Date().toLocaleTimeString('es-AR'); }, 1000);
     </script>
 </body>
 </html>
