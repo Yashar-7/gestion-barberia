@@ -9,92 +9,85 @@ app.use(express.static(__dirname));
 const URL = process.env.SUPABASE_URL;
 const KEY = process.env.SUPABASE_KEY;
 
-// RUTA PRINCIPAL
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+const supabaseHeaders = {
+    "apikey": KEY,
+    "Authorization": `Bearer ${KEY}`,
+    "Content-Type": "application/json",
+    "Prefer": "return=minimal"
+};
 
-// RUTA DE ADMINISTRACIÓN
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+// --- RUTA: CIERRE DE CAJA ---
+app.post('/api/cierre', async (req, res) => {
+    const { efectivo, tarjetas, gastos, comisiones, neto } = req.body;
+    const fechaHoy = new Date().toLocaleString('es-AR');
 
-// API PARA OBTENER LOS PRESENTES
-app.get('/api/presentes', async (req, res) => {
     try {
-        const response = await fetch(`${URL}/rest/v1/attendance?select=*,users(full_name,cuota_pagada,role)&status=eq.presente`, {
-            headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
+        // Guarda los datos en la tabla que acabas de crear en Supabase
+        await fetch(`${URL}/rest/v1/daily_reports`, {
+            method: 'POST',
+            headers: supabaseHeaders,
+            body: JSON.stringify({ 
+                cash: efectivo, 
+                cards: tarjetas, 
+                expenses: gastos, 
+                commissions: comisiones, 
+                total_net: neto
+            })
         });
-        const data = await response.json();
-        res.json(data);
-    } catch (e) { res.status(500).json([]); }
-});
 
-// LÓGICA DE ASISTENCIA
-app.post('/asistencia', async (req, res) => {
-    const { dni } = req.body;
-    try {
-        // 1. Buscamos al usuario
-        const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name,cuota_pagada,mensaje_motivador,role`, {
-            headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
-        });
-        const users = await resUser.json();
-        if (!users || !users.length) return res.json({ success: false, message: "❌ DNI no registrado." });
-        
-        const user = users[0];
-        const userRole = (user.role || 'estudiante').toLowerCase();
+        // Prepara el mensaje para WhatsApp
+        const mensajeWA = `*📊 CIERRE SMARTBARBER*%0A` +
+                          `📅 *Fecha:* ${fechaHoy}%0A` +
+                          `💵 *Efectivo:* $${efectivo}%0A` +
+                          `💳 *Tarjetas:* $${tarjetas}%0A` +
+                          `🧧 *Gastos:* $${gastos}%0A` +
+                          `💰 *NETO: $${neto}*`;
 
-        // 2. Buscamos si ya tiene una entrada abierta (status 'presente')
-        const resAtt = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&status=eq.presente&select=id`, {
-            headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
-        });
-        const registros = await resAtt.json();
+        res.json({ success: true, textoWA: mensajeWA });
 
-        let infoExtra = "";
-        if (userRole === 'barbero') {
-            infoExtra = `✂️ Staff Barbería | ${user.mensaje_motivador || "¡Buen turno!"}`;
-        } else {
-            infoExtra = `${user.cuota_pagada ? "✅ Cuota al Día" : "⚠️ Cuota Pendiente"} | ${user.mensaje_motivador || "¡Dale con todo!"}`;
-        }
-
-        if (registros && registros.length > 0) {
-            // --- MARCAR SALIDA ---
-            // Ahora que la columna check_out existe, el PATCH funcionará
-            await fetch(`${URL}/rest/v1/attendance?id=eq.${registros[0].id}`, {
-                method: 'PATCH',
-                headers: { 
-                    "apikey": KEY, 
-                    "Authorization": `Bearer ${KEY}`, 
-                    "Content-Type": "application/json",
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({ 
-                    check_out: new Date().toISOString(), 
-                    status: 'completado' 
-                })
-            });
-            const msg = userRole === 'barbero' ? `👋 ¡Buen descanso, ${user.full_name}!` : `👋 ¡Adiós, ${user.full_name}!`;
-            res.json({ success: true, message: msg, extra: infoExtra });
-        } else {
-            // --- MARCAR ENTRADA ---
-            await fetch(`${URL}/rest/v1/attendance`, {
-                method: 'POST',
-                headers: { 
-                    "apikey": KEY, 
-                    "Authorization": `Bearer ${KEY}`, 
-                    "Content-Type": "application/json",
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({ 
-                    user_id: user.id, 
-                    status: 'presente',
-                    check_in: new Date().toISOString()
-                })
-            });
-            res.json({ success: true, message: `✅ ¡Hola, ${user.full_name}!`, extra: infoExtra });
-        }
     } catch (e) {
-        res.json({ success: false, message: "❌ Error de conexión." });
+        console.error(e);
+        res.status(500).json({ success: false });
     }
 });
 
-// Mantén tus rutas de /api/usuarios/pagar, /api/usuarios/:id y /api/usuarios igual...
+// --- RUTA: ASISTENCIA ---
+app.post('/asistencia', async (req, res) => {
+    const { dni } = req.body;
+    try {
+        const resUser = await fetch(`${URL}/rest/v1/users?dni=eq.${dni}&select=id,full_name`, {
+            headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
+        });
+        const users = await resUser.json();
+        if (!users.length) return res.json({ success: false, message: "❌ DNI no registrado." });
+
+        const user = users[0];
+        const hoy = new Date().toISOString().split('T')[0];
+        
+        const resHoy = await fetch(`${URL}/rest/v1/attendance?user_id=eq.${user.id}&check_in=gte.${hoy}&check_out=is.null&select=*`, {
+            headers: { "apikey": KEY, "Authorization": `Bearer ${KEY}` }
+        });
+        const reg = await resHoy.json();
+
+        if (reg.length > 0) {
+            await fetch(`${URL}/rest/v1/attendance?id=eq.${reg[0].id}`, {
+                method: 'PATCH',
+                headers: supabaseHeaders,
+                body: JSON.stringify({ check_out: new Date().toISOString(), status: 'completado' })
+            });
+            res.json({ success: true, message: `👋 Salida: ${user.full_name}`, tipo: 'SALIDA' });
+        } else {
+            await fetch(`${URL}/rest/v1/attendance`, {
+                method: 'POST',
+                headers: supabaseHeaders,
+                body: JSON.stringify({ user_id: user.id, status: 'presente' })
+            });
+            res.json({ success: true, message: `✅ Entrada: ${user.full_name}`, tipo: 'ENTRADA' });
+        }
+    } catch (e) { res.json({ success: false, message: "❌ Error de conexión." }); }
+});
+
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));
